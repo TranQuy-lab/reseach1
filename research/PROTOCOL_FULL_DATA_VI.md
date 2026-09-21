@@ -1,7 +1,9 @@
 # Protocol full-data E-GraphSAGE trên bốn bộ NF-UQ-NIDS-v2
 
-Trạng thái: chốt trước khi chạy full-data, ngày 2026-09-21. Protocol này thay
-thế phạm vi pilot trong `PROTOCOL_MINIBATCH_VI.md` cho kết quả chính.
+Trạng thái: **tạm khóa khởi chạy**, kiểm toán ngày 2026-09-21. Ma trận thí
+nghiệm và split vẫn được giữ, nhưng ngân sách 60 epoch và cổng thời gian hiện
+tại phải được thay bằng ngân sách theo số bước trước khi chạy full-data. Xem
+`PIPELINE_AUDIT_2026-09-21_VI.md`.
 
 ## Mục tiêu và dữ liệu
 
@@ -28,8 +30,11 @@ thế phạm vi pilot trong `PROTOCOL_MINIBATCH_VI.md` cho kết quả chính.
   huấn luyện full-data theo batch, không phải lấy mẫu bỏ bớt tập dữ liệu.
 - Cấu hình khóa trước run chính: hidden 128, dropout 0,2, Adam learning rate
   0,001, batch 4096, fanout `[15, 10]`, BF16 autocast trên CUDA.
-- Validation chạy mỗi 3 epoch để giảm thời gian full-graph; tối đa 60 epoch,
-  early stopping sau 10 lần đánh giá không cải thiện macro-F1.
+- Cấu hình cũ validation mỗi 3 epoch, tối đa 60 epoch và patience 10 **không
+  còn được phép dùng cho run chính**. Một epoch full-data có 409–6.455 bước
+  tùy dataset, nên đơn vị epoch không tương đương pilot. Protocol sửa đổi phải
+  khóa số bước tối đa, nhịp validation theo bước và điều kiện đã đi qua toàn
+  bộ cạnh train ít nhất một lần.
 
 ## Ma trận thí nghiệm và đánh giá
 
@@ -52,6 +57,9 @@ thế phạm vi pilot trong `PROTOCOL_MINIBATCH_VI.md` cho kết quả chính.
    checkpoint nạp lại được và CUDA không OOM.
 4. Mỗi run phải lưu đủ artifact; checkpoint replay phải khớp mẫu dự đoán đã lưu.
 5. File `runs.csv` cuối cùng phải có đúng 72 tổ hợp duy nhất.
+6. Cổng tài nguyên phải dùng median của nhiều cửa sổ sau warm-up, tách thời
+   gian nạp dữ liệu, dựng graph, train và validation; kết quả từ estimator cũ
+   không được mở khóa notebook 11.
 
 ## Phạm vi kết luận
 

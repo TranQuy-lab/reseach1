@@ -29,6 +29,13 @@ danh node theo `(IP, port)`.
 
 ## Chạy trên server
 
+> **Tạm khóa run chính (kiểm toán 2026-09-21):** chưa chạy
+> `11_FULL_TRAIN_72.ipynb`. Cổng 500 batch hiện tại ngoại suy sang 10/30/60
+> epoch, trong khi một epoch full-data có số bước lớn hơn pilot rất nhiều.
+> Phải cập nhật estimator và ngân sách huấn luyện theo số bước trước khi thuê
+> GPU cho 72 run. Chi tiết và số đo nằm trong
+> `research/PIPELINE_AUDIT_2026-09-21_VI.md`.
+
 ```bash
 git lfs install --skip-repo
 GIT_LFS_SKIP_SMUDGE=1 git clone --depth 1 \
@@ -44,7 +51,8 @@ Sau đó chạy lần lượt:
 
 1. `notebooks/server/10_FULL_PREPARE_BENCHMARK.ipynb`
 2. kiểm tra `research/results/full_benchmark_estimate.json`
-3. `notebooks/server/11_FULL_TRAIN_72.ipynb` chỉ khi cổng an toàn cho phép
+3. chưa chạy `notebooks/server/11_FULL_TRAIN_72.ipynb` cho đến khi khóa tạm
+   ở trên được gỡ bằng protocol và estimator phiên bản mới
 4. `notebooks/server/12_FULL_VERIFY_REPORT.ipynb`
 
 Pipeline dùng toàn bộ 75.987.976 flow cho kết quả chính. Mini-batch là cơ chế
