@@ -1,0 +1,7 @@
+{
+  "passed": true,
+  "runs_checked": 72,
+  "largest_probability_replay_error": 0.0,
+  "largest_metric_recomputation_error": 1.1102230246251565e-16,
+  "protocol_sha256": "cb0c36dfac0aa246d0d5826872dacf49d8b9d7a956a87f407f46b0e1e8007c6b"
+}

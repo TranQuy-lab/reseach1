@@ -1,0 +1,304 @@
+{
+  "total_rows": 13552395,
+  "source_files": [
+    {
+      "file": "train/part_01.parquet",
+      "tag": "train",
+      "sha256": "5a7f14acd6ec4f0750531a099317eb184cae3562826e5f914fbd63c582515aa4",
+      "rows": 3000000,
+      "global_start": 0
+    },
+    {
+      "file": "train/part_02.parquet",
+      "tag": "train",
+      "sha256": "841851dce84724ffc2c838c997ef94f2ade9f1b58f7e3732427ad19fcc464a8e",
+      "rows": 3000000,
+      "global_start": 3000000
+    },
+    {
+      "file": "train/part_03.parquet",
+      "tag": "train",
+      "sha256": "4b175e5fff9ce887160da89da68ffb2faeaa794e4143525187d39cc0a6d5f567",
+      "rows": 3000000,
+      "global_start": 6000000
+    },
+    {
+      "file": "train/part_04.parquet",
+      "tag": "train",
+      "sha256": "ff4c8ea950667370235c8dbcd82d612a7aee3a2f4b5a5c5dccc75c4189443caf",
+      "rows": 2858347,
+      "global_start": 9000000
+    },
+    {
+      "file": "val/val.parquet",
+      "tag": "legacy_val",
+      "sha256": "c344a4d2e18daa1c3ce383a743419bfca2c0ff1d51dba0b4383ea8d4d23c0c13",
+      "rows": 1694048,
+      "global_start": 11858347
+    }
+  ],
+  "class_counts": {
+    "train": {
+      "Benign": 4269628,
+      "scanning": 2646993,
+      "ransomware": 2398,
+      "xss": 1718514,
+      "DDoS": 1418364,
+      "DoS": 498826,
+      "password": 807326,
+      "mitm": 5406,
+      "injection": 479126,
+      "Backdoor": 11766
+    },
+    "legacy_val": {
+      "xss": 245502,
+      "Benign": 609947,
+      "ransomware": 342,
+      "scanning": 378142,
+      "mitm": 772,
+      "injection": 68446,
+      "DoS": 71261,
+      "DDoS": 202623,
+      "password": 115332,
+      "Backdoor": 1681
+    }
+  },
+  "invalid_rows": {
+    "train": {
+      "nonfinite_rows": 0,
+      "bad_endpoint_rows": 0,
+      "bad_label_rows": 0,
+      "excluded_rows": 0
+    },
+    "legacy_val": {
+      "nonfinite_rows": 0,
+      "bad_endpoint_rows": 0,
+      "bad_label_rows": 0,
+      "excluded_rows": 0
+    }
+  },
+  "duplicates": {
+    "unique_valid_groups": 13552395,
+    "extra_duplicate_rows": 0,
+    "groups_shared_by_legacy_train_val": 0,
+    "legacy_val_rows_matching_train": 0,
+    "conflicting_label_groups_all": 0,
+    "unique_train_groups": 11858347,
+    "extra_train_duplicate_rows": 0,
+    "conflicting_train_groups": 0
+  },
+  "feature_ranges": {
+    "PROTOCOL": {
+      "min": 1.0,
+      "max": 58.0,
+      "nonfinite": 0
+    },
+    "L7_PROTO": {
+      "min": 0.0,
+      "max": 248.0,
+      "nonfinite": 0
+    },
+    "IN_BYTES": {
+      "min": 4.0,
+      "max": 301926201.0,
+      "nonfinite": 0
+    },
+    "IN_PKTS": {
+      "min": 1.0,
+      "max": 469281.0,
+      "nonfinite": 0
+    },
+    "OUT_BYTES": {
+      "min": 0.0,
+      "max": 137535828.0,
+      "nonfinite": 0
+    },
+    "OUT_PKTS": {
+      "min": 0.0,
+      "max": 410903.0,
+      "nonfinite": 0
+    },
+    "TCP_FLAGS": {
+      "min": 0.0,
+      "max": 223.0,
+      "nonfinite": 0
+    },
+    "CLIENT_TCP_FLAGS": {
+      "min": 0.0,
+      "max": 223.0,
+      "nonfinite": 0
+    },
+    "SERVER_TCP_FLAGS": {
+      "min": 0.0,
+      "max": 223.0,
+      "nonfinite": 0
+    },
+    "FLOW_DURATION_MILLISECONDS": {
+      "min": 0.0,
+      "max": 4294966.0,
+      "nonfinite": 0
+    },
+    "DURATION_IN": {
+      "min": 0.0,
+      "max": 119574.0,
+      "nonfinite": 0
+    },
+    "DURATION_OUT": {
+      "min": 0.0,
+      "max": 119558.0,
+      "nonfinite": 0
+    },
+    "MIN_TTL": {
+      "min": 0.0,
+      "max": 255.0,
+      "nonfinite": 0
+    },
+    "MAX_TTL": {
+      "min": 0.0,
+      "max": 255.0,
+      "nonfinite": 0
+    },
+    "LONGEST_FLOW_PKT": {
+      "min": 28.0,
+      "max": 64280.0,
+      "nonfinite": 0
+    },
+    "SHORTEST_FLOW_PKT": {
+      "min": 28.0,
+      "max": 3990.0,
+      "nonfinite": 0
+    },
+    "MIN_IP_PKT_LEN": {
+      "min": 0.0,
+      "max": 597.0,
+      "nonfinite": 0
+    },
+    "MAX_IP_PKT_LEN": {
+      "min": 28.0,
+      "max": 64280.0,
+      "nonfinite": 0
+    },
+    "SRC_TO_DST_SECOND_BYTES": {
+      "min": 0.0,
+      "max": 5.526893012318293e+238,
+      "nonfinite": 0
+    },
+    "DST_TO_SRC_SECOND_BYTES": {
+      "min": 0.0,
+      "max": 1.87216383510445e+257,
+      "nonfinite": 0
+    },
+    "RETRANSMITTED_IN_BYTES": {
+      "min": 0.0,
+      "max": 8205181.0,
+      "nonfinite": 0
+    },
+    "RETRANSMITTED_IN_PKTS": {
+      "min": 0.0,
+      "max": 13796.0,
+      "nonfinite": 0
+    },
+    "RETRANSMITTED_OUT_BYTES": {
+      "min": 0.0,
+      "max": 7243909.0,
+      "nonfinite": 0
+    },
+    "RETRANSMITTED_OUT_PKTS": {
+      "min": 0.0,
+      "max": 5080.0,
+      "nonfinite": 0
+    },
+    "SRC_TO_DST_AVG_THROUGHPUT": {
+      "min": 0.0,
+      "max": 4212016000.0,
+      "nonfinite": 0
+    },
+    "DST_TO_SRC_AVG_THROUGHPUT": {
+      "min": 0.0,
+      "max": 4294328704.0,
+      "nonfinite": 0
+    },
+    "NUM_PKTS_UP_TO_128_BYTES": {
+      "min": 0.0,
+      "max": 475657.0,
+      "nonfinite": 0
+    },
+    "NUM_PKTS_128_TO_256_BYTES": {
+      "min": 0.0,
+      "max": 73465.0,
+      "nonfinite": 0
+    },
+    "NUM_PKTS_256_TO_512_BYTES": {
+      "min": 0.0,
+      "max": 47667.0,
+      "nonfinite": 0
+    },
+    "NUM_PKTS_512_TO_1024_BYTES": {
+      "min": 0.0,
+      "max": 25527.0,
+      "nonfinite": 0
+    },
+    "NUM_PKTS_1024_TO_1514_BYTES": {
+      "min": 0.0,
+      "max": 200984.0,
+      "nonfinite": 0
+    },
+    "TCP_WIN_MAX_IN": {
+      "min": 0.0,
+      "max": 65535.0,
+      "nonfinite": 0
+    },
+    "TCP_WIN_MAX_OUT": {
+      "min": 0.0,
+      "max": 65535.0,
+      "nonfinite": 0
+    },
+    "ICMP_TYPE": {
+      "min": 0.0,
+      "max": 65286.0,
+      "nonfinite": 0
+    },
+    "ICMP_IPV4_TYPE": {
+      "min": 0.0,
+      "max": 255.0,
+      "nonfinite": 0
+    },
+    "DNS_QUERY_ID": {
+      "min": 0.0,
+      "max": 65535.0,
+      "nonfinite": 0
+    },
+    "DNS_QUERY_TYPE": {
+      "min": 0.0,
+      "max": 255.0,
+      "nonfinite": 0
+    },
+    "DNS_TTL_ANSWER": {
+      "min": 0.0,
+      "max": 6048000.0,
+      "nonfinite": 0
+    },
+    "FTP_COMMAND_RET_CODE": {
+      "min": 0.0,
+      "max": 553.0,
+      "nonfinite": 0
+    }
+  },
+  "fingerprint": "two independent pandas uint64 hashes; practical collision risk is nonzero",
+  "sampling": "bottom-k SplitMix64 priority on unique train-only fingerprints; no label balancing",
+  "seed": 20260919,
+  "requested_sample_size": 50000,
+  "sampled_rows": 50000,
+  "sampled_class_counts": {
+    "Benign": 17901,
+    "scanning": 11067,
+    "xss": 7402,
+    "DDoS": 6041,
+    "password": 3413,
+    "DoS": 2134,
+    "injection": 1952,
+    "Backdoor": 56,
+    "mitm": 23,
+    "ransomware": 11
+  }
+}

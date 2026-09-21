@@ -1,0 +1,46 @@
+{
+  "environment": {
+    "python": "3.12.3",
+    "platform": "Linux-7.0.0-31-generic-x86_64-with-glibc2.39",
+    "packages": {
+      "numpy": "2.2.6",
+      "pandas": "2.3.3",
+      "pyarrow": "22.0.0",
+      "scikit-learn": "1.7.2",
+      "torch": "2.8.0+cpu",
+      "torch-geometric": "2.7.0",
+      "pyg-lib": "0.5.0+pt28cpu"
+    },
+    "cuda_available": false,
+    "torch_threads": 4
+  },
+  "protocol_sha256": "cb0c36dfac0aa246d0d5826872dacf49d8b9d7a956a87f407f46b0e1e8007c6b",
+  "datasets": [
+    "NF-UNSW-NB15-v2",
+    "NF-BoT-IoT-v2",
+    "NF-ToN-IoT-v2",
+    "NF-CSE-CIC-IDS2018-v2"
+  ],
+  "tasks": [
+    "multiclass",
+    "binary"
+  ],
+  "models": [
+    "edge_mlp",
+    "sage",
+    "sage_edge"
+  ],
+  "seeds": [
+    11,
+    22,
+    33
+  ],
+  "epochs": 60,
+  "patience": 10,
+  "batch_size": 2048,
+  "fanout": [
+    10,
+    5
+  ],
+  "threads": 4
+}

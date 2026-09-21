@@ -1,0 +1,22 @@
+{"dataset": "NF-UNSW-NB15-v2", "rows": 2390275, "pilot_rows": {"test": 28837, "train": 84442, "val": 14626}}
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/noble-tran/.codex/.chatgpt-projects/g-p-6aad5486aa988191b2fdeb9ace6078b2/repo-review/src/nids_minibatch/prepare.py", line 173, in <module>
+    
+  File "/home/noble-tran/.codex/.chatgpt-projects/g-p-6aad5486aa988191b2fdeb9ace6078b2/repo-review/src/nids_minibatch/prepare.py", line 169, in main
+    if args.threads < 1:
+    ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/noble-tran/.codex/.chatgpt-projects/g-p-6aad5486aa988191b2fdeb9ace6078b2/repo-review/src/nids_minibatch/prepare.py", line 106, in prepare
+    pilot = dataset_out / f"pilot_{split}.parquet"
+_duckdb.OutOfMemoryException: Out of Memory Error: failed to offload data block of size 256.0 KiB (11.1 GiB/11.1 GiB used).
+This limit was set by the 'max_temp_directory_size' setting.
+By default, this setting utilizes the available disk space on the drive where the 'temp_directory' is located.
+You can adjust this setting, by using (for example) PRAGMA max_temp_directory_size='10GiB'
+
+Possible solutions:
+* Reducing the number of threads (SET threads=X)
+* Disabling insertion-order preservation (SET preserve_insertion_order=false)
+* Increasing the memory limit (SET memory_limit='...GB')
+
+See also https://duckdb.org/docs/stable/guides/performance/how_to_tune_workloads

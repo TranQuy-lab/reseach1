@@ -1,0 +1,24 @@
+{
+  "dataset": "NF-UQ-NIDS-v2 merged CSV",
+  "kaggle_slug": "aryashah2k/nfuqnidsv2-network-intrusion-detection-dataset",
+  "download_url": "https://www.kaggle.com/api/v1/datasets/download/aryashah2k/nfuqnidsv2-network-intrusion-detection-dataset",
+  "credentials_required": false,
+  "archive_expected_bytes": 2185336021,
+  "csv": {
+    "relative_path": "data/raw/NF-UQ-NIDS-v2/NF-UQ-NIDS-v2.csv",
+    "bytes": 13729330230,
+    "sha256": "7e55364a20d98b9517097de77bbff168d1d0b047b8bb50bf4bb16287804920c8"
+  },
+  "expected_rows": {
+    "NF-UNSW-NB15-v2": 2390275,
+    "NF-BoT-IoT-v2": 37763497,
+    "NF-ToN-IoT-v2": 16940496,
+    "NF-CSE-CIC-IDS2018-v2": 18893708
+  },
+  "processed_parquet_sha256": {
+    "NF-UNSW-NB15-v2": "ec59445b8995025fb3a1a442e7d761e7b81ac507bd49051200dd7f60b93665b3",
+    "NF-BoT-IoT-v2": "3181bc41c8cf956a6d177e0f37fb2442a096dc490bfe1927d6a49e8216c06bfc",
+    "NF-ToN-IoT-v2": "71b1c9294edfda7c3a4c75b30d7605d9688f65d9cea09d813e81348f5b2ed7b3",
+    "NF-CSE-CIC-IDS2018-v2": "63d4275606c609787ba4c501c0060238dc7049bf66276f3417901cccac72cc3c"
+  }
+}

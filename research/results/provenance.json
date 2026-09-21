@@ -1,0 +1,158 @@
+{
+  "environment": {
+    "python": "3.12.3",
+    "platform": "Linux-7.0.0-31-generic-x86_64-with-glibc2.39",
+    "packages": {
+      "numpy": "2.5.3",
+      "pandas": "3.0.6",
+      "pyarrow": "25.0.1",
+      "scikit-learn": "1.9.1",
+      "torch": "2.14.0+cpu",
+      "duckdb": "1.5.5"
+    },
+    "torch_threads": 2,
+    "cuda_available": false
+  },
+  "source_sha256": {
+    "__init__.py": "236d4b425e00cfcc4bcced0f7e407b64b7a3eb4d43b328128d4e167dbcde333e",
+    "experiment.py": "ce8cc9aa07da30236b291b780b1e87332d1de0a5ae57d6e703b668f51b1ff8e1",
+    "forest.py": "d1d95bbb039180fd6ef3a44b833d11d6c3402f4f44b1e71a3aa854058ca05a05",
+    "models.py": "7eb23ce715b1941fe8ce0ed41ee63c0d6fcba00bc31ebdeab06ea76fd9381062",
+    "predict.py": "101e8a65cd4ce4185705c38d5c3fcdccae6d3a58f5e7a6e2eebac73cd4e10ac4",
+    "prepare.py": "466cd9b621e45383bb07537b07fe9946e2a5ade25d9ab2b262597a7f912663ce",
+    "preprocessing.py": "84ec8cae8aa51ee107124fed9e79389f868d34b16b72c17fd75eb6145dee2fed",
+    "schema.py": "aa832326d9544b1ee4703bca114855ed612da28d282d356e4003a9c60f5b6550"
+  },
+  "protocol_sha256": "df35f085a4a1123515c70f54b07def601efeaa0d92cd54108e2a37d52ac60b1e",
+  "split_manifest": {
+    "seed": 20260919,
+    "splits": {
+      "train": {
+        "rows": 35000,
+        "sha256": "fc42f87fef91c8efd388ccc2e18d362e6434159d34f0946745d8040cf809ac39",
+        "classes": {
+          "Benign": 12531,
+          "scanning": 7747,
+          "xss": 5182,
+          "DDoS": 4229,
+          "password": 2389,
+          "DoS": 1493,
+          "injection": 1366,
+          "Backdoor": 39,
+          "mitm": 16,
+          "ransomware": 8
+        }
+      },
+      "val": {
+        "rows": 5000,
+        "sha256": "b0394147ecb8dd2d0ae4d72041c2e8f25b686e51360864d392bcb997e51df8cc",
+        "classes": {
+          "Benign": 1790,
+          "scanning": 1107,
+          "xss": 740,
+          "DDoS": 604,
+          "password": 341,
+          "DoS": 214,
+          "injection": 195,
+          "Backdoor": 6,
+          "mitm": 2,
+          "ransomware": 1
+        }
+      },
+      "test": {
+        "rows": 10000,
+        "sha256": "8b6e97e9947d2701a93249270205d9828d94a8279f6808ae24f15462f3656b06",
+        "classes": {
+          "Benign": 3580,
+          "scanning": 2213,
+          "xss": 1480,
+          "DDoS": 1208,
+          "password": 683,
+          "DoS": 427,
+          "injection": 391,
+          "Backdoor": 11,
+          "mitm": 5,
+          "ransomware": 2
+        }
+      }
+    },
+    "features": [
+      "PROTOCOL",
+      "L7_PROTO",
+      "IN_BYTES",
+      "IN_PKTS",
+      "OUT_BYTES",
+      "OUT_PKTS",
+      "TCP_FLAGS",
+      "CLIENT_TCP_FLAGS",
+      "SERVER_TCP_FLAGS",
+      "FLOW_DURATION_MILLISECONDS",
+      "DURATION_IN",
+      "DURATION_OUT",
+      "MIN_TTL",
+      "MAX_TTL",
+      "LONGEST_FLOW_PKT",
+      "SHORTEST_FLOW_PKT",
+      "MIN_IP_PKT_LEN",
+      "MAX_IP_PKT_LEN",
+      "SRC_TO_DST_SECOND_BYTES",
+      "DST_TO_SRC_SECOND_BYTES",
+      "RETRANSMITTED_IN_BYTES",
+      "RETRANSMITTED_IN_PKTS",
+      "RETRANSMITTED_OUT_BYTES",
+      "RETRANSMITTED_OUT_PKTS",
+      "SRC_TO_DST_AVG_THROUGHPUT",
+      "DST_TO_SRC_AVG_THROUGHPUT",
+      "NUM_PKTS_UP_TO_128_BYTES",
+      "NUM_PKTS_128_TO_256_BYTES",
+      "NUM_PKTS_256_TO_512_BYTES",
+      "NUM_PKTS_512_TO_1024_BYTES",
+      "NUM_PKTS_1024_TO_1514_BYTES",
+      "TCP_WIN_MAX_IN",
+      "TCP_WIN_MAX_OUT",
+      "ICMP_TYPE",
+      "ICMP_IPV4_TYPE",
+      "DNS_QUERY_ID",
+      "DNS_QUERY_TYPE",
+      "DNS_TTL_ANSWER",
+      "FTP_COMMAND_RET_CODE"
+    ],
+    "scope": "pilot within legacy train; not external test",
+    "group_overlap": 0
+  },
+  "seeds": [
+    11,
+    22,
+    33
+  ],
+  "config": {
+    "n_features": 39,
+    "n_classes": 10,
+    "hidden": 128,
+    "dropout": 0.2,
+    "lr": 0.001,
+    "epochs": 120,
+    "patience": 20,
+    "threads": 2,
+    "bidirectional": true,
+    "loss": "balanced weighted CE from train",
+    "evaluation": "one prediction per original flow; offline separate split graphs"
+  },
+  "graphs": {
+    "train": {
+      "nodes": 38009,
+      "original_flows": 35000,
+      "message_edges": 69961
+    },
+    "val": {
+      "nodes": 6813,
+      "original_flows": 5000,
+      "message_edges": 9996
+    },
+    "test": {
+      "nodes": 12808,
+      "original_flows": 10000,
+      "message_edges": 19977
+    }
+  }
+}

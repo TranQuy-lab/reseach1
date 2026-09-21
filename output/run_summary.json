@@ -1,0 +1,160 @@
+{
+  "pipeline": "fast_pipeline_multithreaded_duckdb",
+  "started_at": "2026-09-11T14:42:26.879912+00:00",
+  "finished_at": "2026-09-11T15:27:37.583902+00:00",
+  "total_time_seconds": 2710.7,
+  "total_time_minutes": 45.18,
+  "input_csv": "/root/.cache/kagglehub/datasets/aryashah2k/nfuqnidsv2-network-intrusion-detection-dataset/versions/1/NF-UQ-NIDS-v2.csv",
+  "drop_ports": true,
+  "clean_rows": 11804165,
+  "sampled_rows": 2000000,
+  "split_sizes": {
+    "val": 200000,
+    "train": 1400000,
+    "test": 400000
+  },
+  "sampling_report": {
+    "group_cols": [
+      "Dataset",
+      "Attack"
+    ],
+    "total_rows_before": 11804165,
+    "total_rows_after": 2000000,
+    "target_n_rows": 2000000,
+    "min_rows_per_group": 50,
+    "random_state": 42,
+    "n_groups_total": 32,
+    "n_groups_protected_as_rare": 0,
+    "group_retention": {
+      "('NF-BoT-IoT-v2', 'Benign')": {
+        "before": 20902,
+        "after": 3541
+      },
+      "('NF-BoT-IoT-v2', 'DDoS')": {
+        "before": 14281,
+        "after": 2420
+      },
+      "('NF-BoT-IoT-v2', 'DoS')": {
+        "before": 38724,
+        "after": 6561
+      },
+      "('NF-BoT-IoT-v2', 'Reconnaissance')": {
+        "before": 26651,
+        "after": 4516
+      },
+      "('NF-BoT-IoT-v2', 'Theft')": {
+        "before": 811,
+        "after": 137
+      },
+      "('NF-CSE-CIC-IDS2018-v2', 'Benign')": {
+        "before": 8436211,
+        "after": 1429362
+      },
+      "('NF-CSE-CIC-IDS2018-v2', 'Bot')": {
+        "before": 472,
+        "after": 80
+      },
+      "('NF-CSE-CIC-IDS2018-v2', 'Brute Force')": {
+        "before": 16726,
+        "after": 2834
+      },
+      "('NF-CSE-CIC-IDS2018-v2', 'DDoS')": {
+        "before": 114638,
+        "after": 19423
+      },
+      "('NF-CSE-CIC-IDS2018-v2', 'DoS')": {
+        "before": 338755,
+        "after": 57396
+      },
+      "('NF-CSE-CIC-IDS2018-v2', 'Infilteration')": {
+        "before": 76504,
+        "after": 12962
+      },
+      "('NF-CSE-CIC-IDS2018-v2', 'injection')": {
+        "before": 340,
+        "after": 58
+      },
+      "('NF-ToN-IoT-v2', 'Backdoor')": {
+        "before": 137,
+        "after": 23
+      },
+      "('NF-ToN-IoT-v2', 'Benign')": {
+        "before": 613176,
+        "after": 103891
+      },
+      "('NF-ToN-IoT-v2', 'DDoS')": {
+        "before": 251713,
+        "after": 42648
+      },
+      "('NF-ToN-IoT-v2', 'DoS')": {
+        "before": 278171,
+        "after": 47131
+      },
+      "('NF-ToN-IoT-v2', 'injection')": {
+        "before": 162903,
+        "after": 27601
+      },
+      "('NF-ToN-IoT-v2', 'mitm')": {
+        "before": 7646,
+        "after": 1295
+      },
+      "('NF-ToN-IoT-v2', 'password')": {
+        "before": 182637,
+        "after": 30945
+      },
+      "('NF-ToN-IoT-v2', 'ransomware')": {
+        "before": 559,
+        "after": 95
+      },
+      "('NF-ToN-IoT-v2', 'scanning')": {
+        "before": 27188,
+        "after": 4607
+      },
+      "('NF-ToN-IoT-v2', 'xss')": {
+        "before": 953814,
+        "after": 161606
+      },
+      "('NF-UNSW-NB15-v2', 'Analysis')": {
+        "before": 762,
+        "after": 129
+      },
+      "('NF-UNSW-NB15-v2', 'Backdoor')": {
+        "before": 679,
+        "after": 115
+      },
+      "('NF-UNSW-NB15-v2', 'Benign')": {
+        "before": 199838,
+        "after": 33859
+      },
+      "('NF-UNSW-NB15-v2', 'DoS')": {
+        "before": 3803,
+        "after": 644
+      },
+      "('NF-UNSW-NB15-v2', 'Exploits')": {
+        "before": 22965,
+        "after": 3891
+      },
+      "('NF-UNSW-NB15-v2', 'Fuzzers')": {
+        "before": 7399,
+        "after": 1254
+      },
+      "('NF-UNSW-NB15-v2', 'Generic')": {
+        "before": 4255,
+        "after": 721
+      },
+      "('NF-UNSW-NB15-v2', 'Reconnaissance')": {
+        "before": 1142,
+        "after": 193
+      },
+      "('NF-UNSW-NB15-v2', 'Shellcode')": {
+        "before": 300,
+        "after": 51
+      },
+      "('NF-UNSW-NB15-v2', 'Worms')": {
+        "before": 63,
+        "after": 11
+      }
+    },
+    "protected_groups": []
+  }
+}

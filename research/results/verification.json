@@ -1,0 +1,93 @@
+{
+  "status": "passed",
+  "scope": "saved artifacts, metrics, provenance and CLI replay",
+  "verified_runs": [
+    {
+      "run": "edge_mlp_seed11",
+      "rows": 10000,
+      "metrics_recomputed": true,
+      "replay_max_abs_error": 0.0
+    },
+    {
+      "run": "edge_mlp_seed22",
+      "rows": 10000,
+      "metrics_recomputed": true,
+      "replay_max_abs_error": 0.0
+    },
+    {
+      "run": "edge_mlp_seed33",
+      "rows": 10000,
+      "metrics_recomputed": true,
+      "replay_max_abs_error": 0.0
+    },
+    {
+      "run": "random_forest_seed11",
+      "rows": 10000,
+      "metrics_recomputed": true,
+      "replay_max_abs_error": 2.220446049250313e-16
+    },
+    {
+      "run": "random_forest_seed22",
+      "rows": 10000,
+      "metrics_recomputed": true,
+      "replay_max_abs_error": 2.220446049250313e-16
+    },
+    {
+      "run": "random_forest_seed33",
+      "rows": 10000,
+      "metrics_recomputed": true,
+      "replay_max_abs_error": 2.220446049250313e-16
+    },
+    {
+      "run": "sage_edge_seed11",
+      "rows": 10000,
+      "metrics_recomputed": true,
+      "replay_max_abs_error": 0.0
+    },
+    {
+      "run": "sage_edge_seed22",
+      "rows": 10000,
+      "metrics_recomputed": true,
+      "replay_max_abs_error": 0.0
+    },
+    {
+      "run": "sage_edge_seed33",
+      "rows": 10000,
+      "metrics_recomputed": true,
+      "replay_max_abs_error": 0.0
+    },
+    {
+      "run": "sage_seed11",
+      "rows": 10000,
+      "metrics_recomputed": true,
+      "replay_max_abs_error": 0.0
+    },
+    {
+      "run": "sage_seed22",
+      "rows": 10000,
+      "metrics_recomputed": true,
+      "replay_max_abs_error": 0.0
+    },
+    {
+      "run": "sage_seed33",
+      "rows": 10000,
+      "metrics_recomputed": true,
+      "replay_max_abs_error": 0.0
+    }
+  ],
+  "protocol_hash_matches": true,
+  "source_hashes_match": true,
+  "split_hashes_match": true,
+  "preprocessing_matches_training_only": true,
+  "pytest": {
+    "result": "45 passed",
+    "command": "PYTHONPATH=src .venv-research/bin/python -m pytest tests -q",
+    "recorded_from": "successful test execution before the pilot"
+  },
+  "limitations": [
+    "No raw CSV validation",
+    "No GPU validation",
+    "No DGL runtime parity test",
+    "No full-scale training or external evaluation"
+  ]
+}

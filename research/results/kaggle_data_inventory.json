@@ -1,0 +1,18 @@
+{
+  "counts": {
+    "NF-BoT-IoT-v2": 37763497,
+    "NF-CSE-CIC-IDS2018-v2": 18893708,
+    "NF-ToN-IoT-v2": 16940496,
+    "NF-UNSW-NB15-v2": 2390275
+  },
+  "total_rows": 75987976,
+  "expected_source": "https://www.cyber.uq.edu.au/node/824",
+  "expected_counts": {
+    "NF-UNSW-NB15-v2": 2390275,
+    "NF-BoT-IoT-v2": 37763497,
+    "NF-ToN-IoT-v2": 16940496,
+    "NF-CSE-CIC-IDS2018-v2": 18893708
+  },
+  "matches_expected": true,
+  "scope": "CSV parsing and dataset inventory only; not preprocessing or label-quality audit"
+}

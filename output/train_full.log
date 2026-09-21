@@ -1,0 +1,84 @@
+2026-09-12 13:36:45,644 [INFO] ===========================================================================
+2026-09-12 13:36:45,645 [INFO] === BẮT ĐẦU HUẤN LUYỆN TOÀN BỘ 13.55 TRIỆU DÒNG (NF-ToN-IoT-v2) ===
+2026-09-12 13:36:45,646 [INFO] Phần cứng: NVIDIA GeForce RTX 3090 (23.6 GB VRAM) | CPU Cores: 32
+2026-09-12 13:36:45,647 [INFO] ===========================================================================
+2026-09-12 13:36:45,648 [INFO] [1/5] Đang tải tập Train và Val qua PyArrow...
+2026-09-12 13:37:43,389 [INFO] Tải hoàn tất: Train = 11,858,347 dòng | Val = 1,694,048 dòng trong 57.74s
+2026-09-12 13:37:43,390 [INFO] [2/5] Xây dựng đồ thị (Graph Indexing) cho đỉnh nguồn/đích...
+2026-09-12 13:38:06,777 [INFO] Đồ thị có tổng cộng: 1,077,176 đỉnh duy nhất (IP:Port pairs). Xử lý xong trong 23.39s
+2026-09-12 13:38:08,785 [INFO] [3/5] Chuẩn hóa 39 đặc trưng NetFlow trực tiếp trên GPU CUDA...
+2026-09-12 13:38:25,097 [INFO] Chuẩn hóa GPU hoàn tất trong 16.31s!
+2026-09-12 13:38:25,098 [INFO] [4/5] Mã hóa nhãn (pd.factorize)...
+2026-09-12 13:38:53,928 [INFO] Mã hóa nhãn 10 lớp hoàn tất trong 28.83s!
+2026-09-12 13:38:53,929 [INFO] Danh sách 10 lớp tấn công: ['Backdoor', 'Benign', 'DDoS', 'DoS', 'injection', 'mitm', 'password', 'ransomware', 'scanning', 'xss']
+2026-09-12 13:38:55,501 [INFO] ===========================================================================
+2026-09-12 13:38:55,503 [INFO] === BƯỚC 1: HUẤN LUYỆN MÔ HÌNH E-GRAPHSAGE (10 LỚP TẤN CÔNG) ===
+2026-09-12 13:38:55,504 [INFO] ===========================================================================
+2026-09-12 13:39:25,698 [INFO] E-GraphSAGE Epoch 01/10 | Train Loss: 2.3436 | Val Acc: 36.70% | Macro F1: 0.1405 | Weighted F1: 0.2977 | Thời gian: 20.69s | VRAM: 11217 MB
+2026-09-12 13:39:35,549 [INFO] --> [CHECKPOINT] Đã lưu model E-GraphSAGE tốt nhất!
+2026-09-12 13:39:49,747 [INFO] E-GraphSAGE Epoch 02/10 | Train Loss: 2.1800 | Val Acc: 40.08% | Macro F1: 0.1028 | Weighted F1: 0.2436 | Thời gian: 13.06s | VRAM: 11217 MB
+2026-09-12 13:40:04,157 [INFO] E-GraphSAGE Epoch 03/10 | Train Loss: 1.9953 | Val Acc: 43.41% | Macro F1: 0.1488 | Weighted F1: 0.3003 | Thời gian: 13.23s | VRAM: 11217 MB
+2026-09-12 13:40:14,043 [INFO] --> [CHECKPOINT] Đã lưu model E-GraphSAGE tốt nhất!
+2026-09-12 13:40:28,674 [INFO] E-GraphSAGE Epoch 04/10 | Train Loss: 1.7638 | Val Acc: 48.52% | Macro F1: 0.2035 | Weighted F1: 0.3677 | Thời gian: 13.40s | VRAM: 11217 MB
+2026-09-12 13:40:39,583 [INFO] --> [CHECKPOINT] Đã lưu model E-GraphSAGE tốt nhất!
+2026-09-12 13:40:54,828 [INFO] E-GraphSAGE Epoch 05/10 | Train Loss: 1.6304 | Val Acc: 57.61% | Macro F1: 0.3015 | Weighted F1: 0.5280 | Thời gian: 13.99s | VRAM: 11217 MB
+2026-09-12 13:41:05,127 [INFO] --> [CHECKPOINT] Đã lưu model E-GraphSAGE tốt nhất!
+2026-09-12 13:41:20,139 [INFO] E-GraphSAGE Epoch 06/10 | Train Loss: 1.4797 | Val Acc: 56.00% | Macro F1: 0.3041 | Weighted F1: 0.5211 | Thời gian: 13.81s | VRAM: 11217 MB
+2026-09-12 13:41:30,361 [INFO] --> [CHECKPOINT] Đã lưu model E-GraphSAGE tốt nhất!
+2026-09-12 13:41:44,918 [INFO] E-GraphSAGE Epoch 07/10 | Train Loss: 1.3826 | Val Acc: 57.17% | Macro F1: 0.3308 | Weighted F1: 0.5302 | Thời gian: 13.34s | VRAM: 11217 MB
+2026-09-12 13:41:54,778 [INFO] --> [CHECKPOINT] Đã lưu model E-GraphSAGE tốt nhất!
+2026-09-12 13:42:09,541 [INFO] E-GraphSAGE Epoch 08/10 | Train Loss: 1.3019 | Val Acc: 52.95% | Macro F1: 0.2629 | Weighted F1: 0.4276 | Thời gian: 13.58s | VRAM: 11217 MB
+2026-09-12 13:42:25,249 [INFO] E-GraphSAGE Epoch 09/10 | Train Loss: 1.2210 | Val Acc: 52.31% | Macro F1: 0.2408 | Weighted F1: 0.4101 | Thời gian: 14.40s | VRAM: 11217 MB
+2026-09-12 13:42:39,904 [INFO] E-GraphSAGE Epoch 10/10 | Train Loss: 1.1803 | Val Acc: 52.47% | Macro F1: 0.2470 | Weighted F1: 0.4236 | Thời gian: 13.47s | VRAM: 11217 MB
+2026-09-12 13:42:41,121 [INFO] 
+=== BÁO CÁO PHÂN LỚP CHI TIẾT E-GRAPHSAGE (TẬP VALIDATION 1.69M DÒNG) ===
+2026-09-12 13:42:41,124 [INFO] 
+              precision    recall  f1-score   support
+
+    Backdoor     0.0000    0.0000    0.0000      1681
+      Benign     0.5860    0.9210    0.7163    609947
+        DDoS     0.7718    0.6438    0.7020    202623
+         DoS     0.3695    0.2832    0.3207     71261
+   injection     0.4191    0.2211    0.2895     68446
+        mitm     0.2889    0.0337    0.0603       772
+    password     0.3157    0.7741    0.4485    115332
+  ransomware     0.0000    0.0000    0.0000       342
+    scanning     0.7778    0.1608    0.2666    378142
+         xss     0.7920    0.3698    0.5042    245502
+
+    accuracy                         0.5717   1694048
+   macro avg     0.4321    0.3408    0.3308   1694048
+weighted avg     0.6458    0.5717    0.5302   1694048
+
+2026-09-12 13:42:41,126 [INFO] ===========================================================================
+2026-09-12 13:42:41,127 [INFO] === BƯỚC 2: HUẤN LUYỆN MÔ HÌNH ANOMAL-E (SELF-SUPERVISED DGI) ===
+2026-09-12 13:42:41,128 [INFO] ===========================================================================
+2026-09-12 13:42:47,329 [INFO] Anomal-E DGI Epoch 01/08 | Contrastive Loss: 2.0480 | Thời gian: 6.18s | VRAM: 21949 MB
+2026-09-12 13:42:54,611 [INFO] Anomal-E DGI Epoch 02/08 | Contrastive Loss: 2.0480 | Thời gian: 5.44s | VRAM: 21949 MB
+2026-09-12 13:43:01,585 [INFO] Anomal-E DGI Epoch 03/08 | Contrastive Loss: 18.5099 | Thời gian: 5.14s | VRAM: 21949 MB
+2026-09-12 13:43:08,507 [INFO] Anomal-E DGI Epoch 04/08 | Contrastive Loss: 18.5103 | Thời gian: 5.01s | VRAM: 21949 MB
+2026-09-12 13:43:15,824 [INFO] Anomal-E DGI Epoch 05/08 | Contrastive Loss: 3.1539 | Thời gian: 5.33s | VRAM: 21949 MB
+2026-09-12 13:43:22,588 [INFO] Anomal-E DGI Epoch 06/08 | Contrastive Loss: 3.0229 | Thời gian: 4.98s | VRAM: 21949 MB
+2026-09-12 13:43:29,354 [INFO] Anomal-E DGI Epoch 07/08 | Contrastive Loss: 2.7467 | Thời gian: 4.99s | VRAM: 21949 MB
+2026-09-12 13:43:36,140 [INFO] Anomal-E DGI Epoch 08/08 | Contrastive Loss: 2.1714 | Thời gian: 4.98s | VRAM: 21949 MB
+2026-09-12 13:43:37,940 [INFO] --> [CHECKPOINT] Đã lưu model Anomal-E thành công!
+2026-09-12 13:43:37,941 [INFO] [Đánh giá Anomal-E] Trích xuất Edge Embeddings và tính Anomaly Score...
+2026-09-12 13:43:47,382 [INFO] Anomal-E ROC-AUC (Không giám sát trên 1.69 triệu mẫu Val): 0.6544
+2026-09-12 13:44:00,532 [INFO] Anomal-E Accuracy: 39.82% | Binary F1: 0.1572 | Macro F1: 0.3446
+2026-09-12 13:44:10,925 [INFO] 
+              precision    recall  f1-score   support
+
+      Benign     0.3694    0.9500    0.5320    609947
+      Attack     0.7572    0.0877    0.1572   1084101
+
+    accuracy                         0.3982   1694048
+   macro avg     0.5633    0.5189    0.3446   1694048
+weighted avg     0.6176    0.3982    0.2921   1694048
+
+2026-09-12 13:44:10,926 [INFO] [Đánh giá Anomal-E + IsolationForest] Huấn luyện IsolationForest trên 32 vCPUs...
+2026-09-12 13:44:31,153 [INFO] Isolation Forest huấn luyện xong trong 20.23s!
+2026-09-12 13:44:46,671 [INFO] Isolation Forest Accuracy: 34.27% | Binary F1: 0.4859
+2026-09-12 13:44:46,678 [INFO] ===========================================================================
+2026-09-12 13:44:46,679 [INFO] === TOÀN BỘ QUÁ TRÌNH HUẤN LUYỆN ĐÃ HOÀN TẤT THÀNH CÔNG ===
+2026-09-12 13:44:46,680 [INFO] Kết quả lưu tại: /workspace/reseach/output/results_full_13m.json
+2026-09-12 13:44:46,681 [INFO] ===========================================================================

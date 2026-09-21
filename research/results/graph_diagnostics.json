@@ -1,0 +1,57 @@
+{
+  "scope": "post-hoc descriptive graph audit; not a model selection criterion",
+  "train": {
+    "flows": 35000,
+    "nodes": 38009,
+    "endpoint_degree": {
+      "min": 1,
+      "median": 1.0,
+      "p95": 3.0,
+      "max": 4237
+    },
+    "degree_one_node_fraction": 0.8365650240732458,
+    "flows_with_any_unseen_endpoint": 0.0,
+    "flows_with_both_unseen_endpoints": 0.0,
+    "ordered_endpoint_pairs": 34701,
+    "multi_flow_pairs": 251,
+    "conflicting_label_endpoint_pairs": 13,
+    "endpoint_only_empirical_accuracy_ceiling": 0.9996285714285714,
+    "note": "Ceiling is a label-based descriptive upper bound for endpoint-only decoding, not achieved performance."
+  },
+  "val": {
+    "flows": 5000,
+    "nodes": 6813,
+    "endpoint_degree": {
+      "min": 1,
+      "median": 1.0,
+      "p95": 2.0,
+      "max": 584
+    },
+    "degree_one_node_fraction": 0.9161896374578012,
+    "flows_with_any_unseen_endpoint": 0.7448,
+    "flows_with_both_unseen_endpoints": 0.1538,
+    "ordered_endpoint_pairs": 4997,
+    "multi_flow_pairs": 3,
+    "conflicting_label_endpoint_pairs": 1,
+    "endpoint_only_empirical_accuracy_ceiling": 0.9998,
+    "note": "Ceiling is a label-based descriptive upper bound for endpoint-only decoding, not achieved performance."
+  },
+  "test": {
+    "flows": 10000,
+    "nodes": 12808,
+    "endpoint_degree": {
+      "min": 1,
+      "median": 1.0,
+      "p95": 2.0,
+      "max": 1193
+    },
+    "degree_one_node_fraction": 0.8939725171767645,
+    "flows_with_any_unseen_endpoint": 0.7453,
+    "flows_with_both_unseen_endpoints": 0.1615,
+    "ordered_endpoint_pairs": 9970,
+    "multi_flow_pairs": 21,
+    "conflicting_label_endpoint_pairs": 1,
+    "endpoint_only_empirical_accuracy_ceiling": 0.9999,
+    "note": "Ceiling is a label-based descriptive upper bound for endpoint-only decoding, not achieved performance."
+  }
+}

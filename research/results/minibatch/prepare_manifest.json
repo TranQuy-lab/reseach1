@@ -1,0 +1,366 @@
+{
+  "protocol": "PROTOCOL_MINIBATCH_VI.md",
+  "split_seed": 20260920,
+  "sample_seed": 20260921,
+  "split_rule": "DuckDB hash(flow_group_id, seed) % 10: 0-6 train, 7 val, 8-9 test",
+  "sample_caps_per_attack": {
+    "train": 20000,
+    "val": 5000,
+    "test": 10000
+  },
+  "source": {
+    "NF-UNSW-NB15-v2": {
+      "path": "processed_four/NF-UNSW-NB15-v2.parquet",
+      "rows": 2390275,
+      "sha256": "ec59445b8995025fb3a1a442e7d761e7b81ac507bd49051200dd7f60b93665b3"
+    },
+    "NF-BoT-IoT-v2": {
+      "path": "processed_four/NF-BoT-IoT-v2.parquet",
+      "rows": 37763497,
+      "sha256": "3181bc41c8cf956a6d177e0f37fb2442a096dc490bfe1927d6a49e8216c06bfc"
+    },
+    "NF-ToN-IoT-v2": {
+      "path": "processed_four/NF-ToN-IoT-v2.parquet",
+      "rows": 16940496,
+      "sha256": "71b1c9294edfda7c3a4c75b30d7605d9688f65d9cea09d813e81348f5b2ed7b3"
+    },
+    "NF-CSE-CIC-IDS2018-v2": {
+      "path": "processed_four/NF-CSE-CIC-IDS2018-v2.parquet",
+      "rows": 18893708,
+      "sha256": "63d4275606c609787ba4c501c0060238dc7049bf66276f3417901cccac72cc3c"
+    }
+  },
+  "datasets": {
+    "NF-UNSW-NB15-v2": {
+      "source_rows": 2390275,
+      "split_rows": {
+        "test": {
+          "rows": 478007,
+          "classes": {
+            "Analysis": 448,
+            "Backdoor": 432,
+            "Benign": 459170,
+            "DoS": 1143,
+            "Exploits": 6251,
+            "Fuzzers": 4409,
+            "Generic": 3264,
+            "Reconnaissance": 2557,
+            "Shellcode": 296,
+            "Worms": 37
+          },
+          "pilot_rows": 28837,
+          "pilot_classes": {
+            "Analysis": 448,
+            "Backdoor": 432,
+            "Benign": 10000,
+            "DoS": 1143,
+            "Exploits": 6251,
+            "Fuzzers": 4409,
+            "Generic": 3264,
+            "Reconnaissance": 2557,
+            "Shellcode": 296,
+            "Worms": 37
+          },
+          "pilot_sha256": "57e7940695f9500563fff4187584b9fe8df817378575349695e534095fdc951b"
+        },
+        "train": {
+          "rows": 1673104,
+          "classes": {
+            "Analysis": 1613,
+            "Backdoor": 1514,
+            "Benign": 1606514,
+            "DoS": 4058,
+            "Exploits": 22148,
+            "Fuzzers": 15590,
+            "Generic": 11633,
+            "Reconnaissance": 8939,
+            "Shellcode": 983,
+            "Worms": 112
+          },
+          "pilot_rows": 84442,
+          "pilot_classes": {
+            "Analysis": 1613,
+            "Backdoor": 1514,
+            "Benign": 20000,
+            "DoS": 4058,
+            "Exploits": 20000,
+            "Fuzzers": 15590,
+            "Generic": 11633,
+            "Reconnaissance": 8939,
+            "Shellcode": 983,
+            "Worms": 112
+          },
+          "pilot_sha256": "8579f84fcd393a283684332a74bcbc809e983e99b07eb93a29271648e7d98911"
+        },
+        "val": {
+          "rows": 239164,
+          "classes": {
+            "Analysis": 238,
+            "Backdoor": 223,
+            "Benign": 229538,
+            "DoS": 593,
+            "Exploits": 3152,
+            "Fuzzers": 2311,
+            "Generic": 1663,
+            "Reconnaissance": 1283,
+            "Shellcode": 148,
+            "Worms": 15
+          },
+          "pilot_rows": 14626,
+          "pilot_classes": {
+            "Analysis": 238,
+            "Backdoor": 223,
+            "Benign": 5000,
+            "DoS": 593,
+            "Exploits": 3152,
+            "Fuzzers": 2311,
+            "Generic": 1663,
+            "Reconnaissance": 1283,
+            "Shellcode": 148,
+            "Worms": 15
+          },
+          "pilot_sha256": "1da52b0f29460ea847b95576b59e60a6248ea054bdf0cda64a7e21a30a5239e3"
+        }
+      },
+      "cross_split_groups": 0
+    },
+    "NF-BoT-IoT-v2": {
+      "source_rows": 37763497,
+      "split_rows": {
+        "test": {
+          "rows": 7548368,
+          "classes": {
+            "Benign": 27193,
+            "DDoS": 3664129,
+            "DoS": 3333638,
+            "Reconnaissance": 522928,
+            "Theft": 480
+          },
+          "pilot_rows": 40480,
+          "pilot_classes": {
+            "Benign": 10000,
+            "DDoS": 10000,
+            "DoS": 10000,
+            "Reconnaissance": 10000,
+            "Theft": 480
+          },
+          "pilot_sha256": "5c28cff923f8a2265aa9fb65237f50682786c9979f71cf25454bdc0a6db9412b"
+        },
+        "train": {
+          "rows": 26438303,
+          "classes": {
+            "Benign": 94373,
+            "DDoS": 12833692,
+            "DoS": 11672248,
+            "Reconnaissance": 1836302,
+            "Theft": 1688
+          },
+          "pilot_rows": 81688,
+          "pilot_classes": {
+            "Benign": 20000,
+            "DDoS": 20000,
+            "DoS": 20000,
+            "Reconnaissance": 20000,
+            "Theft": 1688
+          },
+          "pilot_sha256": "3d845122405a6c71d211f71535bcb0c2e90c437dfc1ea40a81fbc4a1a25ed6ed"
+        },
+        "val": {
+          "rows": 3776826,
+          "classes": {
+            "Benign": 13471,
+            "DDoS": 1834026,
+            "DoS": 1667297,
+            "Reconnaissance": 261769,
+            "Theft": 263
+          },
+          "pilot_rows": 20263,
+          "pilot_classes": {
+            "Benign": 5000,
+            "DDoS": 5000,
+            "DoS": 5000,
+            "Reconnaissance": 5000,
+            "Theft": 263
+          },
+          "pilot_sha256": "4893f92c3456756d8f4c627047649cb7c24bd13233235b09b08bf763b51867d5"
+        }
+      },
+      "cross_split_groups": 0
+    },
+    "NF-ToN-IoT-v2": {
+      "source_rows": 16940496,
+      "split_rows": {
+        "test": {
+          "rows": 3385552,
+          "classes": {
+            "Backdoor": 3339,
+            "Benign": 1218996,
+            "DDoS": 405142,
+            "DoS": 142527,
+            "injection": 137245,
+            "mitm": 1588,
+            "password": 230557,
+            "ransomware": 674,
+            "scanning": 754468,
+            "xss": 491016
+          },
+          "pilot_rows": 75601,
+          "pilot_classes": {
+            "Backdoor": 3339,
+            "Benign": 10000,
+            "DDoS": 10000,
+            "DoS": 10000,
+            "injection": 10000,
+            "mitm": 1588,
+            "password": 10000,
+            "ransomware": 674,
+            "scanning": 10000,
+            "xss": 10000
+          },
+          "pilot_sha256": "7e2c98e177e9e26030d1b625501e9bc2acc323fb2f2052b516da9eac694edc2c"
+        },
+        "train": {
+          "rows": 11861039,
+          "classes": {
+            "Backdoor": 11787,
+            "Benign": 4271066,
+            "DDoS": 1418482,
+            "DoS": 498447,
+            "injection": 478631,
+            "mitm": 5387,
+            "password": 807607,
+            "ransomware": 2401,
+            "scanning": 2648961,
+            "xss": 1718270
+          },
+          "pilot_rows": 159575,
+          "pilot_classes": {
+            "Backdoor": 11787,
+            "Benign": 20000,
+            "DDoS": 20000,
+            "DoS": 20000,
+            "injection": 20000,
+            "mitm": 5387,
+            "password": 20000,
+            "ransomware": 2401,
+            "scanning": 20000,
+            "xss": 20000
+          },
+          "pilot_sha256": "d1814e4346b27f9c8cb29270cf2c568a20d79f50aa15e11fc02a9d4db6b41c16"
+        },
+        "val": {
+          "rows": 1693905,
+          "classes": {
+            "Backdoor": 1683,
+            "Benign": 609407,
+            "DDoS": 202610,
+            "DoS": 71635,
+            "injection": 68589,
+            "mitm": 748,
+            "password": 115159,
+            "ransomware": 350,
+            "scanning": 377990,
+            "xss": 245734
+          },
+          "pilot_rows": 37781,
+          "pilot_classes": {
+            "Backdoor": 1683,
+            "Benign": 5000,
+            "DDoS": 5000,
+            "DoS": 5000,
+            "injection": 5000,
+            "mitm": 748,
+            "password": 5000,
+            "ransomware": 350,
+            "scanning": 5000,
+            "xss": 5000
+          },
+          "pilot_sha256": "c0256d38ae9333898f2de4cbc26af9ae65e0b48c3b1c24799f526c35ecd4ce32"
+        }
+      },
+      "cross_split_groups": 0
+    },
+    "NF-CSE-CIC-IDS2018-v2": {
+      "source_rows": 18893708,
+      "split_rows": {
+        "test": {
+          "rows": 3779380,
+          "classes": {
+            "Benign": 3326441,
+            "Bot": 28719,
+            "Brute Force": 24662,
+            "DDoS": 278547,
+            "DoS": 97461,
+            "Infilteration": 23465,
+            "injection": 85
+          },
+          "pilot_rows": 60085,
+          "pilot_classes": {
+            "Benign": 10000,
+            "Bot": 10000,
+            "Brute Force": 10000,
+            "DDoS": 10000,
+            "DoS": 10000,
+            "Infilteration": 10000,
+            "injection": 85
+          },
+          "pilot_sha256": "77b886ee969efb6175a9833ac88b319ba94e07a29a0c2345ec454f98e87be75e"
+        },
+        "train": {
+          "rows": 13227184,
+          "classes": {
+            "Benign": 11647005,
+            "Bot": 99994,
+            "Brute Force": 86760,
+            "DDoS": 973374,
+            "DoS": 338291,
+            "Infilteration": 81453,
+            "injection": 307
+          },
+          "pilot_rows": 120307,
+          "pilot_classes": {
+            "Benign": 20000,
+            "Bot": 20000,
+            "Brute Force": 20000,
+            "DDoS": 20000,
+            "DoS": 20000,
+            "Infilteration": 20000,
+            "injection": 307
+          },
+          "pilot_sha256": "a55f471b75c639e435a6b4c6fa040554ed840bddfc4568ce18c44a1a6f56c359"
+        },
+        "val": {
+          "rows": 1887144,
+          "classes": {
+            "Benign": 1662121,
+            "Bot": 14384,
+            "Brute Force": 12560,
+            "DDoS": 138349,
+            "DoS": 48247,
+            "Infilteration": 11443,
+            "injection": 40
+          },
+          "pilot_rows": 30040,
+          "pilot_classes": {
+            "Benign": 5000,
+            "Bot": 5000,
+            "Brute Force": 5000,
+            "DDoS": 5000,
+            "DoS": 5000,
+            "Infilteration": 5000,
+            "injection": 40
+          },
+          "pilot_sha256": "bf198e05db1a577a11be4f71ee9108181d48a0919089bebb827f8b1b7d003804"
+        }
+      },
+      "cross_split_groups": 0
+    }
+  },
+  "software": {
+    "python": "3.12.3",
+    "duckdb": "1.4.3",
+    "pandas": "2.3.3"
+  },
+  "elapsed_seconds": 363.8203278639994,
+  "complete": true
+}

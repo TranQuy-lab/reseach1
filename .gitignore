@@ -1,0 +1,42 @@
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*.class
+*.egg-info/
+
+# Testing & linting
+.pytest_cache/
+.coverage
+
+# Environments
+.venv/
+venv/
+.venv-research/
+.venv-minibatch/
+.venv-server/
+.matplotlib-cache/
+research/artifacts/
+.tmp*
+
+# Raw outputs & large files
+*.csv.gz
+*.tar.gz
+*.zip
+output/*.parquet
+output/**/*.parquet
+gnn_data/*.parquet
+gnn_data/**/*.parquet
+
+# Keep summaries
+!output/run_summary.json
+!output/results_log.csv
+!gnn_data/experiment_results_500k.json
+
+# Whitelist processed datasets for Git
+!data/ml_processed/*.parquet
+!data/dl_processed/*.parquet
+
+/data/raw/
+
+/data/processed_four/
+/data/minibatch_splits/
