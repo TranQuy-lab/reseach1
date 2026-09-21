@@ -1,2 +1,0 @@
-run_timestamp,input_csv,clean_rows,drop_ports,target_sample_rows,sampled_rows,seed,train_rows,val_rows,test_rows,total_duration_minutes
-2026-09-11T15:27:37.583902+00:00,/root/.cache/kagglehub/datasets/aryashah2k/nfuqnidsv2-network-intrusion-detection-dataset/versions/1/NF-UQ-NIDS-v2.csv,11804165,True,2000000,2000000,42,1400000,200000,400000,45.18

@@ -1,9 +1,3 @@
-# Core pipeline dependencies (deliberately minimal -- see schema.py for why
-# fastai/torch were dropped in favour of a hard-coded, verified dtype map).
-pandas>=2.0
-numpy>=1.24
-pyarrow>=14.0        # parquet read/write
-scikit-learn>=1.3    # stratified train/val/test split
-
-# Dev / testing only
-pytest>=7.0
+# CPU/local development environment. Server CUDA packages are installed by
+# research/server/bootstrap_server.sh.
+-r research/requirements-minibatch.txt
