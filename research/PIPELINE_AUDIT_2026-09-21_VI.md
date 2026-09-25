@@ -81,3 +81,13 @@ diện trong train/validation/test vì UNSW và BoT-IoT có rất ít IP duy nh�
 
 Các đối chứng là nhánh xác nhận sau khi pipeline chính ổn định. Chúng không
 được dùng để thay đổi split hoặc cấu hình sau khi đã xem test chính.
+
+## Trạng thái xử lý sau kiểm toán
+
+Mã pipeline sau kiểm toán đã thay ngân sách 60 epoch bằng 20.000 optimizer
+step/run, validation mỗi 1.000 step và checkpoint chỉ hợp lệ sau một lượt đầy
+đủ qua train. Benchmark 500 batch hiện loại 50 batch warm-up, gom các cửa sổ
+50 batch và báo median/MAD/p90. Estimator dùng p90 cùng hệ số an toàn 1,35,
+tách thời gian load/graph/train/validation/final evaluation và khóa run nếu
+thiếu cửa sổ đo, vượt 14 ngày hoặc thiếu biên RAM/VRAM/ổ đĩa. Đây là sửa mã và
+protocol; cổng vẫn phải được chạy lại trên server trước khi mở notebook 11.

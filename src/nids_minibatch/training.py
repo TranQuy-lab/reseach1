@@ -8,6 +8,7 @@ from contextlib import nullcontext
 import hashlib
 import importlib.metadata
 import json
+import math
 import platform
 import random
 import resource
@@ -101,8 +102,30 @@ def _class_weights(labels: torch.Tensor, n_classes: int) -> torch.Tensor:
     return len(labels) / (n_classes * count)
 
 
+def _timing_profile(batch_seconds: list[float], warmup: int = 50,
+                    window: int = 50) -> dict:
+    """Summarize bounded benchmark batches without treating warm-up as steady state."""
+    usable = batch_seconds[warmup:]
+    windows = [sum(usable[i:i + window]) / len(usable[i:i + window])
+               for i in range(0, len(usable), window)
+               if len(usable[i:i + window]) == window]
+    median = float(np.median(windows)) if windows else None
+    p90 = float(np.quantile(windows, 0.9)) if windows else None
+    mad = float(np.median(np.abs(np.asarray(windows) - median))) if windows else None
+    return {
+        "warmup_batches": min(warmup, len(batch_seconds)),
+        "window_batches": window,
+        "measured_windows": len(windows),
+        "seconds_per_batch_windows": windows,
+        "median_seconds_per_batch": median,
+        "p90_seconds_per_batch": p90,
+        "mad_seconds_per_batch": mad,
+    }
+
+
 def _mlp_epoch(model, graph: EdgeGraph, optimizer, loss_fn, batch_size: int,
-               seed: int, amp: bool = False, max_batches: int = 0) -> tuple[float, int, int]:
+               seed: int, amp: bool = False, max_batches: int = 0,
+               profile_batches: bool = False) -> tuple[float, int, int, dict | None]:
     generator = torch.Generator().manual_seed(seed)
     loader = DataLoader(
         TensorDataset(graph.label_edge_attr, graph.labels), batch_size=batch_size,
@@ -112,7 +135,9 @@ def _mlp_epoch(model, graph: EdgeGraph, optimizer, loss_fn, batch_size: int,
     device = next(model.parameters()).device
     model.train()
     batches = 0
+    batch_seconds = []
     for x, y in loader:
+        batch_started = time.perf_counter()
         x, y = x.to(device), y.to(device)
         optimizer.zero_grad(set_to_none=True)
         with _autocast(device, amp):
@@ -124,14 +149,18 @@ def _mlp_epoch(model, graph: EdgeGraph, optimizer, loss_fn, batch_size: int,
         total += float(loss.detach()) * len(y)
         seen += len(y)
         batches += 1
+        if profile_batches:
+            batch_seconds.append(time.perf_counter() - batch_started)
         if max_batches and batches >= max_batches:
             break
-    return total / seen, seen, batches
+    profile = _timing_profile(batch_seconds) if profile_batches else None
+    return total / seen, seen, batches, profile
 
 
 def _sage_epoch(model: EGraphSAGE, graph: EdgeGraph, optimizer, loss_fn,
                 batch_size: int, fanout: tuple[int, int], seed: int,
-                amp: bool = False, max_batches: int = 0) -> tuple[float, int, int]:
+                amp: bool = False, max_batches: int = 0,
+                profile_batches: bool = False) -> tuple[float, int, int, dict | None]:
     generator = torch.Generator().manual_seed(seed)
     loader = LinkNeighborLoader(
         graph.data,
@@ -149,7 +178,9 @@ def _sage_epoch(model: EGraphSAGE, graph: EdgeGraph, optimizer, loss_fn,
     device = next(model.parameters()).device
     model.train()
     batches = 0
+    batch_seconds = []
     for batch in loader:
+        batch_started = time.perf_counter()
         seed_attr = graph.label_edge_attr[batch.input_id].to(device)
         batch = batch.to(device)
         optimizer.zero_grad(set_to_none=True)
@@ -166,9 +197,12 @@ def _sage_epoch(model: EGraphSAGE, graph: EdgeGraph, optimizer, loss_fn,
         total += float(loss.detach()) * batch.edge_label.numel()
         seen += batch.edge_label.numel()
         batches += 1
+        if profile_batches:
+            batch_seconds.append(time.perf_counter() - batch_started)
         if max_batches and batches >= max_batches:
             break
-    return total / seen, seen, batches
+    profile = _timing_profile(batch_seconds) if profile_batches else None
+    return total / seen, seen, batches, profile
 
 
 def fit_model(name: str, graphs: dict[str, EdgeGraph], n_classes: int, seed: int,
@@ -184,17 +218,19 @@ def fit_model(name: str, graphs: dict[str, EdgeGraph], n_classes: int, seed: int
     loss_fn = torch.nn.CrossEntropyLoss(weight=weights)
     best_state, best_score, best_epoch, stale = None, -1.0, 0, 0
     history = []
+    profile_batches = max_train_batches > 0
     for epoch in range(1, epochs + 1):
         started = time.perf_counter()
         if name == "edge_mlp":
-            loss, train_edges, train_batches = _mlp_epoch(
+            loss, train_edges, train_batches, timing = _mlp_epoch(
                 model, graphs["train"], optimizer, loss_fn, batch_size,
-                seed + epoch, amp, max_train_batches,
+                seed + epoch, amp, max_train_batches, profile_batches,
             )
         else:
-            loss, train_edges, train_batches = _sage_epoch(
+            loss, train_edges, train_batches, timing = _sage_epoch(
                 model, graphs["train"], optimizer, loss_fn,
                 batch_size, fanout, seed + epoch, amp, max_train_batches,
+                profile_batches,
             )
         train_seconds = time.perf_counter() - started
         should_evaluate = epoch == 1 or epoch % eval_every == 0 or epoch == epochs
@@ -202,6 +238,7 @@ def fit_model(name: str, graphs: dict[str, EdgeGraph], n_classes: int, seed: int
             history.append({"epoch": epoch, "loss": loss, "val_macro_f1": None,
                             "train_edges": train_edges, "train_batches": train_batches,
                             "train_seconds": train_seconds, "validation_seconds": 0.0,
+                            "batch_timing": timing,
                             "seconds": time.perf_counter() - started})
             continue
         validation_started = time.perf_counter()
@@ -213,6 +250,7 @@ def fit_model(name: str, graphs: dict[str, EdgeGraph], n_classes: int, seed: int
         history.append({"epoch": epoch, "loss": loss, "val_macro_f1": float(val_score),
                         "train_edges": train_edges, "train_batches": train_batches,
                         "train_seconds": train_seconds,
+                        "batch_timing": timing,
                         "validation_seconds": time.perf_counter() - validation_started,
                         "seconds": time.perf_counter() - started})
         if val_score > best_score:
@@ -225,6 +263,155 @@ def fit_model(name: str, graphs: dict[str, EdgeGraph], n_classes: int, seed: int
             break
     model.load_state_dict(best_state)
     return model, history, best_epoch
+
+
+def fit_model_steps(name: str, graphs: dict[str, EdgeGraph], n_classes: int, seed: int,
+                    max_steps: int, eval_every_steps: int, patience: int,
+                    batch_size: int, fanout: tuple[int, int], hidden: int = 128,
+                    dropout: float = 0.2, lr: float = 0.001,
+                    device: str | torch.device = "cpu", amp: bool = False):
+    """Train to a fixed optimizer-step budget after one complete data pass.
+
+    A checkpoint is eligible only after every train edge has been presented at
+    least once. Validation then occurs at the first completed pass and at fixed
+    step intervals. This keeps the full-data claim while making compute budgets
+    comparable across datasets with very different edge counts.
+    """
+    seed_everything(seed)
+    device = resolve_device(str(device))
+    model = build_model(name, len(FEATURES), n_classes, hidden, dropout).to(device)
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+    weights = _class_weights(graphs["train"].labels, n_classes).to(device)
+    loss_fn = torch.nn.CrossEntropyLoss(weight=weights)
+    steps_per_pass = math.ceil(len(graphs["train"].labels) / batch_size)
+    if max_steps < steps_per_pass:
+        raise ValueError(
+            f"max_train_steps={max_steps} is below one full pass ({steps_per_pass})"
+        )
+    best_state, best_score, best_step, stale = None, -1.0, 0, 0
+    history: list[dict] = []
+    total_steps = 0
+    total_edges = 0
+    epoch = 0
+    last_eval_step = 0
+    stop = False
+
+    def evaluate(loss: float, interval_edges: int, interval_batches: int,
+                 interval_train_seconds: float, current_epoch: int) -> bool:
+        nonlocal best_state, best_score, best_step, stale, last_eval_step
+        validation_started = time.perf_counter()
+        val_prob = full_probabilities(model, name, graphs["val"], amp)
+        val_score = f1_score(
+            graphs["val"].labels.numpy(), val_prob.argmax(1),
+            labels=list(range(n_classes)), average="macro", zero_division=0,
+        )
+        validation_seconds = time.perf_counter() - validation_started
+        history.append({
+            "epoch": current_epoch, "step": total_steps, "loss": loss,
+            "val_macro_f1": float(val_score), "train_edges": interval_edges,
+            "train_batches": interval_batches,
+            "train_seconds": interval_train_seconds,
+            "validation_seconds": validation_seconds,
+            "seconds": interval_train_seconds + validation_seconds,
+            "eligible_after_full_pass": True,
+        })
+        if val_score > best_score:
+            best_state = copy.deepcopy(model.state_dict())
+            best_score, best_step, stale = float(val_score), total_steps, 0
+        else:
+            stale += 1
+        last_eval_step = total_steps
+        print(f"{name} seed={seed} step={total_steps} epoch={current_epoch} "
+              f"loss={loss:.4f} val_macro_f1={val_score:.4f}", flush=True)
+        return stale >= patience
+
+    interval_loss_sum = 0.0
+    interval_edges = 0
+    interval_batches = 0
+    interval_started = time.perf_counter()
+    while total_steps < max_steps and not stop:
+        epoch += 1
+        if name == "edge_mlp":
+            generator = torch.Generator().manual_seed(seed + epoch)
+            loader = DataLoader(
+                TensorDataset(graphs["train"].label_edge_attr, graphs["train"].labels),
+                batch_size=batch_size, shuffle=True, generator=generator, num_workers=0,
+            )
+        else:
+            generator = torch.Generator().manual_seed(seed + epoch)
+            loader = LinkNeighborLoader(
+                graphs["train"].data, num_neighbors=list(fanout),
+                edge_label_index=graphs["train"].label_edge_index,
+                edge_label=graphs["train"].labels, batch_size=batch_size,
+                shuffle=True, neg_sampling=None, subgraph_type="directional",
+                num_workers=0, generator=generator,
+            )
+        model.train()
+        for value in loader:
+            if name == "edge_mlp":
+                x, y = value
+                x, y = x.to(device), y.to(device)
+                optimizer.zero_grad(set_to_none=True)
+                with _autocast(device, amp):
+                    loss = loss_fn(model(x), y)
+                edge_count = len(y)
+            else:
+                batch = value
+                seed_attr = graphs["train"].label_edge_attr[batch.input_id].to(device)
+                batch = batch.to(device)
+                optimizer.zero_grad(set_to_none=True)
+                with _autocast(device, amp):
+                    logits = model(batch.edge_index, batch.edge_attr,
+                                   batch.edge_label_index, seed_attr, batch.num_nodes)
+                    loss = loss_fn(logits, batch.edge_label.long())
+                edge_count = batch.edge_label.numel()
+            if not torch.isfinite(loss):
+                raise FloatingPointError("Nonfinite loss")
+            loss.backward()
+            if not all(p.grad is None or torch.isfinite(p.grad).all()
+                       for p in model.parameters()):
+                raise FloatingPointError("Nonfinite gradient")
+            optimizer.step()
+            loss_value = float(loss.detach())
+            total_steps += 1
+            total_edges += edge_count
+            interval_loss_sum += loss_value * edge_count
+            interval_edges += edge_count
+            interval_batches += 1
+
+            full_pass_reached = total_edges >= len(graphs["train"].labels)
+            interval_due = total_steps - last_eval_step >= eval_every_steps
+            budget_reached = total_steps >= max_steps
+            if full_pass_reached and (interval_due or budget_reached):
+                train_seconds = time.perf_counter() - interval_started
+                stop = evaluate(
+                    interval_loss_sum / interval_edges, interval_edges,
+                    interval_batches, train_seconds, epoch,
+                )
+                interval_loss_sum = 0.0
+                interval_edges = 0
+                interval_batches = 0
+                interval_started = time.perf_counter()
+                model.train()
+            if stop or total_steps >= max_steps:
+                break
+        # Evaluate exactly at the first completed pass even if the fixed interval
+        # boundary does not coincide with the end of the loader.
+        if (not stop and best_state is None and total_edges >= len(graphs["train"].labels)
+                and interval_batches):
+            train_seconds = time.perf_counter() - interval_started
+            stop = evaluate(
+                interval_loss_sum / interval_edges, interval_edges,
+                interval_batches, train_seconds, epoch,
+            )
+            interval_loss_sum = 0.0
+            interval_edges = 0
+            interval_batches = 0
+            interval_started = time.perf_counter()
+    if best_state is None:
+        raise RuntimeError("No eligible checkpoint after a complete train pass")
+    model.load_state_dict(best_state)
+    return model, history, best_step
 
 
 def load_frames(root: Path, dataset: str, scope: str = "pilot") -> dict[str, pd.DataFrame]:
@@ -291,7 +478,8 @@ def run(data: Path, output: Path, datasets: list[str], tasks: list[str], models:
         fanout: tuple[int, int], threads: int, resume: bool = False,
         device: str = "auto", scope: str = "pilot", eval_every: int = 1,
         amp: bool = False, prediction_cap: int = 0,
-        max_train_batches: int = 0) -> None:
+        max_train_batches: int = 0, max_train_steps: int = 0,
+        eval_every_steps: int = 0) -> None:
     data, output = Path(data), Path(output)
     if output.exists() and not resume:
         raise ValueError("Output exists; refusing overwrite")
@@ -310,6 +498,9 @@ def run(data: Path, output: Path, datasets: list[str], tasks: list[str], models:
         "scope": scope, "eval_every": eval_every, "amp": amp,
         "prediction_cap": prediction_cap,
         "max_train_batches": max_train_batches,
+        "max_train_steps": max_train_steps,
+        "eval_every_steps": eval_every_steps,
+        "training_budget_mode": "steps" if max_train_steps else "epochs",
         "edge_storage_dtype": str(storage_dtype),
         "requested_device": device, "effective_device": str(effective_device),
     }
@@ -358,6 +549,9 @@ def run(data: Path, output: Path, datasets: list[str], tasks: list[str], models:
                         "scope": scope, "eval_every": eval_every, "amp": amp,
                         "prediction_cap": prediction_cap,
                         "max_train_batches": max_train_batches,
+                        "max_train_steps": max_train_steps,
+                        "eval_every_steps": eval_every_steps,
+                        "training_budget_mode": "steps" if max_train_steps else "epochs",
                         "edge_storage_dtype": str(storage_dtype),
                         "train_sampling": "LinkNeighborLoader directional; loss on seed edges",
                         "validation_test": "full split graph",
@@ -368,12 +562,23 @@ def run(data: Path, output: Path, datasets: list[str], tasks: list[str], models:
                     if effective_device.type == "cuda":
                         torch.cuda.reset_peak_memory_stats(effective_device)
                     print(f"START {run_id}", flush=True)
-                    model, history, best_epoch = fit_model(
-                        name, graphs, len(pre.classes), seed, epochs, patience,
-                        batch_size, fanout,
-                        device=effective_device, eval_every=eval_every, amp=amp,
-                        max_train_batches=max_train_batches,
-                    )
+                    if max_train_steps:
+                        model, history, best_step = fit_model_steps(
+                            name, graphs, len(pre.classes), seed, max_train_steps,
+                            eval_every_steps, patience, batch_size, fanout,
+                            device=effective_device, amp=amp,
+                        )
+                        best_epoch = next(
+                            item["epoch"] for item in history if item["step"] == best_step
+                        )
+                    else:
+                        model, history, best_epoch = fit_model(
+                            name, graphs, len(pre.classes), seed, epochs, patience,
+                            batch_size, fanout,
+                            device=effective_device, eval_every=eval_every, amp=amp,
+                            max_train_batches=max_train_batches,
+                        )
+                        best_step = sum(item["train_batches"] for item in history[:best_epoch])
                     fit_seconds = time.perf_counter() - started
                     torch.save(model.state_dict(), dest / "model.pt")
                     write_json(dest / "history.json", history)
@@ -395,7 +600,10 @@ def run(data: Path, output: Path, datasets: list[str], tasks: list[str], models:
                         "seconds_final_evaluation": final_evaluation_seconds,
                         "seconds_dataset_load": dataset_load_seconds,
                         "seconds_graph_prepare": graph_prepare_seconds,
-                        "best_epoch": best_epoch, "epochs_ran": len(history),
+                        "best_epoch": best_epoch, "best_step": best_step,
+                        "epochs_ran": max(item["epoch"] for item in history),
+                        "steps_ran": max(item.get("step", 0) for item in history)
+                                     or sum(item["train_batches"] for item in history),
                         "parameters": sum(p.numel() for p in model.parameters()),
                         "replay_max_abs_error": replay_error,
                         "peak_rss_kib_process": resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
@@ -414,7 +622,7 @@ def run(data: Path, output: Path, datasets: list[str], tasks: list[str], models:
                         "dataset", "task", "model", "seed", "seconds_fit_and_evaluate",
                         "seconds_fit", "seconds_final_evaluation", "seconds_dataset_load",
                         "seconds_graph_prepare", "best_epoch", "epochs_ran", "parameters",
-                        "peak_rss_kib_process", "peak_cuda_bytes",
+                        "best_step", "steps_ran", "peak_rss_kib_process", "peak_cuda_bytes",
                     )}
                     row.update({f"{split}_{metric}": result[split][metric]
                                 for split in ("val", "test")
@@ -452,15 +660,25 @@ def main() -> None:
                         help="Store at most this many deterministic test rows; 0 stores all")
     parser.add_argument("--max-train-batches", type=int, default=0,
                         help="Benchmark gate only; 0 processes every training edge")
+    parser.add_argument("--max-train-steps", type=int, default=0,
+                        help="Full-data total optimizer-step budget; 0 uses epoch mode")
+    parser.add_argument("--eval-every-steps", type=int, default=0,
+                        help="Validate after this many steps once a full pass is complete")
     args = parser.parse_args()
     if min(args.epochs, args.patience, args.batch_size, args.threads, args.eval_every) < 1:
         parser.error("epochs, patience, batch-size, threads and eval-every must be positive")
-    if min(args.prediction_cap, args.max_train_batches) < 0:
-        parser.error("prediction-cap and max-train-batches must be nonnegative")
+    if min(args.prediction_cap, args.max_train_batches, args.max_train_steps,
+           args.eval_every_steps) < 0:
+        parser.error("prediction and training limits must be nonnegative")
+    if args.max_train_batches and args.max_train_steps:
+        parser.error("max-train-batches and max-train-steps are mutually exclusive")
+    if bool(args.max_train_steps) != bool(args.eval_every_steps):
+        parser.error("max-train-steps and eval-every-steps must be used together")
     run(args.data, args.output, args.datasets, args.tasks, args.models, args.seeds,
         args.epochs, args.patience, args.batch_size, tuple(args.fanout), args.threads,
         args.resume, args.device, args.scope, args.eval_every, args.amp,
-        args.prediction_cap, args.max_train_batches)
+        args.prediction_cap, args.max_train_batches, args.max_train_steps,
+        args.eval_every_steps)
 
 
 if __name__ == "__main__":

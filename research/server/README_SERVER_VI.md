@@ -126,7 +126,8 @@ Mở và chạy theo thứ tự:
 Các notebook trên giữ benchmark pilot lịch sử. Kết quả chính full-data chạy:
 
 1. `notebooks/server/10_FULL_PREPARE_BENCHMARK.ipynb`
-2. xem `research/results/full_benchmark_estimate.json`
+2. xem `research/results/full_benchmark_estimate.json`; cổng dùng nhiều cửa
+   sổ sau warm-up để ước lượng ngân sách 20.000 step/run
 3. `notebooks/server/11_FULL_TRAIN_72.ipynb`
 4. `notebooks/server/12_FULL_VERIFY_REPORT.ipynb`
 

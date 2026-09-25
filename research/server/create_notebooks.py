@@ -117,18 +117,18 @@ def main() -> None:
     full_specs = {
         "10_FULL_PREPARE_BENCHMARK.ipynb": full_notebook(
             "10 — Full-data: chia tập và benchmark giới hạn",
-            "Tạo split cho toàn bộ 75.987.976 flow rồi chạy tối đa 500 batch cho từng cặp dataset/mô hình. Notebook này không khởi chạy 72 run.",
+            "Tạo split cho toàn bộ 75.987.976 flow rồi đo 500 batch cho từng cặp dataset/mô hình, bỏ warm-up và tổng hợp theo nhiều cửa sổ. Notebook này không khởi chạy 72 run.",
             [
-                markdown("## Chạy cổng chuẩn bị\n\nKết quả ghi ETA 10/30/60 epoch và trạng thái `safe_to_launch_72`."),
+                markdown("## Chạy cổng chuẩn bị\n\nKết quả ghi ETA cho ngân sách 20.000 optimizer step/run và trạng thái `safe_to_launch_72`."),
                 code("full_stage('prepare')\n"),
                 code("estimate = json.loads((ROOT / 'research/results/full_benchmark_estimate.json').read_text())\nprint(json.dumps(estimate, indent=2))\n"),
             ],
         ),
         "11_FULL_TRAIN_72.ipynb": full_notebook(
             "11 — Full-data: huấn luyện 72 run",
-            "Chỉ chạy khi benchmark đã hoàn tất và cổng tài nguyên đạt. Mỗi epoch đi qua toàn bộ train split; batch không làm giảm số flow.",
+            "Chỉ chạy khi benchmark đã hoàn tất và cổng tài nguyên đạt. Checkpoint chỉ hợp lệ sau một lượt đầy đủ qua train; batch không làm giảm số flow.",
             [
-                code("estimate = json.loads((ROOT / 'research/results/full_benchmark_estimate.json').read_text())\nif estimate.get('safe_to_launch_72') is not True:\n    raise RuntimeError('Cổng benchmark chưa đạt; không được chạy 72 run')\nprint(json.dumps(estimate['scenario_estimates'], indent=2))\n"),
+                code("estimate = json.loads((ROOT / 'research/results/full_benchmark_estimate.json').read_text())\nif estimate.get('safe_to_launch_72') is not True:\n    raise RuntimeError('Cổng benchmark chưa đạt; không được chạy 72 run')\nprint(json.dumps(estimate['step_budget_estimate'], indent=2))\n"),
                 markdown("## Khởi chạy có resume\n\nRun đã hoàn thành được giữ nguyên khi notebook chạy lại."),
                 code("full_stage('train')\n"),
             ],

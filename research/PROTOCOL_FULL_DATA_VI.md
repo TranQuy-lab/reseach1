@@ -1,9 +1,8 @@
 # Protocol full-data E-GraphSAGE trên bốn bộ NF-UQ-NIDS-v2
 
-Trạng thái: **tạm khóa khởi chạy**, kiểm toán ngày 2026-09-21. Ma trận thí
-nghiệm và split vẫn được giữ, nhưng ngân sách 60 epoch và cổng thời gian hiện
-tại phải được thay bằng ngân sách theo số bước trước khi chạy full-data. Xem
-`PIPELINE_AUDIT_2026-09-21_VI.md`.
+Trạng thái: protocol step-based đã sửa sau kiểm toán 2026-09-21; 72 run vẫn
+khóa cho đến khi benchmark trên đúng server sinh `safe_to_launch_72=true`.
+Xem `PIPELINE_AUDIT_2026-09-21_VI.md`.
 
 ## Mục tiêu và dữ liệu
 
@@ -30,11 +29,11 @@ tại phải được thay bằng ngân sách theo số bước trước khi ch�
   huấn luyện full-data theo batch, không phải lấy mẫu bỏ bớt tập dữ liệu.
 - Cấu hình khóa trước run chính: hidden 128, dropout 0,2, Adam learning rate
   0,001, batch 4096, fanout `[15, 10]`, BF16 autocast trên CUDA.
-- Cấu hình cũ validation mỗi 3 epoch, tối đa 60 epoch và patience 10 **không
-  còn được phép dùng cho run chính**. Một epoch full-data có 409–6.455 bước
-  tùy dataset, nên đơn vị epoch không tương đương pilot. Protocol sửa đổi phải
-  khóa số bước tối đa, nhịp validation theo bước và điều kiện đã đi qua toàn
-  bộ cạnh train ít nhất một lần.
+- Ngân sách khóa trước run chính là tối đa 20.000 optimizer step/run,
+  validation mỗi 1.000 step và patience 10 lần validation. Checkpoint đầu tiên
+  chỉ hợp lệ sau khi toàn bộ cạnh train đã được trình bày ít nhất một lượt;
+  mọi run vì thế đi qua full train trước khi có thể dừng. Ngân sách epoch cũ
+  không được dùng cho kết quả full-data.
 
 ## Ma trận thí nghiệm và đánh giá
 
@@ -57,9 +56,11 @@ tại phải được thay bằng ngân sách theo số bước trước khi ch�
    checkpoint nạp lại được và CUDA không OOM.
 4. Mỗi run phải lưu đủ artifact; checkpoint replay phải khớp mẫu dự đoán đã lưu.
 5. File `runs.csv` cuối cùng phải có đúng 72 tổ hợp duy nhất.
-6. Cổng tài nguyên phải dùng median của nhiều cửa sổ sau warm-up, tách thời
-   gian nạp dữ liệu, dựng graph, train và validation; kết quả từ estimator cũ
-   không được mở khóa notebook 11.
+6. Cổng tài nguyên phải có ít nhất ba cửa sổ 50 batch sau 50 batch warm-up,
+   báo median/MAD/p90, tách nạp dữ liệu, dựng graph, train, validation và đánh
+   giá cuối. ETA dùng p90 nhân hệ số an toàn 1,35 và không được vượt 14 ngày.
+7. File cổng phải khóa đúng `max_train_steps=20000` và
+   `eval_every_steps=1000`; notebook 11 từ chối ngân sách khác.
 
 ## Phạm vi kết luận
 

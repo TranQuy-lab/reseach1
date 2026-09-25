@@ -4,12 +4,12 @@ import sys
 import pandas as pd
 
 from nids_minibatch.schema import DATASETS
-from research.estimate_full_runtime import evaluations, main
+from research.estimate_full_runtime import main, validation_count
 
 
-def test_evaluation_schedule_counts_unique_final_epoch():
-    assert evaluations(1) == 1
-    assert evaluations(10) == 5  # 1, 3, 6, 9, 10
+def test_step_validation_schedule_includes_first_pass_and_final_budget():
+    assert validation_count(1000, 1000, 100) == 1
+    assert validation_count(1250, 1000, 100) == 4
 
 
 def test_bounded_benchmark_produces_safe_conservative_eta(tmp_path, monkeypatch):
@@ -31,7 +31,11 @@ def test_bounded_benchmark_produces_safe_conservative_eta(tmp_path, monkeypatch)
             run_dir.mkdir()
             (run_dir / "history.json").write_text(json.dumps([{
                 "train_edges": 500, "train_seconds": 1.0,
+                "train_batches": 500,
                 "validation_seconds": 1.0,
+                "batch_timing": {
+                    "seconds_per_batch_windows": [0.001, 0.0011, 0.0009, 0.0012]
+                },
             }]))
         pd.DataFrame(rows).to_csv(folder / "runs.csv", index=False)
     prepare = tmp_path / "prepare.json"
@@ -44,10 +48,15 @@ def test_bounded_benchmark_produces_safe_conservative_eta(tmp_path, monkeypatch)
     monkeypatch.setattr(sys, "argv", [
         "estimate_full_runtime.py", "--benchmarks", str(root),
         "--prepare", str(prepare), "--environment", str(environment),
-        "--output", str(output),
+        "--output", str(output), "--max-train-steps", "1000",
+        "--eval-every-steps", "100",
     ])
     main()
     value = json.loads(output.read_text())
     assert value["safe_to_launch_72"] is True
     assert value["benchmark_rows"] == 12
-    assert value["scenario_estimates"]["60"]["planning_hours"] > 0
+    assert value["training_budget"] == {
+        "max_train_steps": 1000, "eval_every_steps": 100,
+    }
+    assert value["step_budget_estimate"]["planning_hours"] > 0
+    assert all(item["post_warmup_windows"] == 4 for item in value["details"])

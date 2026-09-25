@@ -29,12 +29,10 @@ danh node theo `(IP, port)`.
 
 ## Chạy trên server
 
-> **Tạm khóa run chính (kiểm toán 2026-09-21):** chưa chạy
-> `11_FULL_TRAIN_72.ipynb`. Cổng 500 batch hiện tại ngoại suy sang 10/30/60
-> epoch, trong khi một epoch full-data có số bước lớn hơn pilot rất nhiều.
-> Phải cập nhật estimator và ngân sách huấn luyện theo số bước trước khi thuê
-> GPU cho 72 run. Chi tiết và số đo nằm trong
-> `research/PIPELINE_AUDIT_2026-09-21_VI.md`.
+> **Run chính vẫn khóa cho tới khi benchmark server đạt:** pipeline hiện dùng
+> ngân sách 20.000 optimizer step/run, validation mỗi 1.000 step và chỉ cho
+> checkpoint hợp lệ sau một lượt đầy đủ qua train. Estimator đo nhiều cửa sổ
+> sau warm-up và tự từ chối khởi chạy nếu ETA/RAM/VRAM/ổ đĩa không đạt.
 
 ```bash
 git lfs install --skip-repo
@@ -50,9 +48,9 @@ ACCELERATOR=cu128 bash research/server/bootstrap_server.sh
 Sau đó chạy lần lượt:
 
 1. `notebooks/server/10_FULL_PREPARE_BENCHMARK.ipynb`
-2. kiểm tra `research/results/full_benchmark_estimate.json`
-3. chưa chạy `notebooks/server/11_FULL_TRAIN_72.ipynb` cho đến khi khóa tạm
-   ở trên được gỡ bằng protocol và estimator phiên bản mới
+2. kiểm tra `research/results/full_benchmark_estimate.json`; chỉ tiếp tục khi
+   `safe_to_launch_72` là `true` và ngân sách step khớp protocol
+3. `notebooks/server/11_FULL_TRAIN_72.ipynb`
 4. `notebooks/server/12_FULL_VERIFY_REPORT.ipynb`
 
 Pipeline dùng toàn bộ 75.987.976 flow cho kết quả chính. Mini-batch là cơ chế

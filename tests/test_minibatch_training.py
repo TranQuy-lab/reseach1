@@ -9,7 +9,10 @@ from torch_geometric.loader import LinkNeighborLoader
 from nids_minibatch.data import Preprocessor, make_graph
 from nids_minibatch.models import build_model
 from nids_minibatch.schema import FEATURES
-from nids_minibatch.training import fit_model, full_probabilities, load_frames, run, save_predictions
+from nids_minibatch.training import (
+    _timing_profile, fit_model, fit_model_steps, full_probabilities,
+    load_frames, run, save_predictions,
+)
 
 
 def frame(n=80):
@@ -121,6 +124,35 @@ def test_benchmark_batch_cap_does_not_claim_full_epoch():
     assert history[0]["train_batches"] == 2
 
 
+def test_timing_profile_discards_warmup_and_reports_robust_summaries():
+    profile = _timing_profile([9.0, 9.0, 1.0, 1.0, 2.0, 2.0], warmup=2, window=2)
+    assert profile["seconds_per_batch_windows"] == [1.0, 2.0]
+    assert profile["median_seconds_per_batch"] == 1.5
+    assert profile["p90_seconds_per_batch"] == pytest.approx(1.9)
+    assert profile["mad_seconds_per_batch"] == 0.5
+
+
+@pytest.mark.parametrize("name", ["edge_mlp", "sage", "sage_edge"])
+def test_step_budget_requires_and_reaches_one_complete_pass(name):
+    frames = {s: frame(n) for s, n in {"train": 32, "val": 16, "test": 16}.items()}
+    pre = Preprocessor.fit(frames["train"], "binary")
+    graphs = {s: make_graph(f, pre.transform(f), pre.labels(f)) for s, f in frames.items()}
+    with pytest.raises(ValueError, match="below one full pass"):
+        fit_model_steps(
+            name, graphs, 2, seed=11, max_steps=3, eval_every_steps=2,
+            patience=2, batch_size=8, fanout=(3, 2), hidden=8,
+        )
+    model, history, best_step = fit_model_steps(
+        name, graphs, 2, seed=11, max_steps=5, eval_every_steps=2,
+        patience=2, batch_size=8, fanout=(3, 2), hidden=8,
+    )
+    assert best_step >= 4
+    assert history[0]["step"] == 4
+    assert history[0]["eligible_after_full_pass"] is True
+    probability = full_probabilities(model, name, graphs["test"])
+    np.testing.assert_allclose(probability.sum(axis=1), 1, atol=1e-6)
+
+
 def test_full_scope_reads_partition_files_and_caps_audit_predictions(tmp_path):
     root = tmp_path / "splits"
     dataset = "NF-UNSW-NB15-v2"
@@ -162,10 +194,13 @@ def test_full_scope_cli_core_completes_one_reproducible_run(tmp_path):
         root, output, [dataset], ["binary"], ["edge_mlp"], [11],
         epochs=1, patience=1, batch_size=16, fanout=(5, 3), threads=1,
         device="cpu", scope="full", prediction_cap=7,
+        max_train_steps=3, eval_every_steps=1,
     )
     provenance = json.loads((output / "provenance.json").read_text())
     assert provenance["scope"] == "full"
     table = pd.read_csv(output / "runs.csv")
     assert len(table) == 1
+    assert table.loc[0, "steps_ran"] == 3
+    assert table.loc[0, "best_step"] >= 2
     audit = pd.read_parquet(output / f"{dataset}__binary__edge_mlp__seed11" / "test_predictions.parquet")
     assert len(audit) == 7

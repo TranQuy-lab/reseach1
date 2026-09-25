@@ -14,6 +14,8 @@ ROOT = Path(__file__).resolve().parents[2]
 DATASETS = ["NF-UNSW-NB15-v2", "NF-BoT-IoT-v2", "NF-ToN-IoT-v2", "NF-CSE-CIC-IDS2018-v2"]
 MODELS = ["edge_mlp", "sage", "sage_edge"]
 STAGES = ["check", "split", "benchmark", "train", "verify", "report", "test"]
+DEFAULT_MAX_TRAIN_STEPS = 20_000
+DEFAULT_EVAL_EVERY_STEPS = 1_000
 
 
 def execute(arguments: list[str], log: Path, check: bool = True) -> int:
@@ -37,8 +39,9 @@ def execute(arguments: list[str], log: Path, check: bool = True) -> int:
 
 def train_command(output: str, datasets: list[str], models: list[str], seeds: list[int],
                   tasks: list[str], epochs: int, patience: int, threads: int,
-                  max_batches: int = 0, prediction_cap: int = 100_000) -> list[str]:
-    return [
+                  max_batches: int = 0, prediction_cap: int = 100_000,
+                  max_steps: int = 0, eval_every_steps: int = 0) -> list[str]:
+    command = [
         sys.executable, "-m", "nids_minibatch.training", "--data", "data/full_splits",
         "--output", output, "--datasets", *datasets, "--tasks", *tasks,
         "--models", *models, "--seeds", *map(str, seeds), "--epochs", str(epochs),
@@ -47,15 +50,26 @@ def train_command(output: str, datasets: list[str], models: list[str], seeds: li
         "--eval-every", "3", "--amp", "--prediction-cap", str(prediction_cap),
         "--max-train-batches", str(max_batches),
     ]
+    if max_steps:
+        command.extend(["--max-train-steps", str(max_steps),
+                        "--eval-every-steps", str(eval_every_steps)])
+    return command
 
 
-def require_launch_gate() -> None:
+def require_launch_gate() -> dict:
     path = ROOT / "research/results/full_benchmark_estimate.json"
     if not path.is_file():
         raise RuntimeError("Run the bounded benchmark before full training")
     value = json.loads(path.read_text())
     if value.get("safe_to_launch_72") is not True:
         raise RuntimeError("Full-data launch gate failed; inspect full_benchmark_estimate.json")
+    budget = value.get("training_budget", {})
+    if budget != {
+        "max_train_steps": DEFAULT_MAX_TRAIN_STEPS,
+        "eval_every_steps": DEFAULT_EVAL_EVERY_STEPS,
+    }:
+        raise RuntimeError("Launch gate training budget differs from the locked protocol")
+    return value
 
 
 def run_stage(stage: str, threads: int) -> None:
@@ -90,12 +104,17 @@ def run_stage(stage: str, threads: int) -> None:
         execute([sys.executable, "research/estimate_full_runtime.py", "--benchmarks",
                  "research/artifacts/full_benchmark", "--prepare", "research/results/full_prepare.json",
                  "--environment", "research/results/server_environment.json", "--output",
-                 "research/results/full_benchmark_estimate.json"], logs / "02_estimate.log")
+                 "research/results/full_benchmark_estimate.json", "--max-train-steps",
+                 str(DEFAULT_MAX_TRAIN_STEPS), "--eval-every-steps",
+                 str(DEFAULT_EVAL_EVERY_STEPS)], logs / "02_estimate.log")
     elif stage == "train":
-        require_launch_gate()
+        gate = require_launch_gate()
+        budget = gate["training_budget"]
         output = ROOT / "research/artifacts/full_runs"
         command = train_command(str(output.relative_to(ROOT)), DATASETS, MODELS,
-                                [11, 22, 33], ["multiclass", "binary"], 60, 10, threads)
+                                [11, 22, 33], ["multiclass", "binary"], 1, 10, threads,
+                                max_steps=budget["max_train_steps"],
+                                eval_every_steps=budget["eval_every_steps"])
         if output.exists():
             command.append("--resume")
         execute(command, logs / "03_train.log")

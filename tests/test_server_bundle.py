@@ -1,6 +1,10 @@
 import json
 from pathlib import Path
 
+from research.server.run_full_pipeline import (
+    DEFAULT_EVAL_EVERY_STEPS, DEFAULT_MAX_TRAIN_STEPS, train_command,
+)
+
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -36,3 +40,14 @@ def test_server_manifest_and_required_entrypoints():
         "research/build_full_report.py", "research/server/run_full_pipeline.py",
     ]:
         assert (ROOT / relative).is_file()
+
+
+def test_full_train_command_uses_locked_step_budget():
+    command = train_command(
+        "out", ["NF-UNSW-NB15-v2"], ["sage"], [11], ["binary"],
+        epochs=1, patience=10, threads=4,
+        max_steps=DEFAULT_MAX_TRAIN_STEPS,
+        eval_every_steps=DEFAULT_EVAL_EVERY_STEPS,
+    )
+    assert command[command.index("--max-train-steps") + 1] == "20000"
+    assert command[command.index("--eval-every-steps") + 1] == "1000"
