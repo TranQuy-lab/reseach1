@@ -13,6 +13,7 @@ import platform
 import random
 import resource
 import shutil
+import subprocess
 import time
 from pathlib import Path
 
@@ -38,6 +39,42 @@ def sha256_file(path: Path) -> str:
         for block in iter(lambda: stream.read(8 * 1024 * 1024), b""):
             digest.update(block)
     return digest.hexdigest()
+
+
+def experiment_source_sha256() -> dict[str, str]:
+    """Hash the code that defines or launches an experiment.
+
+    The manifest intentionally uses repository-relative paths so it can be
+    compared after copying a run directory to another machine.
+    """
+    root = Path(__file__).resolve().parents[2]
+    paths = sorted((root / "src/nids_minibatch").glob("*.py"))
+    paths.extend(
+        path for path in (
+            root / "research/server/run_full_pipeline.py",
+            root / "research/estimate_full_runtime.py",
+            root / "research/validate_minibatch_results.py",
+        ) if path.is_file()
+    )
+    return {str(path.relative_to(root)): sha256_file(path) for path in paths}
+
+
+def git_revision() -> dict[str, str | bool | None]:
+    root = Path(__file__).resolve().parents[2]
+    try:
+        commit = subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], cwd=root, text=True,
+            stderr=subprocess.DEVNULL,
+        ).strip()
+        status = subprocess.run(
+            ["git", "diff", "--quiet", "--no-ext-diff", "HEAD", "--", ".",
+             ":(exclude)*.parquet"], cwd=root, stderr=subprocess.DEVNULL,
+        )
+        if status.returncode not in {0, 1}:
+            raise subprocess.CalledProcessError(status.returncode, status.args)
+        return {"commit": commit, "tracked_files_dirty": status.returncode == 1}
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        return {"commit": None, "tracked_files_dirty": None}
 
 
 def seed_everything(seed: int) -> None:
@@ -78,21 +115,35 @@ def _autocast(device: torch.device, enabled: bool):
     return nullcontext()
 
 
-def full_probabilities(model, name: str, graph: EdgeGraph, amp: bool = False) -> np.ndarray:
+def full_logits(model, name: str, graph: EdgeGraph, amp: bool = False) -> torch.Tensor:
     model.eval()
     device = next(model.parameters()).device
     with torch.no_grad(), _autocast(device, amp):
         if name == "edge_mlp":
-            logits = model(graph.label_edge_attr.to(device))
-        else:
-            logits = model(
-                graph.data.edge_index.to(device),
-                graph.data.edge_attr.to(device),
-                graph.label_edge_index.to(device),
-                graph.label_edge_attr.to(device),
-                graph.data.num_nodes,
-            )
-        return torch.softmax(logits.float(), dim=1).cpu().numpy()
+            return model(graph.label_edge_attr.to(device))
+        return model(
+            graph.data.edge_index.to(device),
+            graph.data.edge_attr.to(device),
+            graph.label_edge_index.to(device),
+            graph.label_edge_attr.to(device),
+            graph.data.num_nodes,
+        )
+
+
+def full_probabilities(model, name: str, graph: EdgeGraph, amp: bool = False) -> np.ndarray:
+    logits = full_logits(model, name, graph, amp)
+    return torch.softmax(logits.float(), dim=1).cpu().numpy()
+
+
+def validation_metrics(model, name: str, graph: EdgeGraph, loss_fn,
+                       amp: bool = False) -> tuple[np.ndarray, float]:
+    """Return full-neighbor probabilities and weighted validation loss."""
+    logits = full_logits(model, name, graph, amp)
+    device = logits.device
+    with torch.no_grad():
+        loss = float(loss_fn(logits.float(), graph.labels.to(device)).detach())
+        probabilities = torch.softmax(logits.float(), dim=1).cpu().numpy()
+    return probabilities, loss
 
 
 def _class_weights(labels: torch.Tensor, n_classes: int) -> torch.Tensor:
@@ -235,19 +286,23 @@ def fit_model(name: str, graphs: dict[str, EdgeGraph], n_classes: int, seed: int
         train_seconds = time.perf_counter() - started
         should_evaluate = epoch == 1 or epoch % eval_every == 0 or epoch == epochs
         if not should_evaluate:
-            history.append({"epoch": epoch, "loss": loss, "val_macro_f1": None,
+            history.append({"epoch": epoch, "loss": loss, "val_loss": None,
+                            "val_macro_f1": None,
                             "train_edges": train_edges, "train_batches": train_batches,
                             "train_seconds": train_seconds, "validation_seconds": 0.0,
                             "batch_timing": timing,
                             "seconds": time.perf_counter() - started})
             continue
         validation_started = time.perf_counter()
-        val_prob = full_probabilities(model, name, graphs["val"], amp)
+        val_prob, val_loss = validation_metrics(
+            model, name, graphs["val"], loss_fn, amp
+        )
         val_score = f1_score(
             graphs["val"].labels.numpy(), val_prob.argmax(1), labels=list(range(n_classes)),
             average="macro", zero_division=0,
         )
-        history.append({"epoch": epoch, "loss": loss, "val_macro_f1": float(val_score),
+        history.append({"epoch": epoch, "loss": loss, "val_loss": val_loss,
+                        "val_macro_f1": float(val_score),
                         "train_edges": train_edges, "train_batches": train_batches,
                         "train_seconds": train_seconds,
                         "batch_timing": timing,
@@ -300,7 +355,9 @@ def fit_model_steps(name: str, graphs: dict[str, EdgeGraph], n_classes: int, see
                  interval_train_seconds: float, current_epoch: int) -> bool:
         nonlocal best_state, best_score, best_step, stale, last_eval_step
         validation_started = time.perf_counter()
-        val_prob = full_probabilities(model, name, graphs["val"], amp)
+        val_prob, val_loss = validation_metrics(
+            model, name, graphs["val"], loss_fn, amp
+        )
         val_score = f1_score(
             graphs["val"].labels.numpy(), val_prob.argmax(1),
             labels=list(range(n_classes)), average="macro", zero_division=0,
@@ -308,7 +365,8 @@ def fit_model_steps(name: str, graphs: dict[str, EdgeGraph], n_classes: int, see
         validation_seconds = time.perf_counter() - validation_started
         history.append({
             "epoch": current_epoch, "step": total_steps, "loss": loss,
-            "val_macro_f1": float(val_score), "train_edges": interval_edges,
+            "val_loss": val_loss, "val_macro_f1": float(val_score),
+            "train_edges": interval_edges,
             "train_batches": interval_batches,
             "train_seconds": interval_train_seconds,
             "validation_seconds": validation_seconds,
@@ -492,10 +550,14 @@ def run(data: Path, output: Path, datasets: list[str], tasks: list[str], models:
     expected_provenance = {
         "environment": environment(),
         "protocol_sha256": sha256_file(protocol),
+        "source_sha256": experiment_source_sha256(),
+        "git": git_revision(),
         "datasets": datasets, "tasks": tasks, "models": models, "seeds": seeds,
-        "epochs": epochs, "patience": patience, "batch_size": batch_size,
+        "epochs": None if max_train_steps else epochs,
+        "patience": patience, "batch_size": batch_size,
         "fanout": list(fanout), "threads": threads,
-        "scope": scope, "eval_every": eval_every, "amp": amp,
+        "scope": scope, "eval_every": None if max_train_steps else eval_every,
+        "amp": amp,
         "prediction_cap": prediction_cap,
         "max_train_batches": max_train_batches,
         "max_train_steps": max_train_steps,
@@ -543,10 +605,13 @@ def run(data: Path, output: Path, datasets: list[str], tasks: list[str], models:
                     dest.mkdir()
                     config = {
                         "dataset": dataset, "task": task, "model": name, "seed": seed,
-                        "epochs": epochs, "patience": patience, "batch_size": batch_size,
+                        "epochs": None if max_train_steps else epochs,
+                        "patience": patience, "batch_size": batch_size,
                         "fanout": list(fanout), "hidden": 128, "dropout": 0.2,
                         "learning_rate": 0.001, "bidirectional_messages": True,
-                        "scope": scope, "eval_every": eval_every, "amp": amp,
+                        "scope": scope,
+                        "eval_every": None if max_train_steps else eval_every,
+                        "amp": amp,
                         "prediction_cap": prediction_cap,
                         "max_train_batches": max_train_batches,
                         "max_train_steps": max_train_steps,
@@ -589,7 +654,8 @@ def run(data: Path, output: Path, datasets: list[str], tasks: list[str], models:
                     replay_model.load_state_dict(torch.load(dest / "model.pt", map_location="cpu", weights_only=True))
                     replay_prob = full_probabilities(replay_model, name, graphs["test"], amp)
                     replay_error = float(np.max(np.abs(replay_prob - test_prob)))
-                    if replay_error > 1e-7:
+                    replay_tolerance = 1e-5 if effective_device.type == "cuda" else 1e-7
+                    if replay_error > replay_tolerance:
                         raise AssertionError(f"Checkpoint replay differs: {replay_error}")
                     final_evaluation_seconds = time.perf_counter() - evaluation_started
                     elapsed = fit_seconds + final_evaluation_seconds

@@ -28,7 +28,12 @@ fi
 
 "${ENV_DIR}/bin/python" -m ipykernel install --user \
   --name nids-server --display-name "NIDS E-GraphSAGE server"
-PYTHONPATH=src "${ENV_DIR}/bin/python" research/server/check_server.py \
-  --output research/results/server_environment.json
+if [[ "${ACCELERATOR}" == "cu128" ]]; then
+  PYTHONPATH=src "${ENV_DIR}/bin/python" research/server/check_server.py \
+    --output research/results/server_environment.json --scope full --require-cuda
+else
+  PYTHONPATH=src "${ENV_DIR}/bin/python" research/server/check_server.py \
+    --output research/results/server_environment.json --scope minibatch
+fi
 
 echo "Environment ready: ${ENV_DIR} (${ACCELERATOR})"

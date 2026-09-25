@@ -106,6 +106,7 @@ def test_one_epoch_smoke_has_finite_artifact(name):
                                      batch_size=16, fanout=(5, 3), hidden=8)
     assert best == 1 and len(history) == 1
     assert np.isfinite(history[0]["loss"])
+    assert np.isfinite(history[0]["val_loss"])
     assert history[0]["train_edges"] == 80
     assert history[0]["train_batches"] == 5
     probability = full_probabilities(model, name, graphs["test"])
@@ -149,6 +150,7 @@ def test_step_budget_requires_and_reaches_one_complete_pass(name):
     assert best_step >= 4
     assert history[0]["step"] == 4
     assert history[0]["eligible_after_full_pass"] is True
+    assert np.isfinite(history[0]["val_loss"])
     probability = full_probabilities(model, name, graphs["test"])
     np.testing.assert_allclose(probability.sum(axis=1), 1, atol=1e-6)
 
@@ -198,6 +200,10 @@ def test_full_scope_cli_core_completes_one_reproducible_run(tmp_path):
     )
     provenance = json.loads((output / "provenance.json").read_text())
     assert provenance["scope"] == "full"
+    assert provenance["epochs"] is None
+    assert provenance["eval_every"] is None
+    assert provenance["source_sha256"]
+    assert provenance["git"]["commit"]
     table = pd.read_csv(output / "runs.csv")
     assert len(table) == 1
     assert table.loc[0, "steps_ran"] == 3

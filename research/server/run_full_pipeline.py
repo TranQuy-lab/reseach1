@@ -76,14 +76,20 @@ def run_stage(stage: str, threads: int) -> None:
     logs = ROOT / "research/artifacts/full_server_logs"
     if stage == "check":
         execute([sys.executable, "research/server/check_server.py", "--output",
-                 "research/results/server_environment.json"], logs / "00_check.log")
+                 "research/results/server_environment.json", "--scope", "full",
+                 "--require-cuda"], logs / "00_check.log")
     elif stage == "split":
         report = ROOT / "research/results/full_prepare.json"
-        if report.is_file() and json.loads(report.read_text()).get("complete") is True:
-            return
+        if report.is_file():
+            value = json.loads(report.read_text())
+            if (value.get("complete") is True
+                    and value.get("manifest_schema_version") == 2
+                    and value.get("protocol") == "PROTOCOL_FULL_DATA_VI.md"):
+                return
         execute([sys.executable, "-m", "nids_minibatch.prepare", "--source",
                  "data/processed_four", "--output", "data/full_splits", "--report",
-                 str(report.relative_to(ROOT)), "--threads", str(threads)],
+                 str(report.relative_to(ROOT)), "--threads", str(threads),
+                 "--protocol", "PROTOCOL_FULL_DATA_VI.md"],
                 logs / "01_split.log")
     elif stage == "benchmark":
         bench = ROOT / "research/artifacts/full_benchmark"
@@ -127,7 +133,8 @@ def run_stage(stage: str, threads: int) -> None:
         execute([sys.executable, "research/build_full_report.py", "--runs",
                  "research/artifacts/full_runs", "--verification",
                  "research/results/full_verification.json", "--benchmark",
-                 "research/results/full_benchmark_estimate.json", "--output",
+                 "research/results/full_benchmark_estimate.json", "--prepare",
+                 "research/results/full_prepare.json", "--output",
                  "research/results/full", "--report", "research/FULL_DATA_REPORT_VI.md"],
                 logs / "05_report.log")
     elif stage == "test":

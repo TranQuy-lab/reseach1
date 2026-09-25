@@ -46,13 +46,20 @@ def test_prepare_four_splits_and_pilots(tmp_path):
     report = tmp_path / "report.json"
     result = prepare(source, output, report, threads=1)
     assert result["complete"]
+    assert result["protocol"] == "PROTOCOL_MINIBATCH_VI.md"
     assert json.loads(report.read_text())["split_seed"] == 20260920
     for dataset in DATASETS:
         info = result["datasets"][dataset]
         assert info["source_rows"] == 1000
         assert info["cross_split_groups"] == 0
+        assert set(info["ip_overlap_with_train"]) == {"val", "test"}
+        assert all(
+            0 <= item["fraction_also_in_train"] <= 1
+            for item in info["ip_overlap_with_train"].values()
+        )
         assert sum(x["rows"] for x in info["split_rows"].values()) == 1000
         for split in ("train", "val", "test"):
+            assert info["split_rows"][split]["conflicting_label_groups"] == 0
             pilot = pd.read_parquet(output / dataset / f"pilot_{split}.parquet")
             assert len(pilot) == info["split_rows"][split]["rows"]
             assert set(pilot.Attack) == {"Benign", "DDoS"}

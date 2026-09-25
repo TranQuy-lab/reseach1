@@ -24,11 +24,14 @@ Xem `PIPELINE_AUDIT_2026-09-21_VI.md`.
 - `sage`: E-GraphSAGE hai lớp mean aggregation; classifier dùng embedding hai
   endpoint.
 - `sage_edge`: cùng encoder và thêm trực tiếp edge feature vào classifier.
-- Cả ba mô hình đều đi qua mọi cạnh train ở mỗi epoch. E-GraphSAGE lấy lân cận
+- Trước khi checkpoint đầu tiên được phép lưu, cả ba mô hình phải đi qua mọi
+  cạnh train ít nhất một lượt. E-GraphSAGE lấy lân cận
   hai hop cho từng nhóm seed edge để graph lớn hơn VRAM vẫn chạy được. Đây là
   huấn luyện full-data theo batch, không phải lấy mẫu bỏ bớt tập dữ liệu.
 - Cấu hình khóa trước run chính: hidden 128, dropout 0,2, Adam learning rate
-  0,001, batch 4096, fanout `[15, 10]`, BF16 autocast trên CUDA.
+  0,001, batch 4096, fanout `[15, 10]`. Edge feature của graph full-data được
+  lưu FP16 để giảm RAM/VRAM; forward/loss dùng BF16 autocast trên CUDA và
+  logits được đổi về FP32 trước khi tính xác suất/validation loss.
 - Ngân sách khóa trước run chính là tối đa 20.000 optimizer step/run,
   validation mỗi 1.000 step và patience 10 lần validation. Checkpoint đầu tiên
   chỉ hợp lệ sau khi toàn bộ cạnh train đã được trình bày ít nhất một lượt;
@@ -47,13 +50,23 @@ Xem `PIPELINE_AUDIT_2026-09-21_VI.md`.
 - Mỗi run giữ checkpoint, scaler, cấu hình, lịch sử, metric full-test và tối đa
   100.000 dòng dự đoán kiểm toán được chọn theo vị trí cách đều. Giới hạn này
   chỉ giảm dung lượng artifact; metric luôn được tính trên toàn bộ test split.
+- Train dùng directional neighbor sampling `[15,10]`; validation/test dùng
+  full-neighbor trên toàn split. Đây là lựa chọn khóa của ma trận chính, phải
+  ghi rõ khi diễn giải. Đánh giá sampled-neighbor là thí nghiệm độ nhạy riêng,
+  không được trộn vào 72 run chính.
+- `edge_mlp` là baseline nội bộ của ma trận chính, không đại diện cho mọi mô
+  hình bảng. Random Forest/GBDT và baseline cùng capacity phải chạy ở protocol
+  xác nhận riêng trên đúng split trước khi tuyên bố GNN hơn baseline nói chung.
 
 ## Cổng kiểm chứng
 
 1. Tổng số dòng bốn nguồn phải là 75.987.976 và checksum phải khớp manifest.
 2. Không có `flow_group_id` xuất hiện ở hơn một split; số dòng phải được bảo toàn.
-3. Preflight full-data một epoch trên NF-UNSW-NB15-v2 phải có loss hữu hạn,
-   checkpoint nạp lại được và CUDA không OOM.
+   Báo thêm nhóm nhãn mâu thuẫn theo split và tỉ lệ IP validation/test đã xuất
+   hiện trong train để giới hạn diễn giải về host chưa thấy.
+3. Benchmark giới hạn 500 batch cho từng dataset/model phải có loss hữu hạn,
+   checkpoint nạp lại được và CUDA không OOM; estimator đồng thời xác nhận
+   ngân sách 20.000 step đủ chứa ít nhất một lượt train đầy đủ.
 4. Mỗi run phải lưu đủ artifact; checkpoint replay phải khớp mẫu dự đoán đã lưu.
 5. File `runs.csv` cuối cùng phải có đúng 72 tổ hợp duy nhất.
 6. Cổng tài nguyên phải có ít nhất ba cửa sổ 50 batch sau 50 batch warm-up,
@@ -61,6 +74,12 @@ Xem `PIPELINE_AUDIT_2026-09-21_VI.md`.
    giá cuối. ETA dùng p90 nhân hệ số an toàn 1,35 và không được vượt 14 ngày.
 7. File cổng phải khóa đúng `max_train_steps=20000` và
    `eval_every_steps=1000`; notebook 11 từ chối ngân sách khác.
+8. Preflight phải xác minh Git commit sạch, SHA-256 và số dòng của bốn Parquet,
+   đúng phiên bản thư viện, RAM ≥120 GiB, CUDA/BF16 và VRAM ≥24 GiB.
+9. Provenance của run phải chứa Git commit, SHA-256 protocol và SHA-256 từng
+   file mã thí nghiệm; validator từ chối nếu mã đã thay đổi.
+10. Validator ghi SHA-256 của checkpoint, preprocessor, cấu hình, history,
+    metric và mẫu prediction cho từng run để đóng gói artifact về sau.
 
 ## Phạm vi kết luận
 

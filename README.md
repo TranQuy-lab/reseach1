@@ -53,14 +53,20 @@ Sau đó chạy lần lượt:
 3. `notebooks/server/11_FULL_TRAIN_72.ipynb`
 4. `notebooks/server/12_FULL_VERIFY_REPORT.ipynb`
 
-Pipeline dùng toàn bộ 75.987.976 flow cho kết quả chính. Mini-batch là cơ chế
-nạp và tối ưu mô hình; nó không có nghĩa là lấy mẫu bỏ bớt dữ liệu.
+Thiết kế full-data sẽ dùng toàn bộ 75.987.976 flow; kết quả full-data chưa được
+chạy. Mini-batch là cơ chế nạp và tối ưu mô hình, không có nghĩa là lấy mẫu bỏ
+bớt dữ liệu.
 
 ## Kiểm thử
 
 ```bash
-PYTHONPATH=src python -m pytest tests -q
+PYTHONPATH=src .venv-server/bin/python -m pytest tests -q
 ```
+
+Không cài trực tiếp `requirements-minibatch*.txt`: wheel Torch/PyG nằm trên
+index riêng. Dùng duy nhất `research/server/bootstrap_server.sh` để tránh cài
+sai bản CPU/CUDA. Checklist trước run nằm trong
+`research/server/SERVER_PREFLIGHT_CHECKLIST_VI.md`.
 
 Các thư mục dữ liệu trung gian, checkpoint và artifact huấn luyện không được
 đưa lên Git. Báo cáo full-data chỉ được tạo sau khi server huấn luyện và bước

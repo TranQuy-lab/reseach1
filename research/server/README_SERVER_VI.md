@@ -8,6 +8,8 @@ hình, ba seed, tổng cộng 72 run. Notebook chỉ điều phối các module 
 
 - Ubuntu 22.04/24.04 x86-64 và Python 3.12.
 - Pilot đã kiểm chứng: tối thiểu 16 GB RAM, khuyến nghị 32 GB.
+- Full-data: cổng tự động yêu cầu ít nhất 120 GiB RAM; khuyến nghị server
+  128 GiB trở lên để còn khoảng trống cho graph, validation và hệ điều hành.
 - Từ đầu gồm tải raw: ít nhất 40 GB trống, khuyến nghị 60 GB.
 - Nếu đã chuyển đủ bốn Parquet đã kiểm chứng: cần tối thiểu 12 GiB trống
   sau khi cài môi trường để tạo split, checkpoint và báo cáo; nên có 18 GiB.
@@ -80,8 +82,9 @@ ACCELERATOR=cpu bash research/server/bootstrap_server.sh
 ```
 
 Script tạo `.venv-server`, cài phiên bản khóa, đăng ký kernel Jupyter và chạy
-kiểm tra tài nguyên. PyTorch 2.8.0 CUDA 12.8 và wheel PyG tương ứng tồn tại
-trên các index chính thức của PyTorch/PyG.
+kiểm tra tài nguyên, Git revision, SHA-256/số dòng Parquet, CUDA, BF16 và VRAM.
+PyTorch 2.8.0 CUDA 12.8 và wheel PyG tương ứng được cài từ index chính thức
+của PyTorch/PyG; không dùng `pip install -r requirements-minibatch*.txt`.
 
 ## Chạy tự động pilot
 
@@ -107,6 +110,15 @@ Chỉ khi `research/results/full_benchmark_estimate.json` có
 ```bash
 PYTHONPATH=src .venv-server/bin/python research/server/run_full_pipeline.py \
   --stage train --threads 12
+```
+
+Sau train, chạy đủ ba cổng cuối (không coi 72 dòng là đã hoàn tất nếu chưa qua
+validator):
+
+```bash
+PYTHONPATH=src .venv-server/bin/python research/server/run_full_pipeline.py --stage verify --threads 12
+PYTHONPATH=src .venv-server/bin/python research/server/run_full_pipeline.py --stage report --threads 12
+PYTHONPATH=src .venv-server/bin/python research/server/run_full_pipeline.py --stage test --threads 12
 ```
 
 ## Chạy bằng JupyterLab

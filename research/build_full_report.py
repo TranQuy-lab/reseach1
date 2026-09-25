@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
+import shutil
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -15,11 +17,41 @@ DATASETS = ["NF-UNSW-NB15-v2", "NF-BoT-IoT-v2", "NF-ToN-IoT-v2", "NF-CSE-CIC-IDS
 MODELS = ["edge_mlp", "sage", "sage_edge"]
 
 
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for block in iter(lambda: stream.read(8 * 1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def paired_deltas(runs: pd.DataFrame) -> pd.DataFrame:
+    wide = runs.pivot(
+        index=["dataset", "task", "seed"], columns="model",
+        values="test_macro_f1",
+    ).reset_index()
+    rows = []
+    comparisons = [
+        ("sage", "edge_mlp"),
+        ("sage_edge", "edge_mlp"),
+        ("sage_edge", "sage"),
+    ]
+    for row in wide.itertuples(index=False):
+        for left, right in comparisons:
+            rows.append({
+                "dataset": row.dataset, "task": row.task, "seed": row.seed,
+                "comparison": f"{left}_minus_{right}",
+                "macro_f1_delta": float(getattr(row, left) - getattr(row, right)),
+            })
+    return pd.DataFrame(rows)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--runs", type=Path, required=True)
     parser.add_argument("--verification", type=Path, required=True)
     parser.add_argument("--benchmark", type=Path, required=True)
+    parser.add_argument("--prepare", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--report", type=Path, required=True)
     args = parser.parse_args()
@@ -27,6 +59,7 @@ def main() -> None:
     runs = pd.read_csv(args.runs / "runs.csv")
     verification = json.loads(args.verification.read_text())
     benchmark = json.loads(args.benchmark.read_text())
+    prepare = json.loads(args.prepare.read_text())
     if len(runs) != 72 or runs[["dataset", "task", "model", "seed"]].duplicated().any():
         raise ValueError("Full-data report requires 72 unique runs")
     if verification.get("passed") is not True or verification.get("runs_checked") != 72:
@@ -48,7 +81,24 @@ def main() -> None:
     args.output.mkdir(parents=True, exist_ok=True)
     runs.to_csv(args.output / "runs.csv", index=False)
     summary.to_csv(args.output / "summary.csv", index=False)
-    pd.DataFrame(per_class).to_csv(args.output / "per_class.csv", index=False)
+    per_class_frame = pd.DataFrame(per_class)
+    per_class_frame.to_csv(args.output / "per_class.csv", index=False)
+    deltas = paired_deltas(runs)
+    deltas.to_csv(args.output / "paired_seed_deltas.csv", index=False)
+    rare = (
+        per_class_frame[per_class_frame["support"] < 1_000]
+        .groupby(["dataset", "task", "model", "class"], as_index=False)
+        .agg(support=("support", "first"), f1_mean=("f1-score", "mean"),
+             f1_std=("f1-score", "std"))
+    )
+    rare.to_csv(args.output / "rare_class_warning.csv", index=False)
+    for source, name in (
+        (args.runs / "provenance.json", "provenance.json"),
+        (args.verification, "verification.json"),
+        (args.benchmark, "benchmark_estimate.json"),
+        (args.prepare, "prepare_manifest.json"),
+    ):
+        shutil.copy2(source, args.output / name)
 
     fig, axes = plt.subplots(1, 2, figsize=(13, 5), sharey=True)
     x = np.arange(4)
@@ -70,6 +120,22 @@ def main() -> None:
     fig.savefig(args.output / "macro_f1_full.svg")
     plt.close(fig)
 
+    provenance_inputs = [
+        args.runs / "runs.csv", args.runs / "provenance.json",
+        args.verification, args.benchmark, args.prepare, Path(__file__),
+    ]
+    figure_outputs = [
+        args.output / "macro_f1_full.png", args.output / "macro_f1_full.svg",
+    ]
+    figure_provenance = {
+        "generator": str(Path(__file__)),
+        "inputs_sha256": {str(path): sha256_file(path) for path in provenance_inputs},
+        "outputs_sha256": {path.name: sha256_file(path) for path in figure_outputs},
+    }
+    (args.output / "figure_provenance.json").write_text(
+        json.dumps(figure_provenance, indent=2) + "\n"
+    )
+
     total_hours = runs.seconds_fit_and_evaluate.sum() / 3600
     report = f"""# Báo cáo full-data E-GraphSAGE trên bốn bộ v2
 
@@ -82,11 +148,19 @@ validation hoặc test. Batch chỉ là cơ chế đưa toàn bộ cạnh qua GP
 - Benchmark trước khi chạy dùng hệ số an toàn {benchmark['safety_factor']}.
 - Bảng tổng hợp: `research/results/full/summary.csv`.
 - Chỉ số từng lớp: `research/results/full/per_class.csv`.
+- Chênh lệch ghép cặp theo cùng seed: `paired_seed_deltas.csv`.
+- Cảnh báo lớp có support dưới 1.000: `rare_class_warning.csv`.
 - Biểu đồ: `research/results/full/macro_f1_full.png` và `.svg`.
 
+Split được kiểm tra không trùng `flow_group_id`. Tỉ lệ IP validation/test đã
+thấy trong train được ghi trong `prepare_manifest.json`; đây là phép đo nguy cơ
+rò rỉ danh tính host để giới hạn diễn giải, không phải lỗi chia nhóm flow.
+Số nhóm có nhãn mâu thuẫn và số dòng liên quan cũng được báo riêng theo split.
+
 Kết luận khoa học phải dựa trên macro-F1, chỉ số từng lớp và độ lệch chuẩn giữa
-ba seed. Các lớp cực hiếm như Worms, Theft và injection có support validation
-rất nhỏ, nên không diễn giải chênh lệch nhỏ như bằng chứng chắc chắn.
+ba seed. Bảng paired delta chỉ mang tính mô tả; ba seed không đủ cho khoảng tin
+cậy bootstrap ổn định. Các lớp trong `rare_class_warning.csv` không được dùng
+để đưa ra kết luận chắc chắn.
 """
     args.report.write_text(report)
 

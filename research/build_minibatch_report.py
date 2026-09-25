@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import shutil
 from pathlib import Path
@@ -19,6 +20,29 @@ DATASET_LABELS = {
     "NF-CSE-CIC-IDS2018-v2": "CSE-CIC",
 }
 MODEL_LABELS = {"edge_mlp": "Edge MLP", "sage": "E-GraphSAGE", "sage_edge": "E-GraphSAGE + edge"}
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for block in iter(lambda: stream.read(8 * 1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def paired_deltas(runs: pd.DataFrame) -> pd.DataFrame:
+    wide = runs.pivot(index=["dataset", "task", "seed"], columns="model",
+                      values="test_macro_f1").reset_index()
+    rows = []
+    for row in wide.itertuples(index=False):
+        for left, right in (("sage", "edge_mlp"), ("sage_edge", "edge_mlp"),
+                            ("sage_edge", "sage")):
+            rows.append({
+                "dataset": row.dataset, "task": row.task, "seed": row.seed,
+                "comparison": f"{left}_minus_{right}",
+                "macro_f1_delta": float(getattr(row, left) - getattr(row, right)),
+            })
+    return pd.DataFrame(rows)
 
 
 def fmt(mean: float, std: float) -> str:
@@ -122,6 +146,14 @@ def main() -> None:
     summary.to_csv(args.output / "summary.csv", index=False)
     runs.to_csv(args.output / "runs.csv", index=False)
     per_class_frame.to_csv(args.output / "per_class.csv", index=False)
+    paired_deltas(runs).to_csv(args.output / "paired_seed_deltas.csv", index=False)
+    rare = (
+        per_class_frame[per_class_frame.support < 1_000]
+        .groupby(["dataset", "task", "model", "class"], as_index=False)
+        .agg(support=("support", "first"), f1_mean=("f1", "mean"),
+             f1_std=("f1", "std"))
+    )
+    rare.to_csv(args.output / "rare_class_warning.csv", index=False)
     for source, name in [
         (args.runs / "provenance.json", "provenance.json"),
         (args.tuning / "selection.json", "tuning_selection.json"),
@@ -131,6 +163,19 @@ def main() -> None:
     ]:
         shutil.copy2(source, args.output / name)
     make_figure(summary, args.output / "macro_f1_comparison")
+    provenance_inputs = [
+        args.runs / "runs.csv", args.runs / "provenance.json", args.prepare,
+        args.verification, args.tuning / "selection.json", Path(__file__),
+    ]
+    figure_outputs = [
+        args.output / "macro_f1_comparison.png",
+        args.output / "macro_f1_comparison.svg",
+    ]
+    (args.output / "figure_provenance.json").write_text(json.dumps({
+        "generator": str(Path(__file__)),
+        "inputs_sha256": {str(path): sha256_file(path) for path in provenance_inputs},
+        "outputs_sha256": {path.name: sha256_file(path) for path in figure_outputs},
+    }, indent=2) + "\n")
 
     total_hours = runs.seconds_fit_and_evaluate.sum() / 3600
     selected = tuning["selected"]
@@ -218,6 +263,11 @@ host/temporal holdout nếu metadata cho phép.
 - `results/minibatch/runs.csv`: 72 run riêng lẻ.
 - `results/minibatch/summary.csv`: trung bình và độ lệch chuẩn.
 - `results/minibatch/per_class.csv`: precision, recall, F1, support từng lớp.
+- `results/minibatch/paired_seed_deltas.csv`: chênh lệch theo cùng seed; chỉ
+  dùng mô tả vì ba seed không đủ cho CI bootstrap ổn định.
+- `results/minibatch/rare_class_warning.csv`: các lớp test có support dưới 1.000.
+- `results/minibatch/figure_provenance.json`: SHA-256 của dữ liệu đầu vào,
+  mã sinh hình và hai file hình.
 - `results/minibatch/verification.json`: kết quả nạp checkpoint, tái tạo xác
   suất và tính lại metric.
 - `results/minibatch/provenance.json`: phiên bản môi trường và SHA-256 của

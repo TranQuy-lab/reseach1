@@ -38,6 +38,7 @@ def test_server_manifest_and_required_entrypoints():
         "research/PROTOCOL_MINIBATCH_VI.md", "research/validate_minibatch_results.py",
         "research/PROTOCOL_FULL_DATA_VI.md", "research/estimate_full_runtime.py",
         "research/build_full_report.py", "research/server/run_full_pipeline.py",
+        "research/server/SERVER_PREFLIGHT_CHECKLIST_VI.md",
     ]:
         assert (ROOT / relative).is_file()
 
@@ -51,3 +52,5 @@ def test_full_train_command_uses_locked_step_budget():
     )
     assert command[command.index("--max-train-steps") + 1] == "20000"
     assert command[command.index("--eval-every-steps") + 1] == "1000"
+    assert "--scope" in command and command[command.index("--scope") + 1] == "full"
+    assert "--device" in command and command[command.index("--device") + 1] == "cuda"

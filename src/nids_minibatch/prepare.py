@@ -37,7 +37,8 @@ def _quote(path: Path) -> str:
     return str(path).replace("'", "''")
 
 
-def prepare(source: Path, output: Path, report: Path, threads: int = 2) -> dict:
+def prepare(source: Path, output: Path, report: Path, threads: int = 2,
+            protocol: str = "PROTOCOL_MINIBATCH_VI.md") -> dict:
     source, output, report = Path(source), Path(output), Path(report)
     if output.exists():
         raise ValueError("Output exists; refusing overwrite")
@@ -52,7 +53,8 @@ def prepare(source: Path, output: Path, report: Path, threads: int = 2) -> dict:
     con.execute("SET max_temp_directory_size='12GB'")
     started = time.perf_counter()
     result = {
-        "protocol": "PROTOCOL_MINIBATCH_VI.md",
+        "manifest_schema_version": 2,
+        "protocol": protocol,
         "split_seed": SPLIT_SEED,
         "sample_seed": SAMPLE_SEED,
         "split_rule": "DuckDB hash(flow_group_id, seed) % 10: 0-6 train, 7 val, 8-9 test",
@@ -138,10 +140,48 @@ def prepare(source: Path, output: Path, report: Path, threads: int = 2) -> dict:
             ).fetchone()[0]
             if overlap:
                 raise AssertionError(f"{dataset}: flow groups cross splits")
+            conflicts = con.execute(
+                "SELECT split, count(*), coalesce(sum(n), 0) FROM ("
+                "SELECT split, flow_group_id, count(*) n FROM read_parquet(?, hive_partitioning=true) "
+                "GROUP BY split, flow_group_id HAVING min(Attack) != max(Attack)) "
+                "GROUP BY split", [str(all_glob)]
+            ).fetchall()
+            conflict_by_split = {
+                split: {"conflicting_label_groups": int(groups),
+                        "rows_in_conflicting_label_groups": int(rows)}
+                for split, groups, rows in conflicts
+            }
+            for split in ("train", "val", "test"):
+                split_info[split].update(conflict_by_split.get(split, {
+                    "conflicting_label_groups": 0,
+                    "rows_in_conflicting_label_groups": 0,
+                }))
+            ip_overlap = {}
+            train_glob = dataset_out / "split=train" / "*.parquet"
+            for split in ("val", "test"):
+                heldout_glob = dataset_out / f"split={split}" / "*.parquet"
+                unique_ips, seen_ips = con.execute(
+                    "WITH train_ips AS ("
+                    " SELECT IPV4_SRC_ADDR ip FROM read_parquet(?) UNION "
+                    " SELECT IPV4_DST_ADDR ip FROM read_parquet(?)"
+                    "), heldout_ips AS ("
+                    " SELECT IPV4_SRC_ADDR ip FROM read_parquet(?) UNION "
+                    " SELECT IPV4_DST_ADDR ip FROM read_parquet(?)"
+                    ") SELECT count(*), count(*) FILTER (WHERE t.ip IS NOT NULL) "
+                    "FROM heldout_ips h LEFT JOIN train_ips t USING (ip)",
+                    [str(train_glob), str(train_glob),
+                     str(heldout_glob), str(heldout_glob)],
+                ).fetchone()
+                ip_overlap[split] = {
+                    "unique_holdout_ips": int(unique_ips),
+                    "ips_also_in_train": int(seen_ips),
+                    "fraction_also_in_train": float(seen_ips / unique_ips),
+                }
             result["datasets"][dataset] = {
                 "source_rows": source_rows,
                 "split_rows": split_info,
                 "cross_split_groups": overlap,
+                "ip_overlap_with_train": ip_overlap,
             }
             write_json(report.with_name(report.stem + ".partial.json"), result)
             print(json.dumps({"dataset": dataset, "rows": source_rows,
@@ -165,10 +205,13 @@ def main() -> None:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--report", type=Path, required=True)
     parser.add_argument("--threads", type=int, default=2)
+    parser.add_argument("--protocol", choices=[
+        "PROTOCOL_MINIBATCH_VI.md", "PROTOCOL_FULL_DATA_VI.md",
+    ], default="PROTOCOL_MINIBATCH_VI.md")
     args = parser.parse_args()
     if args.threads < 1:
         parser.error("threads must be positive")
-    prepare(args.source, args.output, args.report, args.threads)
+    prepare(args.source, args.output, args.report, args.threads, args.protocol)
 
 
 if __name__ == "__main__":

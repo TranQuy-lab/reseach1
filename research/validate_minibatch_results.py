@@ -15,7 +15,11 @@ from sklearn.metrics import accuracy_score, f1_score
 from nids_minibatch.data import Preprocessor, make_graph
 from nids_minibatch.models import build_model
 from nids_minibatch.schema import FEATURES
-from nids_minibatch.training import full_probabilities, load_frames
+from nids_minibatch.training import (
+    experiment_source_sha256,
+    full_probabilities,
+    load_frames,
+)
 
 
 def sha256(path):
@@ -46,11 +50,15 @@ def main():
     protocol = "research/PROTOCOL_FULL_DATA_VI.md" if scope == "full" else "research/PROTOCOL_MINIBATCH_VI.md"
     if provenance["protocol_sha256"] != sha256(protocol):
         raise AssertionError("Protocol checksum changed after experiment start")
+    current_sources = experiment_source_sha256()
+    if provenance.get("source_sha256") != current_sources:
+        raise AssertionError("Experiment source code changed after experiment start")
     table = pd.read_csv(args.runs / "runs.csv")
     expected = len(provenance["datasets"]) * len(provenance["tasks"]) * len(provenance["models"]) * len(provenance["seeds"])
     if len(table) != expected or table[["dataset", "task", "model", "seed"]].duplicated().any():
         raise AssertionError(f"Expected {expected} unique runs, found {len(table)}")
-    checked, largest_probability_error, largest_metric_error = [], 0.0, 0.0
+    checked, artifact_sha256 = [], {}
+    largest_probability_error, largest_metric_error = 0.0, 0.0
     frame_cache = {}
     for row in table.itertuples(index=False):
         key = (row.dataset, row.task)
@@ -95,8 +103,14 @@ def main():
         if metric_error > 1e-12:
             raise AssertionError(f"Metric recomputation failed for {run_dir.name}")
         metrics_file = json.loads((run_dir / "metrics.json").read_text())
-        if metrics_file["replay_max_abs_error"] > 1e-7:
+        if metrics_file["replay_max_abs_error"] > replay_tolerance:
             raise AssertionError("Training-time checkpoint replay failed")
+        artifact_sha256[run_dir.name] = {
+            filename: sha256(run_dir / filename) for filename in (
+                "config.json", "preprocessor.json", "model.pt", "history.json",
+                "metrics.json", "test_predictions.parquet",
+            )
+        }
         checked.append(run_dir.name)
         print(f"verified {run_dir.name}", flush=True)
     result = {
@@ -105,7 +119,9 @@ def main():
         "largest_probability_replay_error": largest_probability_error,
         "largest_metric_recomputation_error": largest_metric_error,
         "protocol_sha256": provenance["protocol_sha256"],
+        "source_sha256": provenance["source_sha256"],
         "probability_tolerance": replay_tolerance,
+        "artifact_sha256": artifact_sha256,
     }
     args.output.write_text(json.dumps(result, indent=2) + "\n")
     print(json.dumps(result), flush=True)
