@@ -153,12 +153,16 @@ def _chunked_sage_layer(layer, node_features: torch.Tensor,
         if aggregate is None:
             aggregate = torch.zeros(
                 (node_features.shape[0], message.shape[1]),
-                dtype=message.dtype, device=device,
+                dtype=torch.float32, device=device,
             )
-        aggregate.index_add_(0, target, message)
+        # Accumulating millions of high-degree messages directly in BF16 makes
+        # the result depend strongly on chunk boundaries. PyG's mean reduction
+        # effectively needs a higher-precision accumulator for stable full-data
+        # validation, even though the linear layers run under BF16 autocast.
+        aggregate.index_add_(0, target, message.float())
     if aggregate is None:
         raise ValueError("evaluation graph has no message edges")
-    aggregate = aggregate / degrees.to(dtype=aggregate.dtype)
+    aggregate = aggregate / degrees.float()
     return torch.relu(layer.w_apply(torch.cat([node_features, aggregate], dim=1)))
 
 

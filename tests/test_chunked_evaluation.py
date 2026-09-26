@@ -73,6 +73,15 @@ def test_validation_loss_uses_host_logits_with_device_independent_weights():
     assert np.isfinite(loss)
 
 
+def test_chunk_boundary_does_not_change_high_degree_logits():
+    graph = synthetic_graph(rows=4_000, hubs=2)
+    torch.manual_seed(11)
+    model = build_model("sage_edge", len(FEATURES), 3, 32, 0.2)
+    small = chunked_logits(model, "sage_edge", graph, chunk_edges=31)
+    large = chunked_logits(model, "sage_edge", graph, chunk_edges=2048)
+    assert float((small - large).abs().max()) < 1e-5
+
+
 @pytest.mark.skipif(not torch.cuda.is_available(), reason="CUDA is required")
 @pytest.mark.parametrize("model_name", ["sage", "edge_mlp"])
 def test_chunked_evaluation_matches_on_cuda(model_name):
