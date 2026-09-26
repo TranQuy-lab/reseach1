@@ -38,7 +38,8 @@ def _quote(path: Path) -> str:
 
 
 def prepare(source: Path, output: Path, report: Path, threads: int = 2,
-            protocol: str = "PROTOCOL_MINIBATCH_VI.md") -> dict:
+            protocol: str = "PROTOCOL_MINIBATCH_VI.md",
+            memory_limit: str = "1GB") -> dict:
     source, output, report = Path(source), Path(output), Path(report)
     if output.exists():
         raise ValueError("Output exists; refusing overwrite")
@@ -47,7 +48,7 @@ def prepare(source: Path, output: Path, report: Path, threads: int = 2,
     temp.mkdir()
     con = duckdb.connect()
     con.execute("SET threads=?", [threads])
-    con.execute("SET memory_limit='1GB'")
+    con.execute("SET memory_limit=?", [memory_limit])
     con.execute("SET preserve_insertion_order=false")
     con.execute(f"SET temp_directory='{_quote(temp)}'")
     con.execute("SET max_temp_directory_size='12GB'")
@@ -205,13 +206,16 @@ def main() -> None:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--report", type=Path, required=True)
     parser.add_argument("--threads", type=int, default=2)
+    parser.add_argument("--memory-limit", default="1GB",
+                        help="DuckDB memory limit; full-data server pipeline uses 16GB")
     parser.add_argument("--protocol", choices=[
         "PROTOCOL_MINIBATCH_VI.md", "PROTOCOL_FULL_DATA_VI.md",
     ], default="PROTOCOL_MINIBATCH_VI.md")
     args = parser.parse_args()
     if args.threads < 1:
         parser.error("threads must be positive")
-    prepare(args.source, args.output, args.report, args.threads, args.protocol)
+    prepare(args.source, args.output, args.report, args.threads, args.protocol,
+            args.memory_limit)
 
 
 if __name__ == "__main__":

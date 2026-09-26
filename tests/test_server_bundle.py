@@ -63,6 +63,15 @@ def test_full_train_command_uses_locked_dataset_pass_budget():
     assert "--device" in command and command[command.index("--device") + 1] == "cuda"
 
 
+def test_full_split_uses_server_memory_limit(monkeypatch):
+    captured = []
+    monkeypatch.setattr(full_pipeline, "execute", lambda command, log: captured.append(command))
+    monkeypatch.setattr(full_pipeline.Path, "is_file", lambda self: False)
+    full_pipeline.run_stage("split", 12, 4, 6.0, 0.25)
+    command = captured[0]
+    assert command[command.index("--memory-limit") + 1] == "16GB"
+
+
 def test_launch_gate_locks_budget_and_worker_count(tmp_path, monkeypatch):
     results = tmp_path / "research/results"
     results.mkdir(parents=True)

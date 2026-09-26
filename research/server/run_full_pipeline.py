@@ -124,6 +124,7 @@ def run_stage(stage: str, threads: int, num_workers: int,
         execute([sys.executable, "-m", "nids_minibatch.prepare", "--source",
                  "data/processed_four", "--output", "data/full_splits", "--report",
                  str(report.relative_to(ROOT)), "--threads", str(threads),
+                 "--memory-limit", "16GB",
                  "--protocol", "PROTOCOL_FULL_DATA_VI.md"],
                 logs / "01_split.log")
     elif stage == "benchmark":

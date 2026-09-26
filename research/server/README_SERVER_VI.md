@@ -100,6 +100,10 @@ báo cáo và test đều đạt.
 
 Full-data không dùng `run_all.sh`. Chuẩn bị và benchmark giới hạn trước:
 
+Stage split full-data cấp tối đa 16 GB cho DuckDB; pilot/local vẫn giữ mặc
+định 1 GB. Nếu split dừng giữa chừng, archive hoặc xóa `data/full_splits/`
+trước khi chạy lại vì pipeline không ghi đè kết quả dở.
+
 ```bash
 PYTHONPATH=src .venv-server/bin/python research/server/run_full_pipeline.py \
   --stage prepare --threads 12 --num-workers 4 \
