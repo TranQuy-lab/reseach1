@@ -3,11 +3,11 @@
   "task": "multiclass",
   "model": "edge_mlp",
   "seed": 11,
-  "seconds_fit_and_evaluate": 155.83885681000538,
+  "seconds_fit_and_evaluate": 155.2002546529693,
   "seconds_fit": 154.9297975419904,
-  "seconds_final_evaluation": 0.9090592680149712,
-  "seconds_dataset_load": 15.514035223983228,
-  "seconds_graph_prepare": 180.38145410298603,
+  "seconds_final_evaluation": 0.2704571109788958,
+  "seconds_dataset_load": 13.935126959986519,
+  "seconds_graph_prepare": 52.72839887699229,
   "best_epoch": 2,
   "best_step": 5068,
   "step_budget": 5792,
@@ -424,5 +424,22 @@
     ]
   },
   "test_prediction_rows_stored": 100000,
-  "test_prediction_rows_total": 3385552
+  "test_prediction_rows_total": 3385552,
+  "evaluation_rebuild": {
+    "previous_evaluation_mode": "cuda_bf16_amp",
+    "previous_seconds_final_evaluation": 0.9090592680149712,
+    "previous_val": {
+      "macro_f1": 0.7030873689438664,
+      "weighted_f1": 0.8966155744949572,
+      "accuracy": 0.8883390745053589
+    },
+    "previous_test": {
+      "macro_f1": 0.7028906824878318,
+      "weighted_f1": 0.8963471630484571,
+      "accuracy": 0.8880534104925873
+    },
+    "checkpoint_sha256": "f8e00b3616768e5e0622f2e5acf1204767a6d6b7ec0f3a668ed8a025b0b79b05",
+    "rebuilt_at_utc": "2026-09-26T23:27:36.973264+00:00"
+  },
+  "evaluation_mode": "float32_gnn_deterministic_v2"
 }

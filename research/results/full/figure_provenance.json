@@ -1,0 +1,15 @@
+{
+  "generator": "/workspace/reseach1/research/build_full_report.py",
+  "inputs_sha256": {
+    "research/artifacts/full_runs/runs.csv": "bfa609c68ab21ba7f9dabeec5f8f54f76d1fef2117cd6d26c5e19cdc245955fa",
+    "research/artifacts/full_runs/provenance.json": "5b1124cac0af63208815cf48577c86554b129409bb750e4a0d65b4ded7ed8daa",
+    "research/results/full_verification.json": "bd2c16db64cf23f1bb727938b2ae57d81fb065c82d4f41075fd150681a934fda",
+    "research/results/full_benchmark_estimate.json": "69693910f340ba7231078428019c03c4da6471ce9ed969fd4abaf1e6ea3785c9",
+    "research/results/full_prepare.json": "310ebbf64b1d74bc46f9710c9ab4c5cab8c248263788a1320c32f880f4a12d1c",
+    "/workspace/reseach1/research/build_full_report.py": "ab164d4929e10917914df074f02e4ac3dbf23ffe2c9c57c1bea68d8b05fbd53f"
+  },
+  "outputs_sha256": {
+    "macro_f1_full.png": "42d8a5703b85314bf19d511e19109d56cee4fe79ce68d19b2758f79737f7d442",
+    "macro_f1_full.svg": "0397547acf54c944db204f6ec64da07d7705cf6adeef33c16fdc63aa030b3d8b"
+  }
+}

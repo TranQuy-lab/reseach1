@@ -1,0 +1,27 @@
+verified NF-UNSW-NB15-v2__multiclass__edge_mlp__seed11
+verified NF-UNSW-NB15-v2__multiclass__edge_mlp__seed22
+verified NF-UNSW-NB15-v2__multiclass__edge_mlp__seed33
+verified NF-UNSW-NB15-v2__multiclass__sage__seed11
+verified NF-UNSW-NB15-v2__multiclass__sage__seed22
+verified NF-UNSW-NB15-v2__multiclass__sage__seed33
+verified NF-UNSW-NB15-v2__multiclass__sage_edge__seed11
+verified NF-UNSW-NB15-v2__multiclass__sage_edge__seed22
+verified NF-UNSW-NB15-v2__multiclass__sage_edge__seed33
+verified NF-UNSW-NB15-v2__binary__edge_mlp__seed11
+verified NF-UNSW-NB15-v2__binary__edge_mlp__seed22
+verified NF-UNSW-NB15-v2__binary__edge_mlp__seed33
+verified NF-UNSW-NB15-v2__binary__sage__seed11
+verified NF-UNSW-NB15-v2__binary__sage__seed22
+verified NF-UNSW-NB15-v2__binary__sage__seed33
+verified NF-UNSW-NB15-v2__binary__sage_edge__seed11
+verified NF-UNSW-NB15-v2__binary__sage_edge__seed22
+verified NF-UNSW-NB15-v2__binary__sage_edge__seed33
+verified NF-BoT-IoT-v2__multiclass__edge_mlp__seed11
+verified NF-BoT-IoT-v2__multiclass__edge_mlp__seed22
+verified NF-BoT-IoT-v2__multiclass__edge_mlp__seed33
+Traceback (most recent call last):
+  File "/workspace/reseach1/research/validate_minibatch_results.py", line 135, in <module>
+    main()
+  File "/workspace/reseach1/research/validate_minibatch_results.py", line 89, in main
+    raise AssertionError(f"Prediction replay failed for {run_dir.name}")
+AssertionError: Prediction replay failed for NF-BoT-IoT-v2__multiclass__sage__seed11

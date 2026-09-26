@@ -1,0 +1,125 @@
+{
+  "dataset": "NF-CSE-CIC-IDS2018-v2",
+  "task": "binary",
+  "model": "sage_edge",
+  "seed": 22,
+  "seconds_fit_and_evaluate": 245.9853179710044,
+  "seconds_fit": 241.59652220399585,
+  "seconds_final_evaluation": 4.38879576700856,
+  "seconds_dataset_load": 18.75966842699563,
+  "seconds_graph_prepare": 118.86160215400741,
+  "best_epoch": 2,
+  "best_step": 5654,
+  "step_budget": 6460,
+  "steps_per_full_pass": 3230,
+  "eval_every_steps": 808,
+  "epochs_ran": 2,
+  "steps_ran": 6460,
+  "parameters": 86608,
+  "checkpoint_parameter_max_abs_error": 0.0,
+  "peak_rss_kib_process": 49270036,
+  "peak_cuda_bytes": 8276671488,
+  "val": {
+    "accuracy": 0.9943671495127028,
+    "macro_f1": 0.9864165072135858,
+    "weighted_f1": 0.9943303638776827,
+    "per_class": {
+      "Benign": {
+        "precision": 0.9948136416505023,
+        "recall": 0.9988117591920204,
+        "f1-score": 0.9968086914073641,
+        "support": 1662121.0
+      },
+      "Attack": {
+        "precision": 0.9909545989566874,
+        "recall": 0.9615372650795696,
+        "f1-score": 0.9760243230198076,
+        "support": 225023.0
+      },
+      "accuracy": 0.9943671495127028,
+      "macro avg": {
+        "precision": 0.9928841203035949,
+        "recall": 0.980174512135795,
+        "f1-score": 0.9864165072135858,
+        "support": 1887144.0
+      },
+      "weighted avg": {
+        "precision": 0.9943534895030827,
+        "recall": 0.9943671495127028,
+        "f1-score": 0.9943303638776827,
+        "support": 1887144.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        1660146,
+        1975
+      ],
+      [
+        8655,
+        216368
+      ]
+    ]
+  },
+  "test": {
+    "accuracy": 0.9941924336795982,
+    "macro_f1": 0.9860663299426473,
+    "weighted_f1": 0.994156634774313,
+    "per_class": {
+      "Benign": {
+        "precision": 0.9948094668233529,
+        "recall": 0.9986120300946266,
+        "f1-score": 0.99670712165767,
+        "support": 3326441.0
+      },
+      "Attack": {
+        "precision": 0.9895121574471178,
+        "recall": 0.9617343615806985,
+        "f1-score": 0.9754255382276248,
+        "support": 452939.0
+      },
+      "accuracy": 0.9941924336795982,
+      "macro avg": {
+        "precision": 0.9921608121352354,
+        "recall": 0.9801731958376625,
+        "f1-score": 0.9860663299426473,
+        "support": 3779380.0
+      },
+      "weighted avg": {
+        "precision": 0.9941746118969992,
+        "recall": 0.9941924336795982,
+        "f1-score": 0.994156634774313,
+        "support": 3779380.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        3321824,
+        4617
+      ],
+      [
+        17332,
+        435607
+      ]
+    ]
+  },
+  "test_prediction_rows_stored": 100000,
+  "test_prediction_rows_total": 3779380,
+  "evaluation_rebuild": {
+    "previous_evaluation_mode": "cuda_bf16_amp",
+    "previous_seconds_final_evaluation": 4.002915969002061,
+    "previous_val": {
+      "macro_f1": 0.98645905374995,
+      "weighted_f1": 0.9943483082278752,
+      "accuracy": 0.9943851661558418
+    },
+    "previous_test": {
+      "macro_f1": 0.9861125814602623,
+      "weighted_f1": 0.9941763134515269,
+      "accuracy": 0.9942122782043615
+    },
+    "checkpoint_sha256": "f76af976b116df114fc97c962f2a91fc3ed668ed0de7bd4cd845122913d44c7a",
+    "rebuilt_at_utc": "2026-09-26T23:32:24.982618+00:00"
+  },
+  "evaluation_mode": "float32_gnn_deterministic_v2"
+}
