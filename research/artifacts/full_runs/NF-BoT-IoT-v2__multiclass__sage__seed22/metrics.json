@@ -1,0 +1,198 @@
+{
+  "dataset": "NF-BoT-IoT-v2",
+  "task": "multiclass",
+  "model": "sage",
+  "seed": 22,
+  "seconds_fit_and_evaluate": 548.5435796950187,
+  "seconds_fit": 540.916061669006,
+  "seconds_final_evaluation": 7.6275180260126945,
+  "seconds_dataset_load": 31.672211799013894,
+  "seconds_graph_prepare": 105.86298354700557,
+  "best_epoch": 1,
+  "best_step": 6455,
+  "step_budget": 12910,
+  "steps_per_full_pass": 6455,
+  "eval_every_steps": 1614,
+  "epochs_ran": 2,
+  "steps_ran": 12910,
+  "parameters": 87301,
+  "checkpoint_parameter_max_abs_error": 0.0,
+  "peak_rss_kib_process": 49270036,
+  "peak_cuda_bytes": 956301824,
+  "val": {
+    "accuracy": 0.6324360719821353,
+    "macro_f1": 0.5103797097728262,
+    "weighted_f1": 0.6215126428099922,
+    "per_class": {
+      "Benign": {
+        "precision": 0.30331392501496435,
+        "recall": 0.8275554895701878,
+        "f1-score": 0.4439223494275759,
+        "support": 13471.0
+      },
+      "DDoS": {
+        "precision": 0.7069864683861662,
+        "recall": 0.4489647365958825,
+        "f1-score": 0.5491788791565428,
+        "support": 1834026.0
+      },
+      "DoS": {
+        "precision": 0.5890004193725555,
+        "recall": 0.8053052335606674,
+        "f1-score": 0.6803746643245713,
+        "support": 1667297.0
+      },
+      "Reconnaissance": {
+        "precision": 0.7240845867563072,
+        "recall": 0.8064209283757817,
+        "f1-score": 0.7630380405708255,
+        "support": 261769.0
+      },
+      "Theft": {
+        "precision": 0.061253226942032384,
+        "recall": 0.9923954372623575,
+        "f1-score": 0.11538461538461539,
+        "support": 263.0
+      },
+      "accuracy": 0.6324360719821353,
+      "macro avg": {
+        "precision": 0.47692772529440514,
+        "recall": 0.7761283650729754,
+        "f1-score": 0.5103797097728262,
+        "support": 3776826.0
+      },
+      "weighted avg": {
+        "precision": 0.6546012833421992,
+        "recall": 0.6324360719821353,
+        "f1-score": 0.6215126428099922,
+        "support": 3776826.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        11148,
+        804,
+        917,
+        125,
+        477
+      ],
+      [
+        17702,
+        823413,
+        935399,
+        57476,
+        36
+      ],
+      [
+        6186,
+        295552,
+        1342683,
+        22838,
+        38
+      ],
+      [
+        1716,
+        44911,
+        597,
+        211096,
+        3449
+      ],
+      [
+        2,
+        0,
+        0,
+        0,
+        261
+      ]
+    ]
+  },
+  "test": {
+    "accuracy": 0.633765073456938,
+    "macro_f1": 0.5801643064963128,
+    "weighted_f1": 0.6247180566132172,
+    "per_class": {
+      "Benign": {
+        "precision": 0.8014680303346553,
+        "recall": 0.8472400985547751,
+        "f1-score": 0.8237186935769321,
+        "support": 27193.0
+      },
+      "DDoS": {
+        "precision": 0.689736705086412,
+        "recall": 0.46565527578313975,
+        "f1-score": 0.5559663576391565,
+        "support": 3664129.0
+      },
+      "DoS": {
+        "precision": 0.5863078347880886,
+        "recall": 0.8082401268524056,
+        "f1-score": 0.6796145156689084,
+        "support": 3333638.0
+      },
+      "Reconnaissance": {
+        "precision": 0.8161934686191994,
+        "recall": 0.6879991126885537,
+        "f1-score": 0.7466336281275844,
+        "support": 522928.0
+      },
+      "Theft": {
+        "precision": 0.0498176133402814,
+        "recall": 0.9958333333333333,
+        "f1-score": 0.09488833746898263,
+        "support": 480.0
+      },
+      "accuracy": 0.633765073456938,
+      "macro avg": {
+        "precision": 0.5887047304337274,
+        "recall": 0.7609935894424416,
+        "f1-score": 0.5801643064963128,
+        "support": 7548368.0
+      },
+      "weighted avg": {
+        "precision": 0.6531810574127094,
+        "recall": 0.633765073456938,
+        "f1-score": 0.6247180566132172,
+        "support": 7548368.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        23039,
+        1068,
+        2078,
+        298,
+        710
+      ],
+      [
+        2279,
+        1706221,
+        1897890,
+        57680,
+        59
+      ],
+      [
+        758,
+        615386,
+        2694380,
+        23043,
+        71
+      ],
+      [
+        2668,
+        151053,
+        1156,
+        359774,
+        8277
+      ],
+      [
+        2,
+        0,
+        0,
+        0,
+        478
+      ]
+    ]
+  },
+  "test_prediction_rows_stored": 100000,
+  "test_prediction_rows_total": 7548368
+}

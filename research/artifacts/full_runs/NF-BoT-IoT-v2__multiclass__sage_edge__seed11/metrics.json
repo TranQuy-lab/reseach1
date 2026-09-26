@@ -1,0 +1,198 @@
+{
+  "dataset": "NF-BoT-IoT-v2",
+  "task": "multiclass",
+  "model": "sage_edge",
+  "seed": 11,
+  "seconds_fit_and_evaluate": 544.6410228399909,
+  "seconds_fit": 536.6835198960034,
+  "seconds_final_evaluation": 7.9575029439874925,
+  "seconds_dataset_load": 31.672211799013894,
+  "seconds_graph_prepare": 105.86298354700557,
+  "best_epoch": 1,
+  "best_step": 6455,
+  "step_budget": 12910,
+  "steps_per_full_pass": 6455,
+  "eval_every_steps": 1614,
+  "epochs_ran": 2,
+  "steps_ran": 12910,
+  "parameters": 87496,
+  "checkpoint_parameter_max_abs_error": 0.0,
+  "peak_rss_kib_process": 49270036,
+  "peak_cuda_bytes": 956255232,
+  "val": {
+    "accuracy": 0.9772435902527677,
+    "macro_f1": 0.8306964346127014,
+    "weighted_f1": 0.9778938027746641,
+    "per_class": {
+      "Benign": {
+        "precision": 0.7532731376975169,
+        "recall": 0.9908692747383268,
+        "f1-score": 0.855887916386137,
+        "support": 13471.0
+      },
+      "DDoS": {
+        "precision": 0.9942489410320174,
+        "recall": 0.9942874310396909,
+        "f1-score": 0.9942681856633488,
+        "support": 1834026.0
+      },
+      "DoS": {
+        "precision": 0.9907020707251716,
+        "recall": 0.9599369518448123,
+        "f1-score": 0.9750769003947218,
+        "support": 1667297.0
+      },
+      "Reconnaissance": {
+        "precision": 0.8205333419739486,
+        "recall": 0.9673910967303233,
+        "f1-score": 0.8879308682320312,
+        "support": 261769.0
+      },
+      "Theft": {
+        "precision": 0.2868663594470046,
+        "recall": 0.9467680608365019,
+        "f1-score": 0.4403183023872679,
+        "support": 263.0
+      },
+      "accuracy": 0.9772435902527677,
+      "macro avg": {
+        "precision": 0.7691247701751318,
+        "recall": 0.971850563037931,
+        "f1-score": 0.8306964346127014,
+        "support": 3776826.0
+      },
+      "weighted avg": {
+        "precision": 0.9797343005541398,
+        "recall": 0.9772435902527677,
+        "f1-score": 0.9778938027746641,
+        "support": 3776826.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        13348,
+        1,
+        14,
+        97,
+        11
+      ],
+      [
+        438,
+        1823549,
+        9944,
+        85,
+        10
+      ],
+      [
+        1096,
+        10489,
+        1600500,
+        55204,
+        8
+      ],
+      [
+        2825,
+        58,
+        5063,
+        253233,
+        590
+      ],
+      [
+        13,
+        0,
+        0,
+        1,
+        249
+      ]
+    ]
+  },
+  "test": {
+    "accuracy": 0.9768606935962847,
+    "macro_f1": 0.8299694866867954,
+    "weighted_f1": 0.9775674462797037,
+    "per_class": {
+      "Benign": {
+        "precision": 0.7569972405248634,
+        "recall": 0.9886367815246571,
+        "f1-score": 0.8574481317875198,
+        "support": 27193.0
+      },
+      "DDoS": {
+        "precision": 0.9942156529664665,
+        "recall": 0.9943285293721918,
+        "f1-score": 0.9942720879657084,
+        "support": 3664129.0
+      },
+      "DoS": {
+        "precision": 0.9916596755153633,
+        "recall": 0.9580752319238022,
+        "f1-score": 0.9745782054615115,
+        "support": 3333638.0
+      },
+      "Reconnaissance": {
+        "precision": 0.8133766590622983,
+        "recall": 0.9736292568001713,
+        "f1-score": 0.8863175046392847,
+        "support": 522928.0
+      },
+      "Theft": {
+        "precision": 0.2835913312693498,
+        "recall": 0.9541666666666667,
+        "f1-score": 0.4372315035799523,
+        "support": 480.0
+      },
+      "accuracy": 0.9768606935962847,
+      "macro avg": {
+        "precision": 0.7679681118676683,
+        "recall": 0.9737672932574977,
+        "f1-score": 0.8299694866867954,
+        "support": 7548368.0
+      },
+      "weighted avg": {
+        "precision": 0.9796590949228737,
+        "recall": 0.9768606935962847,
+        "f1-score": 0.9775674462797037,
+        "support": 7548368.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        26884,
+        3,
+        28,
+        238,
+        40
+      ],
+      [
+        819,
+        3643348,
+        19759,
+        181,
+        22
+      ],
+      [
+        2233,
+        21097,
+        3193876,
+        116397,
+        35
+      ],
+      [
+        5558,
+        97,
+        7075,
+        509138,
+        1060
+      ],
+      [
+        20,
+        0,
+        0,
+        2,
+        458
+      ]
+    ]
+  },
+  "test_prediction_rows_stored": 100000,
+  "test_prediction_rows_total": 7548368
+}

@@ -1,0 +1,6 @@
+,,,test_macro_f1,test_macro_f1,test_weighted_f1,test_weighted_f1,test_accuracy,test_accuracy,seconds_fit_and_evaluate,seconds_fit_and_evaluate
+,,,mean,std,mean,std,mean,std,mean,std
+dataset,task,model,,,,,,,,
+NF-BoT-IoT-v2,multiclass,edge_mlp,0.7297953808702208,,0.9689756541520147,,0.9674095115659438,,17.64416740401066,
+NF-BoT-IoT-v2,multiclass,sage,0.4378460087891803,,0.6140206320591108,,0.605208304629557,,39.184904011985054,
+NF-BoT-IoT-v2,multiclass,sage_edge,0.7674625236583001,,0.9815570138612935,,0.9810306015816929,,45.8038907260343,

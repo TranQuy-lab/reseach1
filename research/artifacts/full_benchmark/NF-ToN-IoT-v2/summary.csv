@@ -1,0 +1,6 @@
+,,,test_macro_f1,test_macro_f1,test_weighted_f1,test_weighted_f1,test_accuracy,test_accuracy,seconds_fit_and_evaluate,seconds_fit_and_evaluate
+,,,mean,std,mean,std,mean,std,mean,std
+dataset,task,model,,,,,,,,
+NF-ToN-IoT-v2,multiclass,edge_mlp,0.5568064672481241,,0.7704856107020729,,0.7435839118702061,,15.752259735018015,
+NF-ToN-IoT-v2,multiclass,sage,0.6266008109712728,,0.8048357526732962,,0.7952177370189558,,45.04747038401547,
+NF-ToN-IoT-v2,multiclass,sage_edge,0.6339830363861492,,0.8360334700322813,,0.8269183282371678,,44.93891626098775,

@@ -1,0 +1,84 @@
+START NF-BoT-IoT-v2__multiclass__edge_mlp__seed11
+/workspace/reseach1/.venv-server/lib/python3.12/site-packages/torch/autograd/graph.py:829: UserWarning: Deterministic behavior was enabled with either `torch.use_deterministic_algorithms(True)` or `at::Context::setDeterministicAlgorithms(true)`, but this operation is not deterministic because it uses CuBLAS and you have CUDA >= 10.2. To enable deterministic behavior in this case, you must set an environment variable before running your PyTorch application: CUBLAS_WORKSPACE_CONFIG=:4096:8 or CUBLAS_WORKSPACE_CONFIG=:16:8. For more information, go to https://docs.nvidia.com/cuda/cublas/index.html#results-reproducibility (Triggered internally at /pytorch/aten/src/ATen/Context.cpp:233.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+edge_mlp seed=11 epoch=1 loss=0.9476 val_macro_f1=0.7316
+DONE NF-BoT-IoT-v2__multiclass__edge_mlp__seed11 test_macro_f1=0.7298 seconds=19.2
+START NF-BoT-IoT-v2__multiclass__sage__seed11
+/workspace/reseach1/.venv-server/lib/python3.12/site-packages/torch/autograd/graph.py:829: UserWarning: Deterministic behavior was enabled with either `torch.use_deterministic_algorithms(True)` or `at::Context::setDeterministicAlgorithms(true)`, but this operation is not deterministic because it uses CuBLAS and you have CUDA >= 10.2. To enable deterministic behavior in this case, you must set an environment variable before running your PyTorch application: CUBLAS_WORKSPACE_CONFIG=:4096:8 or CUBLAS_WORKSPACE_CONFIG=:16:8. For more information, go to https://docs.nvidia.com/cuda/cublas/index.html#results-reproducibility (Triggered internally at /pytorch/aten/src/ATen/Context.cpp:233.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/workspace/reseach1/src/nids_minibatch/training.py", line 863, in <module>
+    main()
+  File "/workspace/reseach1/src/nids_minibatch/training.py", line 854, in main
+    run(args.data, args.output, args.datasets, args.tasks, args.models, args.seeds,
+  File "/workspace/reseach1/src/nids_minibatch/training.py", line 724, in run
+    model, history, best_epoch = fit_model(
+                                 ^^^^^^^^^^
+  File "/workspace/reseach1/src/nids_minibatch/training.py", line 323, in fit_model
+    val_prob, val_loss = validation_metrics(
+                         ^^^^^^^^^^^^^^^^^^^
+  File "/workspace/reseach1/src/nids_minibatch/training.py", line 141, in validation_metrics
+    logits = full_logits(model, name, graph, amp)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/reseach1/src/nids_minibatch/training.py", line 124, in full_logits
+    return model(
+           ^^^^^^
+  File "/workspace/reseach1/.venv-server/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/reseach1/.venv-server/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/reseach1/src/nids_minibatch/models.py", line 37, in forward
+    h = self.layer1(x, edge_index, edge_attr)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/reseach1/.venv-server/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/reseach1/.venv-server/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/reseach1/src/nids_minibatch/models.py", line 17, in forward
+    aggregated = self.propagate(edge_index, x=x, edge_attr=edge_attr)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/nids_minibatch.models_EdgeSAGELayer_propagate_ikwu_0gd.py", line 219, in propagate
+    out = self.aggregate(
+          ^^^^^^^^^^^^^^^
+  File "/workspace/reseach1/.venv-server/lib/python3.12/site-packages/torch_geometric/nn/conv/message_passing.py", line 594, in aggregate
+    return self.aggr_module(inputs, index, ptr=ptr, dim_size=dim_size,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/reseach1/.venv-server/lib/python3.12/site-packages/torch_geometric/experimental.py", line 117, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/reseach1/.venv-server/lib/python3.12/site-packages/torch_geometric/nn/aggr/base.py", line 139, in __call__
+    raise e
+  File "/workspace/reseach1/.venv-server/lib/python3.12/site-packages/torch_geometric/nn/aggr/base.py", line 131, in __call__
+    return super().__call__(x, index=index, ptr=ptr, dim_size=dim_size,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/reseach1/.venv-server/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/reseach1/.venv-server/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/reseach1/.venv-server/lib/python3.12/site-packages/torch_geometric/nn/aggr/basic.py", line 36, in forward
+    return self.reduce(x, index, ptr, dim_size, dim, reduce='mean')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/reseach1/.venv-server/lib/python3.12/site-packages/torch_geometric/nn/aggr/base.py", line 185, in reduce
+    return scatter(x, index, dim, dim_size, reduce)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/reseach1/.venv-server/lib/python3.12/site-packages/torch_geometric/utils/_scatter.py", line 78, in scatter
+    out = src.new_zeros(size).scatter_add_(dim, index, src)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 14.41 GiB. GPU 0 has a total capacity of 23.56 GiB of which 4.64 GiB is free. Process 2637014 has 18.91 GiB memory in use. Of the allocated memory 17.87 GiB is allocated by PyTorch, and 739.88 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+START NF-BoT-IoT-v2__multiclass__edge_mlp__seed11
+edge_mlp seed=11 epoch=1 loss=0.9476 val_macro_f1=0.7316
+DONE NF-BoT-IoT-v2__multiclass__edge_mlp__seed11 test_macro_f1=0.7298 seconds=17.6
+START NF-BoT-IoT-v2__multiclass__sage__seed11
+sage seed=11 epoch=1 loss=0.9164 val_macro_f1=0.4318
+DONE NF-BoT-IoT-v2__multiclass__sage__seed11 test_macro_f1=0.4378 seconds=39.2
+START NF-BoT-IoT-v2__multiclass__sage_edge__seed11
+sage_edge seed=11 epoch=1 loss=0.3944 val_macro_f1=0.7761
+DONE NF-BoT-IoT-v2__multiclass__sage_edge__seed11 test_macro_f1=0.7675 seconds=45.8

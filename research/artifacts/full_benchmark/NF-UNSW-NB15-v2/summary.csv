@@ -1,0 +1,6 @@
+,,,test_macro_f1,test_macro_f1,test_weighted_f1,test_weighted_f1,test_accuracy,test_accuracy,seconds_fit_and_evaluate,seconds_fit_and_evaluate
+,,,mean,std,mean,std,mean,std,mean,std
+dataset,task,model,,,,,,,,
+NF-UNSW-NB15-v2,multiclass,edge_mlp,0.38321157900487435,,0.9750691794007925,,0.9712347308721421,,11.686945595021825,
+NF-UNSW-NB15-v2,multiclass,sage,0.44868912880181566,,0.9785764595198609,,0.9720610786034514,,12.801171578001231,
+NF-UNSW-NB15-v2,multiclass,sage_edge,0.4591154944596408,,0.9814431052424422,,0.9773245998489561,,11.844320996984607,

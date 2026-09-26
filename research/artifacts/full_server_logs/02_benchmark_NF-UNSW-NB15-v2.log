@@ -1,0 +1,33 @@
+START NF-UNSW-NB15-v2__multiclass__edge_mlp__seed11
+/workspace/reseach1/.venv-server/lib/python3.12/site-packages/torch/autograd/graph.py:829: UserWarning: Deterministic behavior was enabled with either `torch.use_deterministic_algorithms(True)` or `at::Context::setDeterministicAlgorithms(true)`, but this operation is not deterministic because it uses CuBLAS and you have CUDA >= 10.2. To enable deterministic behavior in this case, you must set an environment variable before running your PyTorch application: CUBLAS_WORKSPACE_CONFIG=:4096:8 or CUBLAS_WORKSPACE_CONFIG=:16:8. For more information, go to https://docs.nvidia.com/cuda/cublas/index.html#results-reproducibility (Triggered internally at /pytorch/aten/src/ATen/Context.cpp:233.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+edge_mlp seed=11 epoch=1 loss=1.5685 val_macro_f1=0.3779
+DONE NF-UNSW-NB15-v2__multiclass__edge_mlp__seed11 test_macro_f1=0.3832 seconds=10.9
+START NF-UNSW-NB15-v2__multiclass__sage__seed11
+/workspace/reseach1/.venv-server/lib/python3.12/site-packages/torch/autograd/graph.py:829: UserWarning: Deterministic behavior was enabled with either `torch.use_deterministic_algorithms(True)` or `at::Context::setDeterministicAlgorithms(true)`, but this operation is not deterministic because it uses CuBLAS and you have CUDA >= 10.2. To enable deterministic behavior in this case, you must set an environment variable before running your PyTorch application: CUBLAS_WORKSPACE_CONFIG=:4096:8 or CUBLAS_WORKSPACE_CONFIG=:16:8. For more information, go to https://docs.nvidia.com/cuda/cublas/index.html#results-reproducibility (Triggered internally at /pytorch/aten/src/ATen/Context.cpp:233.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+sage seed=11 epoch=1 loss=1.2294 val_macro_f1=0.4471
+DONE NF-UNSW-NB15-v2__multiclass__sage__seed11 test_macro_f1=0.4488 seconds=11.9
+START NF-UNSW-NB15-v2__multiclass__sage_edge__seed11
+/workspace/reseach1/.venv-server/lib/python3.12/site-packages/torch/autograd/graph.py:829: UserWarning: Deterministic behavior was enabled with either `torch.use_deterministic_algorithms(True)` or `at::Context::setDeterministicAlgorithms(true)`, but this operation is not deterministic because it uses CuBLAS and you have CUDA >= 10.2. To enable deterministic behavior in this case, you must set an environment variable before running your PyTorch application: CUBLAS_WORKSPACE_CONFIG=:4096:8 or CUBLAS_WORKSPACE_CONFIG=:16:8. For more information, go to https://docs.nvidia.com/cuda/cublas/index.html#results-reproducibility (Triggered internally at /pytorch/aten/src/ATen/Context.cpp:233.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+sage_edge seed=11 epoch=1 loss=1.2108 val_macro_f1=0.4597
+DONE NF-UNSW-NB15-v2__multiclass__sage_edge__seed11 test_macro_f1=0.4594 seconds=11.0
+START NF-UNSW-NB15-v2__multiclass__edge_mlp__seed11
+edge_mlp seed=11 epoch=1 loss=1.5685 val_macro_f1=0.3779
+DONE NF-UNSW-NB15-v2__multiclass__edge_mlp__seed11 test_macro_f1=0.3832 seconds=10.3
+START NF-UNSW-NB15-v2__multiclass__sage__seed11
+sage seed=11 epoch=1 loss=1.2294 val_macro_f1=0.3580
+DONE NF-UNSW-NB15-v2__multiclass__sage__seed11 test_macro_f1=0.3618 seconds=12.2
+START NF-UNSW-NB15-v2__multiclass__sage_edge__seed11
+sage_edge seed=11 epoch=1 loss=1.2108 val_macro_f1=0.3573
+DONE NF-UNSW-NB15-v2__multiclass__sage_edge__seed11 test_macro_f1=0.3530 seconds=11.8
+START NF-UNSW-NB15-v2__multiclass__edge_mlp__seed11
+edge_mlp seed=11 epoch=1 loss=1.5685 val_macro_f1=0.3779
+DONE NF-UNSW-NB15-v2__multiclass__edge_mlp__seed11 test_macro_f1=0.3832 seconds=11.7
+START NF-UNSW-NB15-v2__multiclass__sage__seed11
+sage seed=11 epoch=1 loss=1.2294 val_macro_f1=0.4471
+DONE NF-UNSW-NB15-v2__multiclass__sage__seed11 test_macro_f1=0.4487 seconds=12.8
+START NF-UNSW-NB15-v2__multiclass__sage_edge__seed11
+sage_edge seed=11 epoch=1 loss=1.2108 val_macro_f1=0.4603
+DONE NF-UNSW-NB15-v2__multiclass__sage_edge__seed11 test_macro_f1=0.4591 seconds=11.8

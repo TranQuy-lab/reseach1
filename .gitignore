@@ -11,7 +11,15 @@ __pycache__/
 data/raw/
 data/processed_four/
 data/minibatch_splits/
-research/artifacts/
+# Split full sinh lai duoc tu prepare; qua lon (2.9GB) nen khong dua len Git.
+data/full_splits/
+data/full_splits.failed-*/
+research/results/*.failed-*.json
+# Artifacts: giu ket qua gon nhe de tai lap/kiem chung.
+# test_predictions.parquet (375MB) sinh lai duoc tu model.pt nen khong dua len Git.
+research/artifacts/**/test_predictions.parquet
+research/artifacts/full_benchmark.failed-*/
+
 
 *.csv.gz
 *.tar.gz

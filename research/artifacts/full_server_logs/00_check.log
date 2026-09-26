@@ -1,0 +1,189 @@
+{
+  "platform": "Linux-5.15.0-173-generic-x86_64-with-glibc2.39",
+  "python": "3.12.3",
+  "logical_cpu": 96,
+  "physical_cpu": 48,
+  "memory_gib": 1007.7263565063477,
+  "free_disk_gib": 88.39980697631836,
+  "processed_data_present": true,
+  "processed_data": {
+    "NF-UNSW-NB15-v2": {
+      "path": "data/processed_four/NF-UNSW-NB15-v2.parquet",
+      "ready": true,
+      "bytes": 138576927,
+      "problem": null,
+      "rows": 2390275,
+      "sha256": "ec59445b8995025fb3a1a442e7d761e7b81ac507bd49051200dd7f60b93665b3"
+    },
+    "NF-BoT-IoT-v2": {
+      "path": "data/processed_four/NF-BoT-IoT-v2.parquet",
+      "ready": true,
+      "bytes": 1314809602,
+      "problem": null,
+      "rows": 37763497,
+      "sha256": "3181bc41c8cf956a6d177e0f37fb2442a096dc490bfe1927d6a49e8216c06bfc"
+    },
+    "NF-ToN-IoT-v2": {
+      "path": "data/processed_four/NF-ToN-IoT-v2.parquet",
+      "ready": true,
+      "bytes": 798311168,
+      "problem": null,
+      "rows": 16940496,
+      "sha256": "71b1c9294edfda7c3a4c75b30d7605d9688f65d9cea09d813e81348f5b2ed7b3"
+    },
+    "NF-CSE-CIC-IDS2018-v2": {
+      "path": "data/processed_four/NF-CSE-CIC-IDS2018-v2.parquet",
+      "ready": true,
+      "bytes": 1024343192,
+      "problem": null,
+      "rows": 18893708,
+      "sha256": "63d4275606c609787ba4c501c0060238dc7049bf66276f3417901cccac72cc3c"
+    }
+  },
+  "required_free_disk_gib": 12,
+  "torch": "2.8.0+cu128",
+  "packages": {
+    "numpy": "2.2.6",
+    "pandas": "2.3.3",
+    "pyarrow": "22.0.0",
+    "scikit-learn": "1.7.2",
+    "torch-geometric": "2.7.0",
+    "pyg-lib": "0.5.0+pt28cu128",
+    "torch": "2.8.0+cu128"
+  },
+  "device": "cuda",
+  "cuda_runtime": "12.8",
+  "gpu": "NVIDIA GeForce RTX 3090",
+  "gpu_memory_gib": 23.55877685546875,
+  "bf16_supported": true,
+  "scope": "full",
+  "git_commit": "812e05ca2cf1c47970ef2030eca9641f5744b4cd",
+  "tracked_files_dirty": false,
+  "resource_problems": []
+}
+{
+  "platform": "Linux-5.15.0-173-generic-x86_64-with-glibc2.39",
+  "python": "3.12.3",
+  "logical_cpu": 96,
+  "physical_cpu": 48,
+  "memory_gib": 1007.7263565063477,
+  "free_disk_gib": 87.1515998840332,
+  "processed_data_present": true,
+  "processed_data": {
+    "NF-UNSW-NB15-v2": {
+      "path": "data/processed_four/NF-UNSW-NB15-v2.parquet",
+      "ready": true,
+      "bytes": 138576927,
+      "problem": null,
+      "rows": 2390275,
+      "sha256": "ec59445b8995025fb3a1a442e7d761e7b81ac507bd49051200dd7f60b93665b3"
+    },
+    "NF-BoT-IoT-v2": {
+      "path": "data/processed_four/NF-BoT-IoT-v2.parquet",
+      "ready": true,
+      "bytes": 1314809602,
+      "problem": null,
+      "rows": 37763497,
+      "sha256": "3181bc41c8cf956a6d177e0f37fb2442a096dc490bfe1927d6a49e8216c06bfc"
+    },
+    "NF-ToN-IoT-v2": {
+      "path": "data/processed_four/NF-ToN-IoT-v2.parquet",
+      "ready": true,
+      "bytes": 798311168,
+      "problem": null,
+      "rows": 16940496,
+      "sha256": "71b1c9294edfda7c3a4c75b30d7605d9688f65d9cea09d813e81348f5b2ed7b3"
+    },
+    "NF-CSE-CIC-IDS2018-v2": {
+      "path": "data/processed_four/NF-CSE-CIC-IDS2018-v2.parquet",
+      "ready": true,
+      "bytes": 1024343192,
+      "problem": null,
+      "rows": 18893708,
+      "sha256": "63d4275606c609787ba4c501c0060238dc7049bf66276f3417901cccac72cc3c"
+    }
+  },
+  "required_free_disk_gib": 12,
+  "torch": "2.8.0+cu128",
+  "packages": {
+    "numpy": "2.2.6",
+    "pandas": "2.3.3",
+    "pyarrow": "22.0.0",
+    "scikit-learn": "1.7.2",
+    "torch-geometric": "2.7.0",
+    "pyg-lib": "0.5.0+pt28cu128",
+    "torch": "2.8.0+cu128"
+  },
+  "device": "cuda",
+  "cuda_runtime": "12.8",
+  "gpu": "NVIDIA GeForce RTX 3090",
+  "gpu_memory_gib": 23.55877685546875,
+  "bf16_supported": true,
+  "scope": "full",
+  "git_commit": "0341727b7894bbdcb265a7551f3aa5c305c453e2",
+  "tracked_files_dirty": false,
+  "resource_problems": []
+}
+{
+  "platform": "Linux-5.15.0-173-generic-x86_64-with-glibc2.39",
+  "python": "3.12.3",
+  "logical_cpu": 96,
+  "physical_cpu": 48,
+  "memory_gib": 1007.7263565063477,
+  "free_disk_gib": 84.28993225097656,
+  "processed_data_present": true,
+  "processed_data": {
+    "NF-UNSW-NB15-v2": {
+      "path": "data/processed_four/NF-UNSW-NB15-v2.parquet",
+      "ready": true,
+      "bytes": 138576927,
+      "problem": null,
+      "rows": 2390275,
+      "sha256": "ec59445b8995025fb3a1a442e7d761e7b81ac507bd49051200dd7f60b93665b3"
+    },
+    "NF-BoT-IoT-v2": {
+      "path": "data/processed_four/NF-BoT-IoT-v2.parquet",
+      "ready": true,
+      "bytes": 1314809602,
+      "problem": null,
+      "rows": 37763497,
+      "sha256": "3181bc41c8cf956a6d177e0f37fb2442a096dc490bfe1927d6a49e8216c06bfc"
+    },
+    "NF-ToN-IoT-v2": {
+      "path": "data/processed_four/NF-ToN-IoT-v2.parquet",
+      "ready": true,
+      "bytes": 798311168,
+      "problem": null,
+      "rows": 16940496,
+      "sha256": "71b1c9294edfda7c3a4c75b30d7605d9688f65d9cea09d813e81348f5b2ed7b3"
+    },
+    "NF-CSE-CIC-IDS2018-v2": {
+      "path": "data/processed_four/NF-CSE-CIC-IDS2018-v2.parquet",
+      "ready": true,
+      "bytes": 1024343192,
+      "problem": null,
+      "rows": 18893708,
+      "sha256": "63d4275606c609787ba4c501c0060238dc7049bf66276f3417901cccac72cc3c"
+    }
+  },
+  "required_free_disk_gib": 12,
+  "torch": "2.8.0+cu128",
+  "packages": {
+    "numpy": "2.2.6",
+    "pandas": "2.3.3",
+    "pyarrow": "22.0.0",
+    "scikit-learn": "1.7.2",
+    "torch-geometric": "2.7.0",
+    "pyg-lib": "0.5.0+pt28cu128",
+    "torch": "2.8.0+cu128"
+  },
+  "device": "cuda",
+  "cuda_runtime": "12.8",
+  "gpu": "NVIDIA GeForce RTX 3090",
+  "gpu_memory_gib": 23.55877685546875,
+  "bf16_supported": true,
+  "scope": "full",
+  "git_commit": "8857b220d232dfb58949517fed4a9327c25e6bb0",
+  "tracked_files_dirty": false,
+  "resource_problems": []
+}

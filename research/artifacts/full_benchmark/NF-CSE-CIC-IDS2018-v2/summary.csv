@@ -1,0 +1,6 @@
+,,,test_macro_f1,test_macro_f1,test_weighted_f1,test_weighted_f1,test_accuracy,test_accuracy,seconds_fit_and_evaluate,seconds_fit_and_evaluate
+,,,mean,std,mean,std,mean,std,mean,std
+dataset,task,model,,,,,,,,
+NF-CSE-CIC-IDS2018-v2,multiclass,edge_mlp,0.576717160615259,,0.6913826743546899,,0.5589890405304574,,16.134883362974506,
+NF-CSE-CIC-IDS2018-v2,multiclass,sage,0.6363556235976094,,0.7320292870410718,,0.597908387089946,,28.786723799974425,
+NF-CSE-CIC-IDS2018-v2,multiclass,sage_edge,0.6717188257360596,,0.9144673279597496,,0.8571890098375924,,28.62469145702198,

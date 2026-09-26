@@ -1,0 +1,30 @@
+[
+  {
+    "epoch": 1,
+    "loss": 1.2108485269533285,
+    "val_loss": 1.0196316242218018,
+    "val_macro_f1": 0.46031721481449034,
+    "train_edges": 1673104,
+    "train_batches": 409,
+    "train_seconds": 11.494832891010446,
+    "batch_timing": {
+      "warmup_batches": 50,
+      "window_batches": 50,
+      "measured_windows": 7,
+      "seconds_per_batch_windows": [
+        0.02561154970084317,
+        0.02475023713777773,
+        0.025489678818848914,
+        0.025369346718071027,
+        0.025022192479809746,
+        0.02464336263539735,
+        0.024901954419328833
+      ],
+      "median_seconds_per_batch": 0.025022192479809746,
+      "p90_seconds_per_batch": 0.025538427171646616,
+      "mad_seconds_per_batch": 0.00034715423826128106
+    },
+    "validation_seconds": 0.12970161001430824,
+    "seconds": 11.624536360992352
+  }
+]

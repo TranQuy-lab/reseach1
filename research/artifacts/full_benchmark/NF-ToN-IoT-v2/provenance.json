@@ -1,0 +1,73 @@
+{
+  "environment": {
+    "python": "3.12.3",
+    "platform": "Linux-5.15.0-173-generic-x86_64-with-glibc2.39",
+    "packages": {
+      "numpy": "2.2.6",
+      "pandas": "2.3.3",
+      "pyarrow": "22.0.0",
+      "scikit-learn": "1.7.2",
+      "torch": "2.8.0+cu128",
+      "torch-geometric": "2.7.0",
+      "pyg-lib": "0.5.0+pt28cu128"
+    },
+    "cuda_available": true,
+    "torch_threads": 12
+  },
+  "protocol_sha256": "a4446ea24d6334e803de21664f0d9656b67f0802b85172825dfa7bf16611aa7d",
+  "source_sha256": {
+    "src/nids_minibatch/__init__.py": "8ecb8b4f6feb1a8cf6eb5eabb386878b4c0523330f8b6f40bce368b1c245a3de",
+    "src/nids_minibatch/data.py": "2c3f115ac9263d42987e9529db18684133174d8f0ef76d18dc298af8a98a84d9",
+    "src/nids_minibatch/models.py": "4a6540610dad6ce652c458c8ba432521a298994caf2baab0bf5f7c3dc4d9ac28",
+    "src/nids_minibatch/prepare.py": "22ef06a4405b2270ac74c82654307abfbfd06615d3ef7783b1438a0d579e1e8c",
+    "src/nids_minibatch/schema.py": "3f1b98c663cee8a653045e63f8ccd6f0ecc7e6c97541c6024e1158e39f9f5463",
+    "src/nids_minibatch/training.py": "5618b52523d9876769e8bf0192c2cb4e7d1736da51ccefa92fd93f41066e0828",
+    "src/nids_minibatch/tune.py": "ea542f86167f7b3d8196031731d3f35f9fb646e26efe3567a15bfdfc67894986",
+    "research/server/run_full_pipeline.py": "b78cb159fbf642fa58050fc28e8b62b15a18fb0b1f9cf366e546230b4606aec3",
+    "research/estimate_full_runtime.py": "bbd686854b8c332a3ef6aca1aa7e469ebc21044f7ee37107cef4323560cb8c72",
+    "research/validate_minibatch_results.py": "fade486da98c2647f3e29617d2694e7497d9ed0955c988dd925dfa4b8dd8e751"
+  },
+  "git": {
+    "commit": "bed7cb2649e63b8f55e4c7041fe2da97c637fd48",
+    "tracked_files_dirty": false
+  },
+  "datasets": [
+    "NF-ToN-IoT-v2"
+  ],
+  "tasks": [
+    "multiclass"
+  ],
+  "models": [
+    "edge_mlp",
+    "sage",
+    "sage_edge"
+  ],
+  "seeds": [
+    11
+  ],
+  "epochs": 1,
+  "patience": 1,
+  "batch_size": 4096,
+  "fanout": [
+    15,
+    10
+  ],
+  "threads": 12,
+  "scope": "full",
+  "eval_every": 3,
+  "amp": true,
+  "prediction_cap": 1000,
+  "max_train_batches": 500,
+  "max_train_steps": 0,
+  "eval_every_steps": 0,
+  "train_passes": 0,
+  "min_train_steps": 0,
+  "evals_per_pass": 4,
+  "minimum_eval_interval_steps": 0,
+  "training_budget_mode": "epochs",
+  "num_workers": 4,
+  "shared_feature_graph_across_tasks": true,
+  "edge_storage_dtype": "torch.float16",
+  "requested_device": "cuda",
+  "effective_device": "cuda"
+}

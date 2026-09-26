@@ -1,0 +1,23 @@
+{"dataset": "NF-UNSW-NB15-v2", "rows": 2390275, "pilot_rows": {"test": 28837, "train": 84442, "val": 14626}}
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/workspace/reseach1/src/nids_minibatch/prepare.py", line 218, in <module>
+    main()
+  File "/workspace/reseach1/src/nids_minibatch/prepare.py", line 214, in main
+    prepare(args.source, args.output, args.report, args.threads, args.protocol)
+  File "/workspace/reseach1/src/nids_minibatch/prepare.py", line 137, in prepare
+    overlap = con.execute(
+              ^^^^^^^^^^^^
+_duckdb.OutOfMemoryException: Out of Memory Error: failed to allocate data of size 4.0 MiB (952.0 MiB/953.6 MiB used)
+
+Possible solutions:
+* Reducing the number of threads (SET threads=X)
+* Disabling insertion-order preservation (SET preserve_insertion_order=false)
+* Increasing the memory limit (SET memory_limit='...GB')
+
+See also https://duckdb.org/docs/stable/guides/performance/how_to_tune_workloads
+{"dataset": "NF-UNSW-NB15-v2", "rows": 2390275, "pilot_rows": {"test": 28837, "train": 84442, "val": 14626}}
+{"dataset": "NF-BoT-IoT-v2", "rows": 37763497, "pilot_rows": {"test": 40480, "train": 81688, "val": 20263}}
+{"dataset": "NF-ToN-IoT-v2", "rows": 16940496, "pilot_rows": {"test": 75601, "train": 159575, "val": 37781}}
+{"dataset": "NF-CSE-CIC-IDS2018-v2", "rows": 18893708, "pilot_rows": {"test": 60085, "train": 120307, "val": 30040}}
