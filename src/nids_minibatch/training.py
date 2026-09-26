@@ -116,6 +116,7 @@ def _autocast(device: torch.device, enabled: bool):
 
 
 def full_logits(model, name: str, graph: EdgeGraph, amp: bool = False) -> torch.Tensor:
+    """Reference single-pass full-graph forward; memory scales with the split."""
     model.eval()
     device = next(model.parameters()).device
     with torch.no_grad(), _autocast(device, amp):
@@ -130,18 +131,103 @@ def full_logits(model, name: str, graph: EdgeGraph, amp: bool = False) -> torch.
         )
 
 
+# Bounded full-neighborhood inference. Forwarding an entire full-data split at
+# once makes the per-edge message tensor scale with that split: on
+# NF-BoT-IoT-v2 one allocation reached 14.41 GiB and exhausted a 24 GB card.
+# Chunking message edges inside each complete GNN layer keeps the same equations
+# while retaining only node embeddings and one message chunk on the GPU.
+EVALUATION_CHUNK_EDGES = 131_072
+
+
+def _chunked_sage_layer(layer, node_features: torch.Tensor,
+                        edge_index: torch.Tensor, edge_attr: torch.Tensor,
+                        degrees: torch.Tensor, chunk_edges: int,
+                        device: torch.device) -> torch.Tensor:
+    aggregate = None
+    for start in range(0, edge_index.shape[1], chunk_edges):
+        stop = min(start + chunk_edges, edge_index.shape[1])
+        source = edge_index[0, start:stop].to(device)
+        target = edge_index[1, start:stop].to(device)
+        attributes = edge_attr[start:stop].to(device)
+        message = layer.w_msg(torch.cat([node_features[source], attributes], dim=1))
+        if aggregate is None:
+            aggregate = torch.zeros(
+                (node_features.shape[0], message.shape[1]),
+                dtype=message.dtype, device=device,
+            )
+        aggregate.index_add_(0, target, message)
+    if aggregate is None:
+        raise ValueError("evaluation graph has no message edges")
+    aggregate = aggregate / degrees.to(dtype=aggregate.dtype)
+    return torch.relu(layer.w_apply(torch.cat([node_features, aggregate], dim=1)))
+
+
+def chunked_logits(model, name: str, graph: EdgeGraph, amp: bool = False,
+                   chunk_edges: int = EVALUATION_CHUNK_EDGES) -> torch.Tensor:
+    """Evaluate the complete graph layer-by-layer with bounded message chunks."""
+    if chunk_edges < 1:
+        raise ValueError("chunk_edges must be positive")
+    model.eval()
+    device = next(model.parameters()).device
+    total = int(graph.labels.shape[0])
+    if not total:
+        raise ValueError("evaluation graph has no label edges")
+    # The returned logits always live on the host, matching `full_probabilities`
+    # and the replay validator, whichever branch produced them.
+    if name == "edge_mlp":
+        outputs: list[torch.Tensor] = []
+        with torch.no_grad(), _autocast(device, amp):
+            for start in range(0, total, chunk_edges):
+                stop = min(start + chunk_edges, total)
+                outputs.append(
+                    model(graph.label_edge_attr[start:stop].to(device)).float().cpu()
+                )
+        return torch.cat(outputs, dim=0)
+    edge_index = graph.data.edge_index
+    edge_attr = graph.data.edge_attr
+    degrees = torch.bincount(
+        edge_index[1], minlength=graph.data.num_nodes,
+    ).clamp_min_(1).to(device).unsqueeze(1)
+    with torch.no_grad(), _autocast(device, amp):
+        feature_dtype = (edge_attr.dtype if amp and device.type == "cuda"
+                         else next(model.parameters()).dtype)
+        node_features = torch.ones(
+            (graph.data.num_nodes, model.edge_dim),
+            dtype=feature_dtype, device=device,
+        )
+        hidden = _chunked_sage_layer(
+            model.layer1, node_features, edge_index, edge_attr,
+            degrees, chunk_edges, device,
+        )
+        hidden = _chunked_sage_layer(
+            model.layer2, model.dropout(hidden), edge_index, edge_attr,
+            degrees, chunk_edges, device,
+        )
+        outputs: list[torch.Tensor] = []
+        for start in range(0, total, chunk_edges):
+            stop = min(start + chunk_edges, total)
+            label_index = graph.label_edge_index[:, start:stop].to(device)
+            parts = [hidden[label_index[0]], hidden[label_index[1]]]
+            if model.direct_edge:
+                parts.append(graph.label_edge_attr[start:stop].to(device))
+            outputs.append(model.head(torch.cat(parts, dim=1)).float().cpu())
+    return torch.cat(outputs, dim=0)
+
+
 def full_probabilities(model, name: str, graph: EdgeGraph, amp: bool = False) -> np.ndarray:
-    logits = full_logits(model, name, graph, amp)
+    logits = chunked_logits(model, name, graph, amp)
     return torch.softmax(logits.float(), dim=1).cpu().numpy()
 
 
 def validation_metrics(model, name: str, graph: EdgeGraph, loss_fn,
                        amp: bool = False) -> tuple[np.ndarray, float]:
     """Return full-neighbor probabilities and weighted validation loss."""
-    logits = full_logits(model, name, graph, amp)
-    device = logits.device
+    logits = chunked_logits(model, name, graph, amp)
     with torch.no_grad():
-        loss = float(loss_fn(logits.float(), graph.labels.to(device)).detach())
+        weight = loss_fn.weight.detach().cpu() if loss_fn.weight is not None else None
+        loss = float(torch.nn.functional.cross_entropy(
+            logits.float(), graph.labels.cpu(), weight=weight,
+        ))
         probabilities = torch.softmax(logits.float(), dim=1).cpu().numpy()
     return probabilities, loss
 

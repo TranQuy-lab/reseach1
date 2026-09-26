@@ -28,6 +28,8 @@ def execute(arguments: list[str], log: Path, check: bool = True) -> int:
     env = os.environ.copy()
     env["PYTHONPATH"] = str(ROOT / "src")
     env.setdefault("MPLCONFIGDIR", str(ROOT / ".matplotlib-cache"))
+    env.setdefault("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
+    env.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
     print("RUN", " ".join(arguments), flush=True)
     with log.open("a") as stream:
         process = subprocess.Popen(arguments, cwd=ROOT, env=env, text=True,

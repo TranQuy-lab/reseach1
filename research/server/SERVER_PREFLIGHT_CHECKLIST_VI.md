@@ -31,6 +31,11 @@ Chỉ tiếp tục khi:
   validation mục tiêu mỗi lượt và khoảng validation tối thiểu 500 step;
 - benchmark và train dùng cùng `num_workers` (mặc định 4);
 - CUDA peak dưới 90% VRAM khả dụng và RSS tiến trình chính dưới 80% RAM host;
+  lưu ý `peak_rss_kib_process` là `RUSAGE_SELF` nên **không** gồm bốn DataLoader
+  worker. Đo BoT-IoT thực tế: tiến trình chính báo 53,4 GiB trong khi cgroup
+  `memory.current` cao hơn hẳn; kernel này không có `memory.peak`, nên hãy lấy
+  mẫu `memory.max`/`memory.current` của cgroup (hoặc RSS cả cây tiến trình)
+  trong lúc benchmark thay vì tin tuyệt đối vào con số của estimator;
 - `cost_estimate.cost_gate_evaluated: true` khi thuê GPU và
   `planning_cost_usd <= 6`; nếu giá bằng 0 thì phải tự so giá thuê với
   `max_hourly_price_for_budget_usd` trước khi khởi chạy;

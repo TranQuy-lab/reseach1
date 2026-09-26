@@ -65,10 +65,15 @@ Xem `PIPELINE_AUDIT_2026-09-21_VI.md`.
 - Mỗi run giữ checkpoint, scaler, cấu hình, lịch sử, metric full-test và tối đa
   100.000 dòng dự đoán kiểm toán được chọn theo vị trí cách đều. Giới hạn này
   chỉ giảm dung lượng artifact; metric luôn được tính trên toàn bộ test split.
-- Train dùng directional neighbor sampling `[15,10]`; validation/test dùng
-  full-neighbor trên toàn split. Đây là lựa chọn khóa của ma trận chính, phải
-  ghi rõ khi diễn giải. Đánh giá sampled-neighbor là thí nghiệm độ nhạy riêng,
-  không được trộn vào 72 run chính.
+- Train dùng directional neighbor sampling `[15,10]`. Validation/test truyền
+  thông điệp trên **toàn bộ cạnh của graph** theo từng lớp, nhưng cộng dồn theo
+  chunk cạnh (`EVALUATION_CHUNK_EDGES`) để tensor message bị chặn theo chunk
+  thay vì theo cả split. Đây là phép tính tương đương, không phải xấp xỉ:
+  kiểm chứng trên `tests/test_chunked_evaluation.py` cho chênh lệch logit so với
+  forward toàn graph ≤ 1,2e-7 (float32) và không đổi theo kích thước chunk. Lý do
+  bắt buộc: forward trọn split làm NF-BoT-IoT-v2 xin một buffer 14,41 GiB và OOM
+  trên card 24 GB. Đánh giá sampled-neighbor là thí nghiệm độ nhạy riêng, không
+  được trộn vào 72 run chính.
 - `edge_mlp` là baseline nội bộ của ma trận chính, không đại diện cho mọi mô
   hình bảng. Random Forest/GBDT và baseline cùng capacity phải chạy ở protocol
   xác nhận riêng trên đúng split trước khi tuyên bố GNN hơn baseline nói chung.

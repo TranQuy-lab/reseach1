@@ -14,8 +14,14 @@ hình, ba seed, tổng cộng 72 run. Notebook chỉ điều phối các module 
 - Nếu đã chuyển đủ bốn Parquet đã kiểm chứng: cần tối thiểu 12 GiB trống
   sau khi cài môi trường để tạo split, checkpoint và báo cáo; nên có 18 GiB.
 - Pilot: GPU NVIDIA 16–24 GB VRAM. Full-data: tối thiểu 23 GiB VRAM khả dụng
-  (RTX 3090 24 GB báo khoảng 23,56 GiB qua PyTorch), khuyến nghị 32 GB;
-  driver/runtime phải hỗ trợ CUDA 12.8. Benchmark chặn từ 90% VRAM khả dụng.
+  (RTX 3090 24 GB báo khoảng 23,56 GiB qua PyTorch); driver/runtime phải hỗ
+  trợ CUDA 12.8. Benchmark chặn từ 90% VRAM khả dụng.
+- Đánh giá validation/test truyền toàn bộ message theo từng lớp và cộng dồn
+  theo chunk cạnh (`EVALUATION_CHUNK_EDGES`), nên đỉnh VRAM bị chặn theo chunk
+  chứ không theo cả split. Trước bản sửa này, forward trọn một split làm
+  NF-BoT-IoT-v2 xin một buffer dày 14,41 GiB và OOM trên card 24 GB, trong khi
+  UNSW-NB15 đã đỉnh 9,08 GiB. Kiểm chứng tương đương: chênh lệch logit so với
+  forward toàn graph ≤ 1,2e-7 (float32) trên `tests/test_chunked_evaluation.py`.
 - Pipeline full-data 75.987.976 flow nằm trong các notebook `10_FULL_*` đến
   `12_FULL_*`. Notebook 10 bắt buộc benchmark giới hạn trước và không tự chạy
   72 cấu hình. Notebook 11 chỉ chạy khi cổng ETA/RAM/VRAM/ổ đĩa đạt.
