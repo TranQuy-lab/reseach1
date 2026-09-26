@@ -39,7 +39,9 @@ def test_server_manifest_and_required_entrypoints():
     for relative in [
         "research/server/bootstrap_server.sh", "research/server/run_all.sh",
         "research/server/run_pipeline.py", "research/server/check_server.py",
+        "research/server/run_full_release.sh",
         "research/PROTOCOL_MINIBATCH_VI.md", "research/validate_minibatch_results.py",
+        "research/rebuild_full_evaluation.py",
         "research/PROTOCOL_FULL_DATA_VI.md", "research/estimate_full_runtime.py",
         "research/build_full_report.py", "research/server/run_full_pipeline.py",
         "research/server/SERVER_PREFLIGHT_CHECKLIST_VI.md",
@@ -70,6 +72,18 @@ def test_full_split_uses_server_memory_limit(monkeypatch):
     full_pipeline.run_stage("split", 12, 4, 6.0, 0.25)
     command = captured[0]
     assert command[command.index("--memory-limit") + 1] == "16GB"
+
+
+def test_full_reevaluation_reuses_existing_checkpoints(monkeypatch):
+    captured = []
+    monkeypatch.setattr(
+        full_pipeline, "execute", lambda command, log: captured.append((command, log))
+    )
+    full_pipeline.run_stage("reevaluate", 12, 4, 6.0, 0.25)
+    command, log = captured[0]
+    assert command[1] == "research/rebuild_full_evaluation.py"
+    assert "--runs" in command
+    assert log.name == "04_reevaluate.log"
 
 
 def test_launch_gate_locks_budget_and_worker_count(tmp_path, monkeypatch):

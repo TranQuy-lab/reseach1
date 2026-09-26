@@ -83,6 +83,16 @@ def test_chunk_boundary_does_not_change_high_degree_logits():
 
 
 @pytest.mark.skipif(not torch.cuda.is_available(), reason="CUDA is required")
+def test_amp_gnn_checkpoint_replay_is_stable():
+    graph = synthetic_graph(rows=4_000, hubs=2)
+    torch.manual_seed(11)
+    model = build_model("sage_edge", len(FEATURES), 3, 32, 0.2).cuda()
+    first = chunked_logits(model, "sage_edge", graph, amp=True, chunk_edges=127)
+    second = chunked_logits(model, "sage_edge", graph, amp=True, chunk_edges=127)
+    assert float((first - second).abs().max()) < 1e-5
+
+
+@pytest.mark.skipif(not torch.cuda.is_available(), reason="CUDA is required")
 @pytest.mark.parametrize("model_name", ["sage", "edge_mlp"])
 def test_chunked_evaluation_matches_on_cuda(model_name):
     """CUDA chunk accumulation and host output must match the reference."""

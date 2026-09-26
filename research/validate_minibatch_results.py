@@ -51,8 +51,14 @@ def main():
     if provenance["protocol_sha256"] != sha256(protocol):
         raise AssertionError("Protocol checksum changed after experiment start")
     current_sources = experiment_source_sha256()
-    if provenance.get("source_sha256") != current_sources:
-        raise AssertionError("Experiment source code changed after experiment start")
+    replay_sources = provenance.get(
+        "evaluation_source_sha256", provenance.get("source_sha256")
+    )
+    if replay_sources != current_sources:
+        raise AssertionError("Evaluation source code changed after artifact creation")
+    rebuild = provenance.get("evaluation_rebuild")
+    if rebuild is not None and rebuild.get("status") != "complete":
+        raise AssertionError("Evaluation artifact rebuild is incomplete")
     table = pd.read_csv(args.runs / "runs.csv")
     expected = len(provenance["datasets"]) * len(provenance["tasks"]) * len(provenance["models"]) * len(provenance["seeds"])
     if len(table) != expected or table[["dataset", "task", "model", "seed"]].duplicated().any():
@@ -103,6 +109,9 @@ def main():
         if metric_error > 1e-12:
             raise AssertionError(f"Metric recomputation failed for {run_dir.name}")
         metrics_file = json.loads((run_dir / "metrics.json").read_text())
+        expected_mode = provenance.get("evaluation_rebuild", {}).get("mode")
+        if expected_mode and metrics_file.get("evaluation_mode") != expected_mode:
+            raise AssertionError(f"Evaluation mode differs for {run_dir.name}")
         parameter_error = metrics_file.get("checkpoint_parameter_max_abs_error")
         if parameter_error is not None:
             if parameter_error != 0:
@@ -124,6 +133,8 @@ def main():
         "largest_metric_recomputation_error": largest_metric_error,
         "protocol_sha256": provenance["protocol_sha256"],
         "source_sha256": provenance["source_sha256"],
+        "evaluation_source_sha256": replay_sources,
+        "evaluation_mode": provenance.get("evaluation_rebuild", {}).get("mode"),
         "probability_tolerance": replay_tolerance,
         "artifact_sha256": artifact_sha256,
     }

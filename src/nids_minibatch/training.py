@@ -53,6 +53,7 @@ def experiment_source_sha256() -> dict[str, str]:
         path for path in (
             root / "research/server/run_full_pipeline.py",
             root / "research/estimate_full_runtime.py",
+            root / "research/rebuild_full_evaluation.py",
             root / "research/validate_minibatch_results.py",
         ) if path.is_file()
     )
@@ -137,6 +138,7 @@ def full_logits(model, name: str, graph: EdgeGraph, amp: bool = False) -> torch.
 # Chunking message edges inside each complete GNN layer keeps the same equations
 # while retaining only node embeddings and one message chunk on the GPU.
 EVALUATION_CHUNK_EDGES = 131_072
+EVALUATION_MODE = "float32_gnn_deterministic_v1"
 
 
 def _chunked_sage_layer(layer, node_features: torch.Tensor,
@@ -148,7 +150,7 @@ def _chunked_sage_layer(layer, node_features: torch.Tensor,
         stop = min(start + chunk_edges, edge_index.shape[1])
         source = edge_index[0, start:stop].to(device)
         target = edge_index[1, start:stop].to(device)
-        attributes = edge_attr[start:stop].to(device)
+        attributes = edge_attr[start:stop].to(device=device, dtype=node_features.dtype)
         message = layer.w_msg(torch.cat([node_features[source], attributes], dim=1))
         if aggregate is None:
             aggregate = torch.zeros(
@@ -192,9 +194,11 @@ def chunked_logits(model, name: str, graph: EdgeGraph, amp: bool = False,
     degrees = torch.bincount(
         edge_index[1], minlength=graph.data.num_nodes,
     ).clamp_min_(1).to(device).unsqueeze(1)
-    with torch.no_grad(), _autocast(device, amp):
-        feature_dtype = (edge_attr.dtype if amp and device.type == "cuda"
-                         else next(model.parameters()).dtype)
+    # BF16 full-graph message reductions are not bitwise reproducible on CUDA.
+    # Keep training AMP enabled, but run complete GNN validation/test inference
+    # in FP32 so a checkpoint replay produces stable probabilities.
+    with torch.no_grad(), _autocast(device, False):
+        feature_dtype = next(model.parameters()).dtype
         node_features = torch.ones(
             (graph.data.num_nodes, model.edge_dim),
             dtype=feature_dtype, device=device,
@@ -213,7 +217,9 @@ def chunked_logits(model, name: str, graph: EdgeGraph, amp: bool = False,
             label_index = graph.label_edge_index[:, start:stop].to(device)
             parts = [hidden[label_index[0]], hidden[label_index[1]]]
             if model.direct_edge:
-                parts.append(graph.label_edge_attr[start:stop].to(device))
+                parts.append(graph.label_edge_attr[start:stop].to(
+                    device=device, dtype=hidden.dtype,
+                ))
             outputs.append(model.head(torch.cat(parts, dim=1)).float().cpu())
     return torch.cat(outputs, dim=0)
 
@@ -707,6 +713,7 @@ def run(data: Path, output: Path, datasets: list[str], tasks: list[str], models:
         "fanout": list(fanout), "threads": threads,
         "scope": scope, "eval_every": None if uses_step_budget else eval_every,
         "amp": amp,
+        "evaluation_mode": EVALUATION_MODE,
         "prediction_cap": prediction_cap,
         "max_train_batches": max_train_batches,
         "max_train_steps": max_train_steps,
@@ -779,6 +786,7 @@ def run(data: Path, output: Path, datasets: list[str], tasks: list[str], models:
                         "scope": scope,
                         "eval_every": None if uses_step_budget else eval_every,
                         "amp": amp,
+                        "evaluation_mode": EVALUATION_MODE,
                         "prediction_cap": prediction_cap,
                         "max_train_batches": max_train_batches,
                         "max_train_steps": actual_max_steps,
@@ -856,6 +864,7 @@ def run(data: Path, output: Path, datasets: list[str], tasks: list[str], models:
                                      or sum(item["train_batches"] for item in history),
                         "parameters": sum(p.numel() for p in model.parameters()),
                         "checkpoint_parameter_max_abs_error": parameter_error,
+                        "evaluation_mode": EVALUATION_MODE,
                         "peak_rss_kib_process": resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
                         "peak_cuda_bytes": (torch.cuda.max_memory_allocated(effective_device)
                                             if effective_device.type == "cuda" else 0),

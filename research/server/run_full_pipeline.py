@@ -16,7 +16,9 @@ from nids_minibatch.training import experiment_source_sha256, sha256_file
 
 DATASETS = ["NF-UNSW-NB15-v2", "NF-BoT-IoT-v2", "NF-ToN-IoT-v2", "NF-CSE-CIC-IDS2018-v2"]
 MODELS = ["edge_mlp", "sage", "sage_edge"]
-STAGES = ["check", "split", "benchmark", "train", "verify", "report", "test"]
+STAGES = [
+    "check", "split", "benchmark", "train", "reevaluate", "verify", "report", "test",
+]
 DEFAULT_TRAIN_PASSES = 2
 DEFAULT_MIN_TRAIN_STEPS = 1_500
 DEFAULT_EVALS_PER_PASS = 4
@@ -176,11 +178,15 @@ def run_stage(stage: str, threads: int, num_workers: int,
         if output.exists():
             command.append("--resume")
         execute(command, logs / "03_train.log")
+    elif stage == "reevaluate":
+        execute([sys.executable, "research/rebuild_full_evaluation.py", "--data",
+                 "data/full_splits", "--runs", "research/artifacts/full_runs",
+                 "--threads", str(threads)], logs / "04_reevaluate.log")
     elif stage == "verify":
         execute([sys.executable, "research/validate_minibatch_results.py", "--data",
                  "data/full_splits", "--runs", "research/artifacts/full_runs", "--output",
                  "research/results/full_verification.json", "--threads", str(threads)],
-                logs / "04_verify.log")
+                logs / "05_verify.log")
     elif stage == "report":
         execute([sys.executable, "research/build_full_report.py", "--runs",
                  "research/artifacts/full_runs", "--verification",
@@ -188,9 +194,9 @@ def run_stage(stage: str, threads: int, num_workers: int,
                  "research/results/full_benchmark_estimate.json", "--prepare",
                  "research/results/full_prepare.json", "--output",
                  "research/results/full", "--report", "research/FULL_DATA_REPORT_VI.md"],
-                logs / "05_report.log")
+                logs / "06_report.log")
     elif stage == "test":
-        execute([sys.executable, "-m", "pytest", "tests", "-q"], logs / "06_test.log")
+        execute([sys.executable, "-m", "pytest", "tests", "-q"], logs / "07_test.log")
 
 
 def main() -> None:

@@ -138,6 +138,12 @@ PYTHONPATH=src .venv-server/bin/python research/server/run_full_pipeline.py --st
 PYTHONPATH=src .venv-server/bin/python research/server/run_full_pipeline.py --stage test --threads 12
 ```
 
+Trên máy thuê, có thể quản lý một tiến trình dài bằng Supervisor và gọi
+`research/server/run_full_release.sh`. Script chạy tuần tự `train`, `reevaluate`,
+`verify`, `report`, `test` và dừng ngay ở stage đầu tiên lỗi. `reevaluate` chỉ
+tái sinh metric/prediction từ checkpoint, không huấn luyện lại; stage này có thể
+tiếp tục sau gián đoạn. Phải truyền `NIDS_HOURLY_PRICE_USD` bằng giá thật.
+
 ## Chạy bằng JupyterLab
 
 ```bash
