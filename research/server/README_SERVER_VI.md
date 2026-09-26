@@ -101,15 +101,21 @@ Full-data không dùng `run_all.sh`. Chuẩn bị và benchmark giới hạn tr�
 
 ```bash
 PYTHONPATH=src .venv-server/bin/python research/server/run_full_pipeline.py \
-  --stage prepare --threads 12
+  --stage prepare --threads 12 --num-workers 4 \
+  --budget-usd 6 --hourly-price-usd <gia-thue-GPU-moi-gio>
 ```
+
+Phải thay `<gia-thue-GPU-moi-gio>` bằng giá thật của máy thuê. File estimate
+ghi `planning_cost_usd` và chỉ mở cổng khi chi phí dự phòng không vượt $6.
+Nếu dùng máy sở hữu sẵn, để giá bằng `0`; hệ thống không áp cổng tiền nhưng vẫn
+ghi `max_hourly_price_for_budget_usd` để biết mức giá thuê hòa vốn.
 
 Chỉ khi `research/results/full_benchmark_estimate.json` có
 `safe_to_launch_72: true` mới chạy:
 
 ```bash
 PYTHONPATH=src .venv-server/bin/python research/server/run_full_pipeline.py \
-  --stage train --threads 12
+  --stage train --threads 12 --num-workers 4
 ```
 
 Sau train, chạy đủ ba cổng cuối (không coi 72 dòng là đã hoàn tất nếu chưa qua
@@ -139,12 +145,15 @@ Các notebook trên giữ benchmark pilot lịch sử. Kết quả chính full-d
 
 1. `notebooks/server/10_FULL_PREPARE_BENCHMARK.ipynb`
 2. xem `research/results/full_benchmark_estimate.json`; cổng dùng nhiều cửa
-   sổ sau warm-up để ước lượng ngân sách 20.000 step/run
+   sổ sau warm-up để ước lượng ngân sách hai lượt train/dataset, tối thiểu
+   1.500 step/run
 3. `notebooks/server/11_FULL_TRAIN_72.ipynb`
 4. `notebooks/server/12_FULL_VERIFY_REPORT.ipynb`
 
-Mặc định `NIDS_DEVICE=auto` và `NIDS_THREADS=8`. Có thể đặt trước khi mở
-Jupyter, ví dụ `NIDS_DEVICE=cuda NIDS_THREADS=12 ...`.
+Notebook pilot mặc định `NIDS_DEVICE=auto`, `NIDS_THREADS=8`. Notebook full-data
+dùng `NIDS_THREADS=12`, `NIDS_NUM_WORKERS=4`; phải giữ cùng số worker giữa
+notebook 10 và 11 vì launch gate kiểm tra cấu hình này. Trước notebook 10, đặt
+`NIDS_BUDGET_USD=6` và `NIDS_HOURLY_PRICE_USD` bằng giá thuê GPU thực tế.
 
 ## Đầu ra hoàn tất
 

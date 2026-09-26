@@ -91,3 +91,8 @@ step/run, validation mỗi 1.000 step và checkpoint chỉ hợp lệ sau một 
 tách thời gian load/graph/train/validation/final evaluation và khóa run nếu
 thiếu cửa sổ đo, vượt 14 ngày hoặc thiếu biên RAM/VRAM/ổ đĩa. Đây là sửa mã và
 protocol; cổng vẫn phải được chạy lại trên server trước khi mở notebook 11.
+
+Cập nhật 2026-09-26: ma trận vẫn giữ đủ 72 tổ hợp, nhưng ngân sách cố định
+20.000 step/run được thay bằng hai lượt qua train cho từng dataset, tối thiểu
+1.500 step. Estimator và launch gate đã được đổi cùng protocol; cấu hình
+batch, fanout, mô hình, task và ba seed không đổi.

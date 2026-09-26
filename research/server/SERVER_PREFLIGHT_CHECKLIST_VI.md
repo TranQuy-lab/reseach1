@@ -16,7 +16,8 @@ cưỡng chế và lưu bằng chứng.
 
 ```bash
 PYTHONPATH=src .venv-server/bin/python research/server/run_full_pipeline.py \
-  --stage prepare --threads 12
+  --stage prepare --threads 12 --num-workers 4 \
+  --budget-usd 6 --hourly-price-usd <gia-thue-GPU-moi-gio>
 ```
 
 Chỉ tiếp tục khi:
@@ -25,14 +26,19 @@ Chỉ tiếp tục khi:
   `flow_group_id` giữa split;
 - manifest có thống kê nhóm nhãn mâu thuẫn và IP overlap theo split;
 - `full_benchmark_estimate.json` có `safe_to_launch_72: true`;
-- `training_budget` đúng 20.000 step và validation mỗi 1.000 step;
+- `training_budget` đúng hai lượt train, tối thiểu 1.500 step, bốn lần
+  validation mục tiêu mỗi lượt và khoảng validation tối thiểu 500 step;
+- benchmark và train dùng cùng `num_workers` (mặc định 4);
+- `cost_estimate.cost_gate_evaluated: true` khi thuê GPU và
+  `planning_cost_usd <= 6`; nếu giá bằng 0 thì phải tự so giá thuê với
+  `max_hourly_price_for_budget_usd` trước khi khởi chạy;
 - log benchmark không có NaN/Inf/OOM.
 
 ## 3. Run chính
 
 ```bash
 PYTHONPATH=src .venv-server/bin/python research/server/run_full_pipeline.py \
-  --stage train --threads 12
+  --stage train --threads 12 --num-workers 4
 ```
 
 Không đổi batch, fanout, seed, patience hoặc ngân sách sau khi xem test. Có thể

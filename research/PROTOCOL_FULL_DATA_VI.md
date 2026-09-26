@@ -32,16 +32,31 @@ Xem `PIPELINE_AUDIT_2026-09-21_VI.md`.
   0,001, batch 4096, fanout `[15, 10]`. Edge feature của graph full-data được
   lưu FP16 để giảm RAM/VRAM; forward/loss dùng BF16 autocast trên CUDA và
   logits được đổi về FP32 trước khi tính xác suất/validation loss.
-- Ngân sách khóa trước run chính là tối đa 20.000 optimizer step/run,
-  validation mỗi 1.000 step và patience 10 lần validation. Checkpoint đầu tiên
-  chỉ hợp lệ sau khi toàn bộ cạnh train đã được trình bày ít nhất một lượt;
-  mọi run vì thế đi qua full train trước khi có thể dừng. Ngân sách epoch cũ
-  không được dùng cho kết quả full-data.
+- Ngân sách khóa trước run chính là hai lượt qua train cho từng dataset, với
+  tối thiểu 1.500 optimizer step/run. Cụ thể,
+  `max_steps=max(1500, 2*ceil(train_rows/4096))`. Checkpoint đầu tiên chỉ hợp
+  lệ sau một lượt đầy đủ. Validation chạy ở cuối lượt đầu, sau đó theo khoảng
+  `max(500, ceil(steps_per_pass/4))` và tại step cuối. Cách này giữ đủ 72 run
+  nhưng không buộc dataset nhỏ dùng cùng 20.000 step như dataset lớn.
+- Data loader dùng bốn worker, pinned host memory, prefetch hai batch/worker và
+  chuyển bất đồng bộ khi chạy CUDA. Giá trị worker phải giống giữa benchmark
+  và run chính; có thể đổi bằng tham số server nhưng phải benchmark lại từ đầu.
+- Benchmark phải nhận ngân sách $6 và giá thuê GPU/giờ thực tế, nhân ETA với hệ
+  số dự phòng 1,35 rồi chặn khởi chạy nếu `planning_cost_usd > 6`. Khi chạy trên
+  máy sở hữu sẵn có thể đặt giá 0; báo cáo vẫn xuất mức giá/giờ tối đa để không
+  vượt ngân sách nếu chuyển sang máy thuê.
+- Binary và multiclass dùng cùng split, feature scaler, topology và tensor đặc
+  trưng; pipeline dựng chúng một lần/dataset rồi chỉ thay tensor nhãn. Mỗi task
+  vẫn có preprocessor, class mapping, checkpoint và metric riêng.
 
 ## Ma trận thí nghiệm và đánh giá
 
 - Hai task: multiclass dùng `Attack`; binary dùng `Label`.
 - Bốn dataset × hai task × ba model × ba seed `{11,22,33}` = 72 run.
+- Với split đã khóa và batch 4096, ngân sách dự kiến là UNSW 1.500,
+  BoT-IoT 12.910, ToN-IoT 5.792 và CSE-CIC 6.460 step/run. Tổng ma trận là
+  479.916 optimizer step, giảm 66,7% so với phương án 20.000 step × 72 nhưng
+  vẫn giữ nguyên đủ 72 tổ hợp.
 - Loss là balanced cross-entropy với trọng số chỉ tính từ train.
 - Chọn checkpoint theo validation macro-F1. Test chỉ được tính sau khi đã chọn
   checkpoint và không dùng để đổi cấu hình.
@@ -65,15 +80,16 @@ Xem `PIPELINE_AUDIT_2026-09-21_VI.md`.
    Báo thêm nhóm nhãn mâu thuẫn theo split và tỉ lệ IP validation/test đã xuất
    hiện trong train để giới hạn diễn giải về host chưa thấy.
 3. Benchmark giới hạn 500 batch cho từng dataset/model phải có loss hữu hạn,
-   checkpoint nạp lại được và CUDA không OOM; estimator đồng thời xác nhận
-   ngân sách 20.000 step đủ chứa ít nhất một lượt train đầy đủ.
+   checkpoint nạp lại được và CUDA không OOM; estimator tính ngân sách riêng
+   cho từng dataset theo đúng công thức hai lượt train.
 4. Mỗi run phải lưu đủ artifact; checkpoint replay phải khớp mẫu dự đoán đã lưu.
 5. File `runs.csv` cuối cùng phải có đúng 72 tổ hợp duy nhất.
 6. Cổng tài nguyên phải có ít nhất ba cửa sổ 50 batch sau 50 batch warm-up,
    báo median/MAD/p90, tách nạp dữ liệu, dựng graph, train, validation và đánh
    giá cuối. ETA dùng p90 nhân hệ số an toàn 1,35 và không được vượt 14 ngày.
-7. File cổng phải khóa đúng `max_train_steps=20000` và
-   `eval_every_steps=1000`; notebook 11 từ chối ngân sách khác.
+7. File cổng phải khóa đúng `train_passes=2`, `min_train_steps=1500`,
+   `evals_per_pass=4`, khoảng validation tối thiểu 500 step và cùng số worker;
+   notebook 11 từ chối ngân sách hoặc cấu hình thực thi khác.
 8. Preflight phải xác minh Git commit sạch, SHA-256 và số dòng của bốn Parquet,
    đúng phiên bản thư viện, RAM ≥120 GiB, CUDA/BF16 và VRAM ≥24 GiB.
 9. Provenance của run phải chứa Git commit, SHA-256 protocol và SHA-256 từng

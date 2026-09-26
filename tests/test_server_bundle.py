@@ -1,8 +1,12 @@
 import json
 from pathlib import Path
 
+import pytest
+
+import research.server.run_full_pipeline as full_pipeline
 from research.server.run_full_pipeline import (
-    DEFAULT_EVAL_EVERY_STEPS, DEFAULT_MAX_TRAIN_STEPS, train_command,
+    DEFAULT_EVALS_PER_PASS, DEFAULT_MIN_TRAIN_STEPS, DEFAULT_TRAIN_PASSES,
+    require_launch_gate, train_command,
 )
 
 
@@ -43,14 +47,36 @@ def test_server_manifest_and_required_entrypoints():
         assert (ROOT / relative).is_file()
 
 
-def test_full_train_command_uses_locked_step_budget():
+def test_full_train_command_uses_locked_dataset_pass_budget():
     command = train_command(
         "out", ["NF-UNSW-NB15-v2"], ["sage"], [11], ["binary"],
         epochs=1, patience=10, threads=4,
-        max_steps=DEFAULT_MAX_TRAIN_STEPS,
-        eval_every_steps=DEFAULT_EVAL_EVERY_STEPS,
+        train_passes=DEFAULT_TRAIN_PASSES,
+        min_train_steps=DEFAULT_MIN_TRAIN_STEPS,
+        evals_per_pass=DEFAULT_EVALS_PER_PASS,
     )
-    assert command[command.index("--max-train-steps") + 1] == "20000"
-    assert command[command.index("--eval-every-steps") + 1] == "1000"
+    assert command[command.index("--train-passes") + 1] == "2"
+    assert command[command.index("--min-train-steps") + 1] == "1500"
+    assert command[command.index("--evals-per-pass") + 1] == "4"
+    assert command[command.index("--num-workers") + 1] == "4"
     assert "--scope" in command and command[command.index("--scope") + 1] == "full"
     assert "--device" in command and command[command.index("--device") + 1] == "cuda"
+
+
+def test_launch_gate_locks_budget_and_worker_count(tmp_path, monkeypatch):
+    results = tmp_path / "research/results"
+    results.mkdir(parents=True)
+    (results / "full_benchmark_estimate.json").write_text(json.dumps({
+        "safe_to_launch_72": True,
+        "training_budget": {
+            "train_passes": 2,
+            "min_train_steps": 1500,
+            "evals_per_pass": 4,
+            "minimum_eval_interval_steps": 500,
+        },
+        "execution": {"num_workers": 4, "batch_size": 4096},
+    }))
+    monkeypatch.setattr(full_pipeline, "ROOT", tmp_path)
+    assert require_launch_gate(4)["safe_to_launch_72"] is True
+    with pytest.raises(RuntimeError, match="execution settings"):
+        require_launch_gate(8)

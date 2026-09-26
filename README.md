@@ -30,9 +30,12 @@ danh node theo `(IP, port)`.
 ## Chạy trên server
 
 > **Run chính vẫn khóa cho tới khi benchmark server đạt:** pipeline hiện dùng
-> ngân sách 20.000 optimizer step/run, validation mỗi 1.000 step và chỉ cho
-> checkpoint hợp lệ sau một lượt đầy đủ qua train. Estimator đo nhiều cửa sổ
+> ngân sách hai lượt qua train/dataset, tối thiểu 1.500 optimizer step/run và
+> chỉ cho checkpoint hợp lệ sau một lượt đầy đủ. Estimator đo nhiều cửa sổ
 > sau warm-up và tự từ chối khởi chạy nếu ETA/RAM/VRAM/ổ đĩa không đạt.
+
+Ma trận vẫn là 72 run. Với split hiện tại, chính sách hai lượt dự kiến dùng
+479.916 optimizer step, giảm 66,7% so với 20.000 step cố định cho từng run.
 
 ```bash
 git lfs install --skip-repo

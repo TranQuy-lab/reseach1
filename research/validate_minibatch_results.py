@@ -103,7 +103,11 @@ def main():
         if metric_error > 1e-12:
             raise AssertionError(f"Metric recomputation failed for {run_dir.name}")
         metrics_file = json.loads((run_dir / "metrics.json").read_text())
-        if metrics_file["replay_max_abs_error"] > replay_tolerance:
+        parameter_error = metrics_file.get("checkpoint_parameter_max_abs_error")
+        if parameter_error is not None:
+            if parameter_error != 0:
+                raise AssertionError("Training-time checkpoint reload changed parameters")
+        elif metrics_file["replay_max_abs_error"] > replay_tolerance:
             raise AssertionError("Training-time checkpoint replay failed")
         artifact_sha256[run_dir.name] = {
             filename: sha256(run_dir / filename) for filename in (

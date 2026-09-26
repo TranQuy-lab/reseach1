@@ -44,14 +44,20 @@ ROOT = Path.cwd()
 if not (ROOT / 'research/server').is_dir():
     raise RuntimeError('Hãy mở JupyterLab từ thư mục gốc repository')
 THREADS = os.environ.get('NIDS_THREADS', '12')
+NUM_WORKERS = os.environ.get('NIDS_NUM_WORKERS', '4')
+BUDGET_USD = os.environ.get('NIDS_BUDGET_USD', '6')
+HOURLY_PRICE_USD = os.environ.get('NIDS_HOURLY_PRICE_USD', '0')
 
 def full_stage(name):
     command = [sys.executable, '-u', 'research/server/run_full_pipeline.py',
-               '--stage', name, '--threads', THREADS]
+               '--stage', name, '--threads', THREADS, '--num-workers', NUM_WORKERS,
+               '--budget-usd', BUDGET_USD, '--hourly-price-usd', HOURLY_PRICE_USD]
     print(' '.join(command), flush=True)
     subprocess.run(command, cwd=ROOT, check=True)
 
-print({'root': str(ROOT), 'threads': THREADS, 'python': sys.executable,
+print({'root': str(ROOT), 'threads': THREADS, 'num_workers': NUM_WORKERS,
+       'budget_usd': BUDGET_USD, 'hourly_price_usd': HOURLY_PRICE_USD,
+       'python': sys.executable,
        'pipeline': 'full-data benchmark-gated'})
 """
 
@@ -119,7 +125,7 @@ def main() -> None:
             "10 — Full-data: chia tập và benchmark giới hạn",
             "Tạo split cho toàn bộ 75.987.976 flow rồi đo 500 batch cho từng cặp dataset/mô hình, bỏ warm-up và tổng hợp theo nhiều cửa sổ. Notebook này không khởi chạy 72 run.",
             [
-                markdown("## Chạy cổng chuẩn bị\n\nKết quả ghi ETA cho ngân sách 20.000 optimizer step/run và trạng thái `safe_to_launch_72`."),
+                markdown("## Chạy cổng chuẩn bị\n\nKết quả ghi ETA cho ngân sách hai lượt train/dataset, tối thiểu 1.500 step/run và trạng thái `safe_to_launch_72`."),
                 code("full_stage('prepare')\n"),
                 code("estimate = json.loads((ROOT / 'research/results/full_benchmark_estimate.json').read_text())\nprint(json.dumps(estimate, indent=2))\n"),
             ],

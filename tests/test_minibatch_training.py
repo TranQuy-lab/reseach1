@@ -11,7 +11,8 @@ from nids_minibatch.models import build_model
 from nids_minibatch.schema import FEATURES
 from nids_minibatch.training import (
     _timing_profile, fit_model, fit_model_steps, full_probabilities,
-    load_frames, run, save_predictions,
+    load_frames, prepare_graphs, preprocessor_for_task, relabel_graphs,
+    run, save_predictions,
 )
 
 
@@ -74,6 +75,21 @@ def test_half_storage_preserves_graph_identity_and_reduces_feature_bytes():
     g16 = make_graph(f, values, f.Label.to_numpy(), torch.float16)
     assert torch.equal(g32.label_edge_index, g16.label_edge_index)
     assert g16.label_edge_attr.element_size() * 2 == g32.label_edge_attr.element_size()
+
+
+def test_binary_task_reuses_multiclass_feature_graph_without_copying_features():
+    frames = {split: frame(24) for split in ("train", "val", "test")}
+    feature_pre, shared = prepare_graphs(frames, "multiclass")
+    binary_pre = preprocessor_for_task(feature_pre, "binary")
+    binary = relabel_graphs(shared, frames, binary_pre)
+    assert binary_pre.classes == ["Benign", "Attack"]
+    np.testing.assert_array_equal(binary_pre.mean, feature_pre.mean)
+    for split in frames:
+        assert binary[split].data is shared[split].data
+        assert binary[split].label_edge_attr.data_ptr() == shared[split].label_edge_attr.data_ptr()
+        np.testing.assert_array_equal(
+            binary[split].labels.numpy(), frames[split].Label.to_numpy()
+        )
 
 
 @pytest.mark.parametrize("name", ["sage", "sage_edge"])
@@ -196,17 +212,25 @@ def test_full_scope_cli_core_completes_one_reproducible_run(tmp_path):
         root, output, [dataset], ["binary"], ["edge_mlp"], [11],
         epochs=1, patience=1, batch_size=16, fanout=(5, 3), threads=1,
         device="cpu", scope="full", prediction_cap=7,
-        max_train_steps=3, eval_every_steps=1,
+        train_passes=1, min_train_steps=3, evals_per_pass=4,
     )
     provenance = json.loads((output / "provenance.json").read_text())
     assert provenance["scope"] == "full"
     assert provenance["epochs"] is None
     assert provenance["eval_every"] is None
+    assert provenance["training_budget_mode"] == "dataset_passes"
+    assert provenance["train_passes"] == 1
     assert provenance["source_sha256"]
     assert provenance["git"]["commit"]
     table = pd.read_csv(output / "runs.csv")
     assert len(table) == 1
     assert table.loc[0, "steps_ran"] == 3
+    assert table.loc[0, "step_budget"] == 3
     assert table.loc[0, "best_step"] >= 2
     audit = pd.read_parquet(output / f"{dataset}__binary__edge_mlp__seed11" / "test_predictions.parquet")
     assert len(audit) == 7
+    metrics_file = json.loads(
+        (output / f"{dataset}__binary__edge_mlp__seed11" / "metrics.json").read_text()
+    )
+    assert metrics_file["checkpoint_parameter_max_abs_error"] == 0
+    assert "replay_max_abs_error" not in metrics_file

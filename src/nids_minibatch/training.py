@@ -174,22 +174,39 @@ def _timing_profile(batch_seconds: list[float], warmup: int = 50,
     }
 
 
+def _loader_options(num_workers: int, device: torch.device) -> dict:
+    options = {
+        "num_workers": num_workers,
+        "pin_memory": device.type == "cuda",
+    }
+    if num_workers:
+        options.update({"persistent_workers": True, "prefetch_factor": 2})
+    return options
+
+
 def _mlp_epoch(model, graph: EdgeGraph, optimizer, loss_fn, batch_size: int,
                seed: int, amp: bool = False, max_batches: int = 0,
-               profile_batches: bool = False) -> tuple[float, int, int, dict | None]:
+               profile_batches: bool = False,
+               num_workers: int = 0) -> tuple[float, int, int, dict | None]:
     generator = torch.Generator().manual_seed(seed)
+    device = next(model.parameters()).device
     loader = DataLoader(
         TensorDataset(graph.label_edge_attr, graph.labels), batch_size=batch_size,
-        shuffle=True, generator=generator, num_workers=0,
+        shuffle=True, generator=generator, **_loader_options(num_workers, device),
     )
     total, seen = 0.0, 0
-    device = next(model.parameters()).device
     model.train()
     batches = 0
     batch_seconds = []
-    for x, y in loader:
+    iterator = iter(loader)
+    while True:
         batch_started = time.perf_counter()
-        x, y = x.to(device), y.to(device)
+        try:
+            x, y = next(iterator)
+        except StopIteration:
+            break
+        x = x.to(device, non_blocking=num_workers > 0)
+        y = y.to(device, non_blocking=num_workers > 0)
         optimizer.zero_grad(set_to_none=True)
         with _autocast(device, amp):
             loss = loss_fn(model(x), y)
@@ -211,8 +228,10 @@ def _mlp_epoch(model, graph: EdgeGraph, optimizer, loss_fn, batch_size: int,
 def _sage_epoch(model: EGraphSAGE, graph: EdgeGraph, optimizer, loss_fn,
                 batch_size: int, fanout: tuple[int, int], seed: int,
                 amp: bool = False, max_batches: int = 0,
-                profile_batches: bool = False) -> tuple[float, int, int, dict | None]:
+                profile_batches: bool = False,
+                num_workers: int = 0) -> tuple[float, int, int, dict | None]:
     generator = torch.Generator().manual_seed(seed)
+    device = next(model.parameters()).device
     loader = LinkNeighborLoader(
         graph.data,
         num_neighbors=list(fanout),
@@ -222,18 +241,24 @@ def _sage_epoch(model: EGraphSAGE, graph: EdgeGraph, optimizer, loss_fn,
         shuffle=True,
         neg_sampling=None,
         subgraph_type="directional",
-        num_workers=0,
         generator=generator,
+        **_loader_options(num_workers, device),
     )
     total, seen = 0.0, 0
-    device = next(model.parameters()).device
     model.train()
     batches = 0
     batch_seconds = []
-    for batch in loader:
+    iterator = iter(loader)
+    while True:
         batch_started = time.perf_counter()
-        seed_attr = graph.label_edge_attr[batch.input_id].to(device)
-        batch = batch.to(device)
+        try:
+            batch = next(iterator)
+        except StopIteration:
+            break
+        seed_attr = graph.label_edge_attr[batch.input_id].to(
+            device, non_blocking=num_workers > 0
+        )
+        batch = batch.to(device, non_blocking=num_workers > 0)
         optimizer.zero_grad(set_to_none=True)
         with _autocast(device, amp):
             logits = model(batch.edge_index, batch.edge_attr, batch.edge_label_index,
@@ -260,7 +285,8 @@ def fit_model(name: str, graphs: dict[str, EdgeGraph], n_classes: int, seed: int
               epochs: int, patience: int, batch_size: int, fanout: tuple[int, int],
               hidden: int = 128, dropout: float = 0.2, lr: float = 0.001,
               device: str | torch.device = "cpu", eval_every: int = 1,
-              amp: bool = False, max_train_batches: int = 0):
+              amp: bool = False, max_train_batches: int = 0,
+              num_workers: int = 0):
     seed_everything(seed)
     device = resolve_device(str(device))
     model = build_model(name, len(FEATURES), n_classes, hidden, dropout).to(device)
@@ -275,13 +301,13 @@ def fit_model(name: str, graphs: dict[str, EdgeGraph], n_classes: int, seed: int
         if name == "edge_mlp":
             loss, train_edges, train_batches, timing = _mlp_epoch(
                 model, graphs["train"], optimizer, loss_fn, batch_size,
-                seed + epoch, amp, max_train_batches, profile_batches,
+                seed + epoch, amp, max_train_batches, profile_batches, num_workers,
             )
         else:
             loss, train_edges, train_batches, timing = _sage_epoch(
                 model, graphs["train"], optimizer, loss_fn,
                 batch_size, fanout, seed + epoch, amp, max_train_batches,
-                profile_batches,
+                profile_batches, num_workers,
             )
         train_seconds = time.perf_counter() - started
         should_evaluate = epoch == 1 or epoch % eval_every == 0 or epoch == epochs
@@ -324,7 +350,8 @@ def fit_model_steps(name: str, graphs: dict[str, EdgeGraph], n_classes: int, see
                     max_steps: int, eval_every_steps: int, patience: int,
                     batch_size: int, fanout: tuple[int, int], hidden: int = 128,
                     dropout: float = 0.2, lr: float = 0.001,
-                    device: str | torch.device = "cpu", amp: bool = False):
+                    device: str | torch.device = "cpu", amp: bool = False,
+                    num_workers: int = 0):
     """Train to a fixed optimizer-step budget after one complete data pass.
 
     A checkpoint is eligible only after every train edge has been presented at
@@ -387,36 +414,39 @@ def fit_model_steps(name: str, graphs: dict[str, EdgeGraph], n_classes: int, see
     interval_edges = 0
     interval_batches = 0
     interval_started = time.perf_counter()
+    generator = torch.Generator().manual_seed(seed + 1)
+    if name == "edge_mlp":
+        loader = DataLoader(
+            TensorDataset(graphs["train"].label_edge_attr, graphs["train"].labels),
+            batch_size=batch_size, shuffle=True, generator=generator,
+            **_loader_options(num_workers, device),
+        )
+    else:
+        loader = LinkNeighborLoader(
+            graphs["train"].data, num_neighbors=list(fanout),
+            edge_label_index=graphs["train"].label_edge_index,
+            edge_label=graphs["train"].labels, batch_size=batch_size,
+            shuffle=True, neg_sampling=None, subgraph_type="directional",
+            generator=generator, **_loader_options(num_workers, device),
+        )
     while total_steps < max_steps and not stop:
         epoch += 1
-        if name == "edge_mlp":
-            generator = torch.Generator().manual_seed(seed + epoch)
-            loader = DataLoader(
-                TensorDataset(graphs["train"].label_edge_attr, graphs["train"].labels),
-                batch_size=batch_size, shuffle=True, generator=generator, num_workers=0,
-            )
-        else:
-            generator = torch.Generator().manual_seed(seed + epoch)
-            loader = LinkNeighborLoader(
-                graphs["train"].data, num_neighbors=list(fanout),
-                edge_label_index=graphs["train"].label_edge_index,
-                edge_label=graphs["train"].labels, batch_size=batch_size,
-                shuffle=True, neg_sampling=None, subgraph_type="directional",
-                num_workers=0, generator=generator,
-            )
         model.train()
         for value in loader:
             if name == "edge_mlp":
                 x, y = value
-                x, y = x.to(device), y.to(device)
+                x = x.to(device, non_blocking=num_workers > 0)
+                y = y.to(device, non_blocking=num_workers > 0)
                 optimizer.zero_grad(set_to_none=True)
                 with _autocast(device, amp):
                     loss = loss_fn(model(x), y)
                 edge_count = len(y)
             else:
                 batch = value
-                seed_attr = graphs["train"].label_edge_attr[batch.input_id].to(device)
-                batch = batch.to(device)
+                seed_attr = graphs["train"].label_edge_attr[batch.input_id].to(
+                    device, non_blocking=num_workers > 0
+                )
+                batch = batch.to(device, non_blocking=num_workers > 0)
                 optimizer.zero_grad(set_to_none=True)
                 with _autocast(device, amp):
                     logits = model(batch.edge_index, batch.edge_attr,
@@ -502,6 +532,32 @@ def prepare_graphs(frames: dict[str, pd.DataFrame], task: str,
     return pre, graphs
 
 
+def preprocessor_for_task(feature_preprocessor: Preprocessor, task: str) -> Preprocessor:
+    if task == "multiclass":
+        return feature_preprocessor
+    if task != "binary":
+        raise ValueError(f"Unknown task: {task}")
+    value = feature_preprocessor.as_dict()
+    value.update({"task": "binary", "classes": ["Benign", "Attack"]})
+    return Preprocessor.from_dict(value)
+
+
+def relabel_graphs(graphs: dict[str, EdgeGraph], frames: dict[str, pd.DataFrame],
+                   preprocessor: Preprocessor) -> dict[str, EdgeGraph]:
+    return {
+        split: EdgeGraph(
+            data=graph.data,
+            label_edge_index=graph.label_edge_index,
+            label_edge_attr=graph.label_edge_attr,
+            labels=torch.from_numpy(preprocessor.labels(frames[split]).copy()).long(),
+            source_row_id=graph.source_row_id,
+            flow_group_id=graph.flow_group_id,
+            dataset=graph.dataset,
+        )
+        for split, graph in graphs.items()
+    }
+
+
 def save_predictions(path: Path, graph: EdgeGraph, probabilities: np.ndarray,
                      classes: list[str], max_rows: int | None = None) -> int:
     row_offset = np.arange(len(graph.labels))
@@ -537,13 +593,16 @@ def run(data: Path, output: Path, datasets: list[str], tasks: list[str], models:
         device: str = "auto", scope: str = "pilot", eval_every: int = 1,
         amp: bool = False, prediction_cap: int = 0,
         max_train_batches: int = 0, max_train_steps: int = 0,
-        eval_every_steps: int = 0) -> None:
+        eval_every_steps: int = 0, train_passes: int = 0,
+        min_train_steps: int = 0, evals_per_pass: int = 4,
+        num_workers: int = 0) -> None:
     data, output = Path(data), Path(output)
     if output.exists() and not resume:
         raise ValueError("Output exists; refusing overwrite")
     output.mkdir(parents=True, exist_ok=resume)
     torch.set_num_threads(threads)
     effective_device = resolve_device(device)
+    uses_step_budget = bool(max_train_steps or train_passes)
     storage_dtype = torch.float16 if scope == "full" and effective_device.type == "cuda" else torch.float32
     protocol = Path("research/PROTOCOL_FULL_DATA_VI.md" if scope == "full"
                     else "research/PROTOCOL_MINIBATCH_VI.md")
@@ -553,16 +612,23 @@ def run(data: Path, output: Path, datasets: list[str], tasks: list[str], models:
         "source_sha256": experiment_source_sha256(),
         "git": git_revision(),
         "datasets": datasets, "tasks": tasks, "models": models, "seeds": seeds,
-        "epochs": None if max_train_steps else epochs,
+        "epochs": None if uses_step_budget else epochs,
         "patience": patience, "batch_size": batch_size,
         "fanout": list(fanout), "threads": threads,
-        "scope": scope, "eval_every": None if max_train_steps else eval_every,
+        "scope": scope, "eval_every": None if uses_step_budget else eval_every,
         "amp": amp,
         "prediction_cap": prediction_cap,
         "max_train_batches": max_train_batches,
         "max_train_steps": max_train_steps,
         "eval_every_steps": eval_every_steps,
-        "training_budget_mode": "steps" if max_train_steps else "epochs",
+        "train_passes": train_passes,
+        "min_train_steps": min_train_steps,
+        "evals_per_pass": evals_per_pass,
+        "minimum_eval_interval_steps": 500 if train_passes else 0,
+        "training_budget_mode": ("dataset_passes" if train_passes else
+                                 "steps" if max_train_steps else "epochs"),
+        "num_workers": num_workers,
+        "shared_feature_graph_across_tasks": True,
         "edge_storage_dtype": str(storage_dtype),
         "requested_device": device, "effective_device": str(effective_device),
     }
@@ -582,10 +648,21 @@ def run(data: Path, output: Path, datasets: list[str], tasks: list[str], models:
         load_started = time.perf_counter()
         frames = load_frames(data, dataset, scope)
         dataset_load_seconds = time.perf_counter() - load_started
+        graph_started = time.perf_counter()
+        feature_pre, shared_graphs = prepare_graphs(frames, "multiclass", storage_dtype)
+        graph_prepare_seconds = time.perf_counter() - graph_started
         for task in tasks:
-            graph_started = time.perf_counter()
-            pre, graphs = prepare_graphs(frames, task, storage_dtype)
-            graph_prepare_seconds = time.perf_counter() - graph_started
+            pre = preprocessor_for_task(feature_pre, task)
+            graphs = (shared_graphs if task == "multiclass"
+                      else relabel_graphs(shared_graphs, frames, pre))
+            steps_per_pass = math.ceil(len(graphs["train"].labels) / batch_size)
+            actual_max_steps = max_train_steps
+            actual_eval_every_steps = eval_every_steps
+            if train_passes:
+                actual_max_steps = max(min_train_steps, train_passes * steps_per_pass)
+                actual_eval_every_steps = max(
+                    500, math.ceil(steps_per_pass / evals_per_pass)
+                )
             for name in models:
                 for seed in seeds:
                     run_id = f"{dataset}__{task}__{name}__seed{seed}"
@@ -605,18 +682,25 @@ def run(data: Path, output: Path, datasets: list[str], tasks: list[str], models:
                     dest.mkdir()
                     config = {
                         "dataset": dataset, "task": task, "model": name, "seed": seed,
-                        "epochs": None if max_train_steps else epochs,
+                        "epochs": None if uses_step_budget else epochs,
                         "patience": patience, "batch_size": batch_size,
                         "fanout": list(fanout), "hidden": 128, "dropout": 0.2,
                         "learning_rate": 0.001, "bidirectional_messages": True,
                         "scope": scope,
-                        "eval_every": None if max_train_steps else eval_every,
+                        "eval_every": None if uses_step_budget else eval_every,
                         "amp": amp,
                         "prediction_cap": prediction_cap,
                         "max_train_batches": max_train_batches,
-                        "max_train_steps": max_train_steps,
-                        "eval_every_steps": eval_every_steps,
-                        "training_budget_mode": "steps" if max_train_steps else "epochs",
+                        "max_train_steps": actual_max_steps,
+                        "eval_every_steps": actual_eval_every_steps,
+                        "steps_per_full_pass": steps_per_pass,
+                        "train_passes": train_passes,
+                        "min_train_steps": min_train_steps,
+                        "evals_per_pass": evals_per_pass,
+                        "training_budget_mode": ("dataset_passes" if train_passes else
+                                                 "steps" if max_train_steps else "epochs"),
+                        "num_workers": num_workers,
+                        "shared_feature_graph_across_tasks": True,
                         "edge_storage_dtype": str(storage_dtype),
                         "train_sampling": "LinkNeighborLoader directional; loss on seed edges",
                         "validation_test": "full split graph",
@@ -627,11 +711,11 @@ def run(data: Path, output: Path, datasets: list[str], tasks: list[str], models:
                     if effective_device.type == "cuda":
                         torch.cuda.reset_peak_memory_stats(effective_device)
                     print(f"START {run_id}", flush=True)
-                    if max_train_steps:
+                    if uses_step_budget:
                         model, history, best_step = fit_model_steps(
-                            name, graphs, len(pre.classes), seed, max_train_steps,
-                            eval_every_steps, patience, batch_size, fanout,
-                            device=effective_device, amp=amp,
+                            name, graphs, len(pre.classes), seed, actual_max_steps,
+                            actual_eval_every_steps, patience, batch_size, fanout,
+                            device=effective_device, amp=amp, num_workers=num_workers,
                         )
                         best_epoch = next(
                             item["epoch"] for item in history if item["step"] == best_step
@@ -642,21 +726,28 @@ def run(data: Path, output: Path, datasets: list[str], tasks: list[str], models:
                             batch_size, fanout,
                             device=effective_device, eval_every=eval_every, amp=amp,
                             max_train_batches=max_train_batches,
+                            num_workers=num_workers,
                         )
                         best_step = sum(item["train_batches"] for item in history[:best_epoch])
                     fit_seconds = time.perf_counter() - started
                     torch.save(model.state_dict(), dest / "model.pt")
                     write_json(dest / "history.json", history)
                     evaluation_started = time.perf_counter()
-                    val_prob = full_probabilities(model, name, graphs["val"], amp)
-                    test_prob = full_probabilities(model, name, graphs["test"], amp)
                     replay_model = build_model(name, len(FEATURES), len(pre.classes), 128, 0.2).to(effective_device)
-                    replay_model.load_state_dict(torch.load(dest / "model.pt", map_location="cpu", weights_only=True))
-                    replay_prob = full_probabilities(replay_model, name, graphs["test"], amp)
-                    replay_error = float(np.max(np.abs(replay_prob - test_prob)))
-                    replay_tolerance = 1e-5 if effective_device.type == "cuda" else 1e-7
-                    if replay_error > replay_tolerance:
-                        raise AssertionError(f"Checkpoint replay differs: {replay_error}")
+                    checkpoint_state = torch.load(
+                        dest / "model.pt", map_location="cpu", weights_only=True
+                    )
+                    replay_model.load_state_dict(checkpoint_state)
+                    parameter_error = max(
+                        float((value.detach().cpu() - checkpoint_state[key]).abs().max())
+                        for key, value in model.state_dict().items()
+                    )
+                    if parameter_error != 0:
+                        raise AssertionError(
+                            f"Checkpoint parameters differ after reload: {parameter_error}"
+                        )
+                    val_prob = full_probabilities(replay_model, name, graphs["val"], amp)
+                    test_prob = full_probabilities(replay_model, name, graphs["test"], amp)
                     final_evaluation_seconds = time.perf_counter() - evaluation_started
                     elapsed = fit_seconds + final_evaluation_seconds
                     result = {
@@ -667,11 +758,14 @@ def run(data: Path, output: Path, datasets: list[str], tasks: list[str], models:
                         "seconds_dataset_load": dataset_load_seconds,
                         "seconds_graph_prepare": graph_prepare_seconds,
                         "best_epoch": best_epoch, "best_step": best_step,
+                        "step_budget": actual_max_steps,
+                        "steps_per_full_pass": steps_per_pass,
+                        "eval_every_steps": actual_eval_every_steps,
                         "epochs_ran": max(item["epoch"] for item in history),
                         "steps_ran": max(item.get("step", 0) for item in history)
                                      or sum(item["train_batches"] for item in history),
                         "parameters": sum(p.numel() for p in model.parameters()),
-                        "replay_max_abs_error": replay_error,
+                        "checkpoint_parameter_max_abs_error": parameter_error,
                         "peak_rss_kib_process": resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
                         "peak_cuda_bytes": (torch.cuda.max_memory_allocated(effective_device)
                                             if effective_device.type == "cuda" else 0),
@@ -689,6 +783,7 @@ def run(data: Path, output: Path, datasets: list[str], tasks: list[str], models:
                         "seconds_fit", "seconds_final_evaluation", "seconds_dataset_load",
                         "seconds_graph_prepare", "best_epoch", "epochs_ran", "parameters",
                         "best_step", "steps_ran", "peak_rss_kib_process", "peak_cuda_bytes",
+                        "step_budget", "steps_per_full_pass", "eval_every_steps",
                     )}
                     row.update({f"{split}_{metric}": result[split][metric]
                                 for split in ("val", "test")
@@ -697,6 +792,7 @@ def run(data: Path, output: Path, datasets: list[str], tasks: list[str], models:
                     pd.DataFrame(rows).to_csv(output / "runs.csv", index=False)
                     print(f"DONE {run_id} test_macro_f1={result['test']['macro_f1']:.4f} seconds={elapsed:.1f}", flush=True)
             del graphs
+        del shared_graphs
     frame = pd.DataFrame(rows)
     summary = frame.groupby(["dataset", "task", "model"])[
         ["test_macro_f1", "test_weighted_f1", "test_accuracy", "seconds_fit_and_evaluate"]
@@ -730,21 +826,37 @@ def main() -> None:
                         help="Full-data total optimizer-step budget; 0 uses epoch mode")
     parser.add_argument("--eval-every-steps", type=int, default=0,
                         help="Validate after this many steps once a full pass is complete")
+    parser.add_argument("--train-passes", type=int, default=0,
+                        help="Dataset-adaptive full passes; 0 disables pass budgeting")
+    parser.add_argument("--min-train-steps", type=int, default=0,
+                        help="Minimum steps when --train-passes is active")
+    parser.add_argument("--evals-per-pass", type=int, default=4,
+                        help="Target validation frequency per full train pass")
+    parser.add_argument("--num-workers", type=int, default=0,
+                        help="Data-loader workers; benchmark on the target server")
     args = parser.parse_args()
     if min(args.epochs, args.patience, args.batch_size, args.threads, args.eval_every) < 1:
         parser.error("epochs, patience, batch-size, threads and eval-every must be positive")
     if min(args.prediction_cap, args.max_train_batches, args.max_train_steps,
-           args.eval_every_steps) < 0:
+           args.eval_every_steps, args.train_passes, args.min_train_steps,
+           args.num_workers) < 0:
         parser.error("prediction and training limits must be nonnegative")
-    if args.max_train_batches and args.max_train_steps:
-        parser.error("max-train-batches and max-train-steps are mutually exclusive")
+    if args.evals_per_pass < 1:
+        parser.error("evals-per-pass must be positive")
+    if args.max_train_batches and (args.max_train_steps or args.train_passes):
+        parser.error("max-train-batches and full training budgets are mutually exclusive")
+    if args.max_train_steps and args.train_passes:
+        parser.error("max-train-steps and train-passes are mutually exclusive")
     if bool(args.max_train_steps) != bool(args.eval_every_steps):
         parser.error("max-train-steps and eval-every-steps must be used together")
+    if bool(args.train_passes) != bool(args.min_train_steps):
+        parser.error("train-passes and min-train-steps must be used together")
     run(args.data, args.output, args.datasets, args.tasks, args.models, args.seeds,
         args.epochs, args.patience, args.batch_size, tuple(args.fanout), args.threads,
         args.resume, args.device, args.scope, args.eval_every, args.amp,
         args.prediction_cap, args.max_train_batches, args.max_train_steps,
-        args.eval_every_steps)
+        args.eval_every_steps, args.train_passes, args.min_train_steps,
+        args.evals_per_pass, args.num_workers)
 
 
 if __name__ == "__main__":
