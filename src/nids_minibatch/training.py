@@ -138,7 +138,7 @@ def full_logits(model, name: str, graph: EdgeGraph, amp: bool = False) -> torch.
 # Chunking message edges inside each complete GNN layer keeps the same equations
 # while retaining only node embeddings and one message chunk on the GPU.
 EVALUATION_CHUNK_EDGES = 131_072
-EVALUATION_MODE = "float32_gnn_deterministic_v1"
+EVALUATION_MODE = "float32_gnn_deterministic_v2"
 
 
 def _chunked_sage_layer(layer, node_features: torch.Tensor,

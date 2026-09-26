@@ -87,9 +87,14 @@ def test_amp_gnn_checkpoint_replay_is_stable():
     graph = synthetic_graph(rows=4_000, hubs=2)
     torch.manual_seed(11)
     model = build_model("sage_edge", len(FEATURES), 3, 32, 0.2).cuda()
-    first = chunked_logits(model, "sage_edge", graph, amp=True, chunk_edges=127)
-    second = chunked_logits(model, "sage_edge", graph, amp=True, chunk_edges=127)
-    assert float((first - second).abs().max()) < 1e-5
+    previous = torch.are_deterministic_algorithms_enabled()
+    try:
+        torch.use_deterministic_algorithms(True)
+        first = chunked_logits(model, "sage_edge", graph, amp=True, chunk_edges=127)
+        second = chunked_logits(model, "sage_edge", graph, amp=True, chunk_edges=127)
+        assert torch.equal(first, second)
+    finally:
+        torch.use_deterministic_algorithms(previous)
 
 
 @pytest.mark.skipif(not torch.cuda.is_available(), reason="CUDA is required")

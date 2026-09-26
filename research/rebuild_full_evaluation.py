@@ -90,6 +90,7 @@ def main() -> None:
         parser.error("threads must be positive")
 
     torch.set_num_threads(args.threads)
+    torch.use_deterministic_algorithms(True)
     provenance_path = args.runs / "provenance.json"
     provenance = json.loads(provenance_path.read_text())
     if provenance.get("scope") != "full":

@@ -38,6 +38,7 @@ def main():
     parser.add_argument("--threads", type=int, default=4)
     args = parser.parse_args()
     torch.set_num_threads(args.threads)
+    torch.use_deterministic_algorithms(True)
     provenance = json.loads((args.runs / "provenance.json").read_text())
     requested_device = str(provenance.get("effective_device", "cpu"))
     if requested_device.startswith("cuda") and not torch.cuda.is_available():
