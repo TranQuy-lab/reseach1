@@ -13,8 +13,9 @@ hình, ba seed, tổng cộng 72 run. Notebook chỉ điều phối các module 
 - Từ đầu gồm tải raw: ít nhất 40 GB trống, khuyến nghị 60 GB.
 - Nếu đã chuyển đủ bốn Parquet đã kiểm chứng: cần tối thiểu 12 GiB trống
   sau khi cài môi trường để tạo split, checkpoint và báo cáo; nên có 18 GiB.
-- Pilot: GPU NVIDIA 16–24 GB VRAM. Full-data: RTX 5090 32 GB VRAM hoặc
-  tương đương, driver/runtime hỗ trợ CUDA 12.8; benchmark sẽ chặn nếu thiếu.
+- Pilot: GPU NVIDIA 16–24 GB VRAM. Full-data: tối thiểu 23 GiB VRAM khả dụng
+  (RTX 3090 24 GB báo khoảng 23,56 GiB qua PyTorch), khuyến nghị 32 GB;
+  driver/runtime phải hỗ trợ CUDA 12.8. Benchmark chặn từ 90% VRAM khả dụng.
 - Pipeline full-data 75.987.976 flow nằm trong các notebook `10_FULL_*` đến
   `12_FULL_*`. Notebook 10 bắt buộc benchmark giới hạn trước và không tự chạy
   72 cấu hình. Notebook 11 chỉ chạy khi cổng ETA/RAM/VRAM/ổ đĩa đạt.

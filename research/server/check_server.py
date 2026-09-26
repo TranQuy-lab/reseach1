@@ -26,6 +26,10 @@ EXPECTED_PACKAGES = {
     "torch": "2.8.0",
 }
 
+# torch reports usable VRAM, which is slightly below the marketed capacity.
+# A 24 GB RTX 3090 reports about 23.56 GiB here.
+MINIMUM_FULL_GPU_MEMORY_GIB = 23.0
+
 
 def sha256_file(path: Path) -> str:
     digest = hashlib.sha256()
@@ -158,8 +162,11 @@ def main() -> None:
             problems.append(f"Torch CUDA runtime is {torch.version.cuda!r}, expected '12.8'")
         if not bf16_supported:
             problems.append("GPU does not report BF16 support")
-        if gpu_memory_gib is not None and gpu_memory_gib < 24:
-            problems.append("GPU VRAM below 24 GiB")
+        if (gpu_memory_gib is not None
+                and gpu_memory_gib < MINIMUM_FULL_GPU_MEMORY_GIB):
+            problems.append(
+                f"usable GPU VRAM below {MINIMUM_FULL_GPU_MEMORY_GIB:.0f} GiB"
+            )
     if args.scope == "full" and git_dirty is True:
         problems.append("tracked repository files are dirty")
     if args.scope == "full" and git_dirty is None:

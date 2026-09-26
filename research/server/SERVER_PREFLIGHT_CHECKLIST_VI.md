@@ -7,7 +7,8 @@ cưỡng chế và lưu bằng chứng.
 
 - Repository ở đúng commit đã phát hành, không sửa file tracked trên server.
 - Python 3.12; môi trường được tạo bằng `bootstrap_server.sh`.
-- RAM tối thiểu 120 GiB; GPU NVIDIA tối thiểu 24 GiB VRAM và hỗ trợ BF16.
+- RAM tối thiểu 120 GiB; GPU NVIDIA tối thiểu 23 GiB VRAM khả dụng và hỗ trợ
+  BF16. RTX 3090 24 GB thường báo khoảng 23,56 GiB qua PyTorch.
 - Bốn Parquet thật đã được `git lfs pull` và hard-link vào
   `data/processed_four/`; không còn file pointer LFS.
 - `check_server.py` phải xác nhận đúng SHA-256 và tổng 75.987.976 dòng.
@@ -29,6 +30,7 @@ Chỉ tiếp tục khi:
 - `training_budget` đúng hai lượt train, tối thiểu 1.500 step, bốn lần
   validation mục tiêu mỗi lượt và khoảng validation tối thiểu 500 step;
 - benchmark và train dùng cùng `num_workers` (mặc định 4);
+- CUDA peak dưới 90% VRAM khả dụng và RSS tiến trình chính dưới 80% RAM host;
 - `cost_estimate.cost_gate_evaluated: true` khi thuê GPU và
   `planning_cost_usd <= 6`; nếu giá bằng 0 thì phải tự so giá thuê với
   `max_hourly_price_for_budget_usd` trước khi khởi chạy;

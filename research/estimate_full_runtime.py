@@ -163,13 +163,31 @@ def main() -> None:
             "eval_every_steps": item["eval_every_steps"],
             "validation_runs_planned": item["validation_runs_planned"],
         }
+    resource_capacity = {
+        "memory_gib": environment.get("memory_gib"),
+        "gpu_memory_gib": environment.get("gpu_memory_gib"),
+        "maximum_ram_fraction": 0.80,
+        "maximum_vram_fraction": 0.90,
+    }
     if details:
         max_vram = max(x["peak_cuda_gib"] for x in details)
         max_rss = max(x["peak_rss_gib"] for x in details)
-        if max_vram >= 29:
-            reasons.append(f"CUDA peak {max_vram:.1f} GiB leaves insufficient margin on 32 GiB")
-        if max_rss >= 110:
-            reasons.append(f"RAM peak {max_rss:.1f} GiB leaves insufficient margin on 125 GiB")
+        gpu_capacity = environment.get("gpu_memory_gib")
+        ram_capacity = environment.get("memory_gib")
+        if gpu_capacity is None or float(gpu_capacity) <= 0:
+            reasons.append("GPU memory capacity is missing from the environment report")
+        elif max_vram >= 0.90 * float(gpu_capacity):
+            reasons.append(
+                f"CUDA peak {max_vram:.1f} GiB exceeds 90% of "
+                f"{float(gpu_capacity):.1f} GiB usable VRAM"
+            )
+        if ram_capacity is None or float(ram_capacity) <= 0:
+            reasons.append("RAM capacity is missing from the environment report")
+        elif max_rss >= 0.80 * float(ram_capacity):
+            reasons.append(
+                f"RAM peak {max_rss:.1f} GiB exceeds 80% of "
+                f"{float(ram_capacity):.1f} GiB host RAM"
+            )
     free_disk = float(environment.get("free_disk_gib", 0))
     if free_disk < 12:
         reasons.append(f"only {free_disk:.1f} GiB disk free after split/benchmark")
@@ -195,6 +213,7 @@ def main() -> None:
         "benchmark_rows": len(table),
         "step_budget_estimate": estimate,
         "cost_estimate": cost_estimate,
+        "resource_capacity": resource_capacity,
         "optimizer_step_plan": {
             "datasets": dataset_step_plan,
             "total_for_72_runs": total_optimizer_steps,

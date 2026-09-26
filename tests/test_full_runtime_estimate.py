@@ -56,7 +56,9 @@ def test_bounded_benchmark_produces_safe_conservative_eta(tmp_path, monkeypatch)
         dataset: {"split_rows": {"train": {"rows": 1000}}} for dataset in DATASETS
     }}))
     environment = tmp_path / "environment.json"
-    environment.write_text(json.dumps({"free_disk_gib": 20}))
+    environment.write_text(json.dumps({
+        "free_disk_gib": 20, "memory_gib": 125, "gpu_memory_gib": 32,
+    }))
     output = tmp_path / "estimate.json"
     monkeypatch.setattr(sys, "argv", [
         "estimate_full_runtime.py", "--benchmarks", str(root),
@@ -73,6 +75,7 @@ def test_bounded_benchmark_produces_safe_conservative_eta(tmp_path, monkeypatch)
         "evals_per_pass": 4, "minimum_eval_interval_steps": 500,
     }
     assert value["execution"] == {"num_workers": 4, "batch_size": 4096}
+    assert value["resource_capacity"]["maximum_vram_fraction"] == 0.9
     assert value["step_budget_estimate"]["planning_hours"] > 0
     assert value["cost_estimate"]["budget_usd"] == 6.0
     assert value["cost_estimate"]["cost_gate_evaluated"] is False
@@ -110,7 +113,9 @@ def test_cost_gate_rejects_estimate_above_budget(tmp_path, monkeypatch):
         dataset: {"split_rows": {"train": {"rows": 1000}}} for dataset in DATASETS
     }}))
     environment = tmp_path / "environment.json"
-    environment.write_text(json.dumps({"free_disk_gib": 20}))
+    environment.write_text(json.dumps({
+        "free_disk_gib": 20, "memory_gib": 125, "gpu_memory_gib": 32,
+    }))
     output = tmp_path / "estimate.json"
     monkeypatch.setattr(sys, "argv", [
         "estimate_full_runtime.py", "--benchmarks", str(root),
