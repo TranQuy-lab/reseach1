@@ -91,6 +91,24 @@ class Preprocessor:
             "log_features": self.log_features,
         }
 
+    def equivalent(self, other: "Preprocessor", rtol: float = 1e-9,
+                   atol: float = 1e-7) -> bool:
+        """Compare persisted preprocessing across Parquet read/reduction order.
+
+        StandardScaler statistics can differ by tiny floating-point rounding
+        when the same rows are read in different row-group/chunk order. Keep
+        schema/classes/task/log transform exact, but compare mean/scale with a
+        strict relative tolerance rather than JSON equality.
+        """
+        return (
+            self.features == other.features
+            and self.classes == other.classes
+            and self.task == other.task
+            and self.log_features == other.log_features
+            and np.allclose(self.mean, other.mean, rtol=rtol, atol=atol)
+            and np.allclose(self.scale, other.scale, rtol=rtol, atol=atol)
+        )
+
     @classmethod
     def from_dict(cls, value):
         features = list(value["features"])

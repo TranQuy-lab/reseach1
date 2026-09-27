@@ -154,7 +154,7 @@ def main() -> None:
                     stored_pre = Preprocessor.from_dict(json.loads(
                         (run_dir / "preprocessor.json").read_text()
                     ))
-                    if stored_pre.as_dict() != pre.as_dict():
+                    if not stored_pre.equivalent(pre):
                         raise AssertionError(f"Preprocessor mismatch: {run_id}")
                     result_path = run_dir / "metrics.json"
                     result = json.loads(result_path.read_text())

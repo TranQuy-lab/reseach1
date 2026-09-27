@@ -77,7 +77,7 @@ def main():
         frames, pre = frame_cache[key]
         run_dir = args.runs / f"{row.dataset}__{row.task}__{row.model}__seed{row.seed}"
         current_pre = Preprocessor.from_dict(json.loads((run_dir / "preprocessor.json").read_text()))
-        if current_pre.as_dict() != pre.as_dict():
+        if not current_pre.equivalent(pre):
             raise AssertionError("Preprocessor differs between runs of one dataset/task")
         graph = make_graph(frames["test"], pre.transform(frames["test"]),
                            pre.labels(frames["test"]), storage_dtype)
