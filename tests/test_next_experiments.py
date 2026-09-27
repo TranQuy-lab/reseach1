@@ -14,7 +14,9 @@ def test_endpoint_holdout_is_separate_and_strict():
     source = Path("research/server/prepare_endpoint_holdout.py").read_text()
     assert "endpoint_holdout_splits" in source or "ENDPOINT_HOLDOUT" in source
     assert "cross_split_endpoint_ips" in source
+    assert "IPV4_SRC_ADDR" in source and "IPV4_DST_ADDR" in source
     assert "if output.exists()" in source
+    assert "replace('ip'" not in source
     assert "full_splits" not in source.split("default=", 1)[-1].split("\n", 1)[0]
 
 

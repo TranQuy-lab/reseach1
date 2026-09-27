@@ -30,8 +30,10 @@ def quote(path: Path) -> str:
     return str(path).replace("'", "''")
 
 
-def endpoint_bucket(seed: int) -> str:
-    return f"hash(CAST(ip AS VARCHAR) || '|{int(seed)}') % 10"
+def endpoint_bucket(seed: int, column: str) -> str:
+    if column not in {"IPV4_SRC_ADDR", "IPV4_DST_ADDR"}:
+        raise ValueError(f"unsupported endpoint column: {column}")
+    return f"hash(CAST({column} AS VARCHAR) || '|{int(seed)}') % 10"
 
 
 def split_label(bucket: str) -> str:
@@ -75,18 +77,17 @@ def prepare(source: Path, output: Path, report: Path, threads: int, seed: int) -
             dataset_out.mkdir()
             source_rows = int(con.execute("SELECT count(*) FROM read_parquet(?)", [str(src)]).fetchone()[0])
             result["source"][dataset] = {"path": str(src), "rows": source_rows, "sha256": sha256_file(src)}
-            bucket_src = endpoint_bucket(seed)
-            bucket_dst = endpoint_bucket(seed)
             # Use one shared deterministic assignment for both endpoint roles.
             # Retaining only equal buckets gives strict split-disjointness for
             # every IP in the output; cross-bucket flows are reported dropped.
+            bucket_src = endpoint_bucket(seed, "IPV4_SRC_ADDR")
+            bucket_dst = endpoint_bucket(seed, "IPV4_DST_ADDR")
             split_expr = split_label(bucket_src)
             query = f"""
                 COPY (
                     SELECT *, {split_expr} AS split
                     FROM read_parquet('{quote(src)}')
-                    WHERE {bucket_src.replace('ip', 'CAST(IPV4_SRC_ADDR AS VARCHAR)')} =
-                          {bucket_dst.replace('ip', 'CAST(IPV4_DST_ADDR AS VARCHAR)')}
+                    WHERE {bucket_src} = {bucket_dst}
                 ) TO '{quote(dataset_out)}'
                 (FORMAT PARQUET, PARTITION_BY (split), COMPRESSION ZSTD,
                  ROW_GROUP_SIZE 100000)
