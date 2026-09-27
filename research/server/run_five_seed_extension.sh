@@ -21,6 +21,16 @@ if [[ -f "${VERIFY_JSON}" && -d "${MERGED_RUNS}" ]]; then
   exit 0
 fi
 
+# Git intentionally excludes the 375MB prediction parquet files. On a fresh
+# server, regenerate the primary 72-run predictions from the tracked model.pt
+# checkpoints before merging; this never retrains or changes model weights.
+BASE_PROBE="research/artifacts/full_runs/NF-UNSW-NB15-v2__multiclass__edge_mlp__seed11/test_predictions.parquet"
+if [[ ! -f "${BASE_PROBE}" ]]; then
+  printf 'Primary prediction artifacts missing; rebuilding 72 tracked checkpoints.\n'
+  "${PYTHON_BIN}" -u research/rebuild_full_evaluation.py \
+    --data data/full_splits --runs research/artifacts/full_runs --threads "${THREADS}"
+fi
+
 "${PYTHON_BIN}" -u -m nids_minibatch.training \
   --data data/full_splits \
   --output "${EXTRA_RUNS}" \
