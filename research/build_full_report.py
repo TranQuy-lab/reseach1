@@ -60,9 +60,14 @@ def main() -> None:
     verification = json.loads(args.verification.read_text())
     benchmark = json.loads(args.benchmark.read_text())
     prepare = json.loads(args.prepare.read_text())
-    if len(runs) != 72 or runs[["dataset", "task", "model", "seed"]].duplicated().any():
-        raise ValueError("Full-data report requires 72 unique runs")
-    if verification.get("passed") is not True or verification.get("runs_checked") != 72:
+    provenance = json.loads((args.runs / "provenance.json").read_text())
+    expected_runs = (
+        len(provenance["datasets"]) * len(provenance["tasks"])
+        * len(provenance["models"]) * len(provenance["seeds"])
+    )
+    if len(runs) != expected_runs or runs[["dataset", "task", "model", "seed"]].duplicated().any():
+        raise ValueError(f"Full-data report requires {expected_runs} unique runs")
+    if verification.get("passed") is not True or verification.get("runs_checked") != expected_runs:
         raise ValueError("Independent verification has not passed")
 
     metrics = ["test_macro_f1", "test_weighted_f1", "test_accuracy", "seconds_fit_and_evaluate"]
