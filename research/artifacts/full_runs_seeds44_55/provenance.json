@@ -1,0 +1,115 @@
+{
+  "environment": {
+    "python": "3.12.3",
+    "platform": "Linux-5.15.0-185-generic-x86_64-with-glibc2.39",
+    "packages": {
+      "numpy": "2.2.6",
+      "pandas": "2.3.3",
+      "pyarrow": "22.0.0",
+      "scikit-learn": "1.7.2",
+      "torch": "2.8.0+cu128",
+      "torch-geometric": "2.7.0",
+      "pyg-lib": "0.5.0+pt28cu128"
+    },
+    "cuda_available": true,
+    "torch_threads": 12
+  },
+  "protocol_sha256": "a4446ea24d6334e803de21664f0d9656b67f0802b85172825dfa7bf16611aa7d",
+  "source_sha256": {
+    "src/nids_minibatch/__init__.py": "8ecb8b4f6feb1a8cf6eb5eabb386878b4c0523330f8b6f40bce368b1c245a3de",
+    "src/nids_minibatch/data.py": "5d427fe8666cf6afdb07af1b4ad99dd1d2bb36703bfdfb28ca9f624c31373027",
+    "src/nids_minibatch/models.py": "4a6540610dad6ce652c458c8ba432521a298994caf2baab0bf5f7c3dc4d9ac28",
+    "src/nids_minibatch/prepare.py": "22ef06a4405b2270ac74c82654307abfbfd06615d3ef7783b1438a0d579e1e8c",
+    "src/nids_minibatch/schema.py": "3f1b98c663cee8a653045e63f8ccd6f0ecc7e6c97541c6024e1158e39f9f5463",
+    "src/nids_minibatch/training.py": "d0eaafb5e866706a0e868edf16add6a01585ab157a179ac1ba354a1a9d187510",
+    "src/nids_minibatch/tune.py": "ea542f86167f7b3d8196031731d3f35f9fb646e26efe3567a15bfdfc67894986",
+    "research/server/run_full_pipeline.py": "ed4fb9f09010a245a81027c11f49c7a0cc19394c19947ebb9e21e8881689dd14",
+    "research/estimate_full_runtime.py": "bbd686854b8c332a3ef6aca1aa7e469ebc21044f7ee37107cef4323560cb8c72",
+    "research/rebuild_full_evaluation.py": "752b44f92096a7339844d0b12629e0bdf401ed222703d47bd2e4faeb57c2798c",
+    "research/validate_minibatch_results.py": "de8b18ccafb08625986c160db76e1f76c5a2ed3df1eeec6890326b38ebd4b9a8"
+  },
+  "git": {
+    "commit": "49c3873640277b5518b10a6a9a299293688f354d",
+    "tracked_files_dirty": true
+  },
+  "datasets": [
+    "NF-UNSW-NB15-v2",
+    "NF-BoT-IoT-v2",
+    "NF-ToN-IoT-v2",
+    "NF-CSE-CIC-IDS2018-v2"
+  ],
+  "tasks": [
+    "multiclass",
+    "binary"
+  ],
+  "models": [
+    "edge_mlp",
+    "sage",
+    "sage_edge"
+  ],
+  "seeds": [
+    44,
+    55
+  ],
+  "epochs": null,
+  "patience": 10,
+  "batch_size": 4096,
+  "fanout": [
+    15,
+    10
+  ],
+  "threads": 12,
+  "scope": "full",
+  "eval_every": null,
+  "amp": true,
+  "evaluation_mode": "float32_gnn_deterministic_v2",
+  "prediction_cap": 100000,
+  "max_train_batches": 0,
+  "max_train_steps": 0,
+  "eval_every_steps": 0,
+  "train_passes": 2,
+  "min_train_steps": 1500,
+  "evals_per_pass": 4,
+  "minimum_eval_interval_steps": 500,
+  "training_budget_mode": "dataset_passes",
+  "num_workers": 4,
+  "shared_feature_graph_across_tasks": true,
+  "edge_storage_dtype": "torch.float16",
+  "requested_device": "cuda",
+  "effective_device": "cuda",
+  "training_source_sha256": {
+    "src/nids_minibatch/__init__.py": "8ecb8b4f6feb1a8cf6eb5eabb386878b4c0523330f8b6f40bce368b1c245a3de",
+    "src/nids_minibatch/data.py": "5d427fe8666cf6afdb07af1b4ad99dd1d2bb36703bfdfb28ca9f624c31373027",
+    "src/nids_minibatch/models.py": "4a6540610dad6ce652c458c8ba432521a298994caf2baab0bf5f7c3dc4d9ac28",
+    "src/nids_minibatch/prepare.py": "22ef06a4405b2270ac74c82654307abfbfd06615d3ef7783b1438a0d579e1e8c",
+    "src/nids_minibatch/schema.py": "3f1b98c663cee8a653045e63f8ccd6f0ecc7e6c97541c6024e1158e39f9f5463",
+    "src/nids_minibatch/training.py": "d0eaafb5e866706a0e868edf16add6a01585ab157a179ac1ba354a1a9d187510",
+    "src/nids_minibatch/tune.py": "ea542f86167f7b3d8196031731d3f35f9fb646e26efe3567a15bfdfc67894986",
+    "research/server/run_full_pipeline.py": "ed4fb9f09010a245a81027c11f49c7a0cc19394c19947ebb9e21e8881689dd14",
+    "research/estimate_full_runtime.py": "bbd686854b8c332a3ef6aca1aa7e469ebc21044f7ee37107cef4323560cb8c72",
+    "research/rebuild_full_evaluation.py": "752b44f92096a7339844d0b12629e0bdf401ed222703d47bd2e4faeb57c2798c",
+    "research/validate_minibatch_results.py": "de8b18ccafb08625986c160db76e1f76c5a2ed3df1eeec6890326b38ebd4b9a8"
+  },
+  "evaluation_source_sha256": {
+    "src/nids_minibatch/__init__.py": "8ecb8b4f6feb1a8cf6eb5eabb386878b4c0523330f8b6f40bce368b1c245a3de",
+    "src/nids_minibatch/data.py": "5d427fe8666cf6afdb07af1b4ad99dd1d2bb36703bfdfb28ca9f624c31373027",
+    "src/nids_minibatch/models.py": "4a6540610dad6ce652c458c8ba432521a298994caf2baab0bf5f7c3dc4d9ac28",
+    "src/nids_minibatch/prepare.py": "22ef06a4405b2270ac74c82654307abfbfd06615d3ef7783b1438a0d579e1e8c",
+    "src/nids_minibatch/schema.py": "3f1b98c663cee8a653045e63f8ccd6f0ecc7e6c97541c6024e1158e39f9f5463",
+    "src/nids_minibatch/training.py": "d0eaafb5e866706a0e868edf16add6a01585ab157a179ac1ba354a1a9d187510",
+    "src/nids_minibatch/tune.py": "ea542f86167f7b3d8196031731d3f35f9fb646e26efe3567a15bfdfc67894986",
+    "research/server/run_full_pipeline.py": "ed4fb9f09010a245a81027c11f49c7a0cc19394c19947ebb9e21e8881689dd14",
+    "research/estimate_full_runtime.py": "bbd686854b8c332a3ef6aca1aa7e469ebc21044f7ee37107cef4323560cb8c72",
+    "research/rebuild_full_evaluation.py": "752b44f92096a7339844d0b12629e0bdf401ed222703d47bd2e4faeb57c2798c",
+    "research/validate_minibatch_results.py": "de8b18ccafb08625986c160db76e1f76c5a2ed3df1eeec6890326b38ebd4b9a8"
+  },
+  "evaluation_rebuild": {
+    "status": "complete",
+    "mode": "float32_gnn_deterministic_v2",
+    "reason": "Replace non-reproducible BF16 full-graph GNN evaluation",
+    "started_at_utc": "2026-09-27T14:43:18.930406+00:00",
+    "checkpoints_modified": false,
+    "completed_at_utc": "2026-09-27T14:56:32.038196+00:00",
+    "runs_rebuilt_or_confirmed": 48
+  }
+}

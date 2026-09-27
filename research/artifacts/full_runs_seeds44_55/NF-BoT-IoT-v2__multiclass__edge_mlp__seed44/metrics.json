@@ -1,0 +1,199 @@
+{
+  "dataset": "NF-BoT-IoT-v2",
+  "task": "multiclass",
+  "model": "edge_mlp",
+  "seed": 44,
+  "seconds_fit_and_evaluate": 286.48342200598563,
+  "seconds_fit": 284.6131675919896,
+  "seconds_final_evaluation": 1.8702544139960082,
+  "seconds_dataset_load": 26.21737340699474,
+  "seconds_graph_prepare": 170.79834010999184,
+  "best_epoch": 2,
+  "best_step": 8069,
+  "step_budget": 12910,
+  "steps_per_full_pass": 6455,
+  "eval_every_steps": 1614,
+  "epochs_ran": 2,
+  "steps_ran": 12910,
+  "parameters": 5765,
+  "checkpoint_parameter_max_abs_error": 0.0,
+  "evaluation_mode": "float32_gnn_deterministic_v2",
+  "peak_rss_kib_process": 48687972,
+  "peak_cuda_bytes": 145966592,
+  "val": {
+    "accuracy": 0.9838501959052389,
+    "macro_f1": 0.821088370949966,
+    "weighted_f1": 0.9840525925381147,
+    "per_class": {
+      "Benign": {
+        "precision": 0.8365076371864982,
+        "recall": 0.9878999331898152,
+        "f1-score": 0.905922396187883,
+        "support": 13471.0
+      },
+      "DDoS": {
+        "precision": 0.9942556876053714,
+        "recall": 0.9942350871797891,
+        "f1-score": 0.9942453872858719,
+        "support": 1834026.0
+      },
+      "DoS": {
+        "precision": 0.9865904377841886,
+        "recall": 0.9790127373827219,
+        "f1-score": 0.9827869809873477,
+        "support": 1667297.0
+      },
+      "Reconnaissance": {
+        "precision": 0.9096648966201829,
+        "recall": 0.9417119674216581,
+        "f1-score": 0.9254110668969142,
+        "support": 261769.0
+      },
+      "Theft": {
+        "precision": 0.17553559087767795,
+        "recall": 0.9657794676806084,
+        "f1-score": 0.2970760233918129,
+        "support": 263.0
+      },
+      "accuracy": 0.9838501959052389,
+      "macro avg": {
+        "precision": 0.7805108500147837,
+        "recall": 0.9737278385709185,
+        "f1-score": 0.821088370949966,
+        "support": 3776826.0
+      },
+      "weighted avg": {
+        "precision": 0.9843892436206227,
+        "recall": 0.9838501959052389,
+        "f1-score": 0.9840525925381147,
+        "support": 3776826.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        13308,
+        5,
+        6,
+        105,
+        47
+      ],
+      [
+        561,
+        1823453,
+        9943,
+        69,
+        0
+      ],
+      [
+        222,
+        10471,
+        1632305,
+        24299,
+        0
+      ],
+      [
+        1817,
+        59,
+        12236,
+        246511,
+        1146
+      ],
+      [
+        1,
+        0,
+        1,
+        7,
+        254
+      ]
+    ]
+  },
+  "test": {
+    "accuracy": 0.9838477668285383,
+    "macro_f1": 0.8182954522254837,
+    "weighted_f1": 0.9840568319887554,
+    "per_class": {
+      "Benign": {
+        "precision": 0.8385625,
+        "recall": 0.9867980730335013,
+        "f1-score": 0.906661260622033,
+        "support": 27193.0
+      },
+      "DDoS": {
+        "precision": 0.9942161638489773,
+        "recall": 0.9942761294703325,
+        "f1-score": 0.9942461457554835,
+        "support": 3664129.0
+      },
+      "DoS": {
+        "precision": 0.9867358324538936,
+        "recall": 0.9788600321930575,
+        "f1-score": 0.9827821538435592,
+        "support": 3333638.0
+      },
+      "Reconnaissance": {
+        "precision": 0.9090997972657626,
+        "recall": 0.9424108099011719,
+        "f1-score": 0.9254556500037089,
+        "support": 522928.0
+      },
+      "Theft": {
+        "precision": 0.1645394963780614,
+        "recall": 0.99375,
+        "f1-score": 0.2823320509026339,
+        "support": 480.0
+      },
+      "accuracy": 0.9838477668285383,
+      "macro avg": {
+        "precision": 0.778630757989339,
+        "recall": 0.9792190089196128,
+        "f1-score": 0.8182954522254837,
+        "support": 7548368.0
+      },
+      "weighted avg": {
+        "precision": 0.9844024685949432,
+        "recall": 0.9838477668285383,
+        "f1-score": 0.9840568319887554,
+        "support": 7548368.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        26834,
+        9,
+        11,
+        227,
+        112
+      ],
+      [
+        1060,
+        3643156,
+        19759,
+        154,
+        0
+      ],
+      [
+        492,
+        21085,
+        3263165,
+        48893,
+        3
+      ],
+      [
+        3614,
+        100,
+        24094,
+        492813,
+        2307
+      ],
+      [
+        0,
+        0,
+        1,
+        2,
+        477
+      ]
+    ]
+  },
+  "test_prediction_rows_stored": 100000,
+  "test_prediction_rows_total": 7548368
+}

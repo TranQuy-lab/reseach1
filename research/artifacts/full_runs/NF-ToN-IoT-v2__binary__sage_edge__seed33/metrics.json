@@ -3,11 +3,11 @@
   "task": "binary",
   "model": "sage_edge",
   "seed": 33,
-  "seconds_fit_and_evaluate": 438.281241351011,
+  "seconds_fit_and_evaluate": 438.06053217501903,
   "seconds_fit": 436.20185404701624,
-  "seconds_final_evaluation": 2.0793873039947357,
-  "seconds_dataset_load": 13.935126959986519,
-  "seconds_graph_prepare": 52.72839887699229,
+  "seconds_final_evaluation": 1.8586781280027935,
+  "seconds_dataset_load": 10.323043372001848,
+  "seconds_graph_prepare": 43.93738353101071,
   "best_epoch": 2,
   "best_step": 5068,
   "step_budget": 5792,
@@ -62,33 +62,33 @@
     ]
   },
   "test": {
-    "accuracy": 0.9822410053072587,
-    "macro_f1": 0.9808235158089837,
-    "weighted_f1": 0.9822827387507579,
+    "accuracy": 0.9822407099344509,
+    "macro_f1": 0.9808232001859234,
+    "weighted_f1": 0.9822824455594975,
     "per_class": {
       "Benign": {
-        "precision": 0.9650010914086876,
+        "precision": 0.9650003169897688,
         "recall": 0.9864544264296191,
-        "f1-score": 0.975609835251585,
+        "f1-score": 0.9756094394815936,
         "support": 1218996.0
       },
       "Attack": {
-        "precision": 0.9922821502288433,
-        "recall": 0.9798703564551297,
-        "f1-score": 0.9860371963663827,
+        "precision": 0.9922821466214526,
+        "recall": 0.979869894893093,
+        "f1-score": 0.9860369608902532,
         "support": 2166556.0
       },
-      "accuracy": 0.9822410053072587,
+      "accuracy": 0.9822407099344509,
       "macro avg": {
-        "precision": 0.9786416208187654,
-        "recall": 0.9831623914423744,
-        "f1-score": 0.9808235158089837,
+        "precision": 0.9786412318056108,
+        "recall": 0.9831621606613561,
+        "f1-score": 0.9808232001859234,
         "support": 3385552.0
       },
       "weighted avg": {
-        "precision": 0.9824593793549843,
-        "recall": 0.9822410053072587,
-        "f1-score": 0.9822827387507579,
+        "precision": 0.9824590982105277,
+        "recall": 0.9822407099344509,
+        "f1-score": 0.9822824455594975,
         "support": 3385552.0
       }
     },
@@ -98,8 +98,8 @@
         16512
       ],
       [
-        43612,
-        2122944
+        43613,
+        2122943
       ]
     ]
   },
@@ -119,7 +119,7 @@
       "accuracy": 0.9822164893642159
     },
     "checkpoint_sha256": "e56c621f8f2f0b469d4e956e5aaad1082106e17dbed9658653bf4e6ccccc5b2e",
-    "rebuilt_at_utc": "2026-09-26T23:28:37.912721+00:00"
+    "rebuilt_at_utc": "2026-09-27T11:16:09.832177+00:00"
   },
   "evaluation_mode": "float32_gnn_deterministic_v2"
 }

@@ -3,11 +3,11 @@
   "task": "multiclass",
   "model": "edge_mlp",
   "seed": 11,
-  "seconds_fit_and_evaluate": 38.228425989014795,
+  "seconds_fit_and_evaluate": 38.17446008900879,
   "seconds_fit": 37.96407208600431,
-  "seconds_final_evaluation": 0.26435390301048756,
-  "seconds_dataset_load": 2.3786235169973224,
-  "seconds_graph_prepare": 9.979929619992618,
+  "seconds_final_evaluation": 0.21038800300448202,
+  "seconds_dataset_load": 1.8333157559973188,
+  "seconds_graph_prepare": 8.531177751996438,
   "best_epoch": 4,
   "best_step": 1500,
   "step_budget": 1500,
@@ -439,7 +439,7 @@
       "accuracy": 0.9737681665749665
     },
     "checkpoint_sha256": "8670c12a6f60420966828a8166f2cb89cca36fa741a38aa47e13afde90abd289",
-    "rebuilt_at_utc": "2026-09-26T23:21:03.540445+00:00"
+    "rebuilt_at_utc": "2026-09-27T11:10:02.626289+00:00"
   },
   "evaluation_mode": "float32_gnn_deterministic_v2"
 }
