@@ -4,7 +4,7 @@
   "logical_cpu": 96,
   "physical_cpu": 48,
   "memory_gib": 1007.7263565063477,
-  "free_disk_gib": 79.69092559814453,
+  "free_disk_gib": 79.69094467163086,
   "processed_data_present": true,
   "processed_data": {
     "NF-UNSW-NB15-v2": {
@@ -56,10 +56,8 @@
   "gpu": "NVIDIA GeForce RTX 3090",
   "gpu_memory_gib": 23.55877685546875,
   "bf16_supported": true,
-  "scope": "full",
+  "scope": "minibatch",
   "git_commit": "f87d29bc22ec0a856cbc0d93210404ea3e03db43",
   "tracked_files_dirty": true,
-  "resource_problems": [
-    "tracked repository files are dirty"
-  ]
+  "resource_problems": []
 }

@@ -4642,3 +4642,13 @@ sage_edge seed=33 step=4846 epoch=2 loss=0.0737 val_macro_f1=0.9827
 sage_edge seed=33 step=5654 epoch=2 loss=0.0702 val_macro_f1=0.9820
 sage_edge seed=33 step=6460 epoch=2 loss=0.0721 val_macro_f1=0.9854
 DONE NF-CSE-CIC-IDS2018-v2__binary__sage_edge__seed33 test_macro_f1=0.9867 seconds=245.8
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/workspace/reseach1/src/nids_minibatch/training.py", line 962, in <module>
+    main()
+  File "/workspace/reseach1/src/nids_minibatch/training.py", line 953, in main
+    run(args.data, args.output, args.datasets, args.tasks, args.models, args.seeds,
+  File "/workspace/reseach1/src/nids_minibatch/training.py", line 737, in run
+    raise ValueError("Resume configuration/protocol differs from existing run")
+ValueError: Resume configuration/protocol differs from existing run
