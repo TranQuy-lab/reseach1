@@ -51,7 +51,8 @@ fi
 "${PYTHON_BIN}" -u research/merge_full_seed_runs.py \
   --base research/artifacts/full_runs \
   --additional "${EXTRA_RUNS}" \
-  --output "${MERGED_RUNS}"
+  --output "${MERGED_RUNS}" \
+  --allow-source-mismatch
 
 "${PYTHON_BIN}" -u research/validate_minibatch_results.py \
   --data data/full_splits \

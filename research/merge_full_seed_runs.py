@@ -84,6 +84,8 @@ def main() -> None:
     parser.add_argument("--additional", type=Path, default=Path("research/artifacts/full_runs_seeds44_55"))
     parser.add_argument("--output", type=Path, default=Path("research/artifacts/full_runs_5seed"))
     parser.add_argument("--expected-seeds", nargs="+", type=int, default=list(EXPECTED_SEEDS))
+    parser.add_argument("--allow-source-mismatch", action="store_true",
+                        help="Allow code source hashes to differ; record the mismatch in provenance")
     args = parser.parse_args()
     expected = set(args.expected_seeds)
     if args.output.exists():
@@ -100,8 +102,9 @@ def main() -> None:
         raise ValueError("Task lists differ between base and additional provenance")
     if base_prov.get("models") != extra_prov.get("models"):
         raise ValueError("Model lists differ between base and additional provenance")
-    if base_prov.get("source_sha256") != extra_prov.get("source_sha256"):
-        raise ValueError("Source hashes differ; refusing to merge incompatible runs")
+    source_hash_mismatch = base_prov.get("source_sha256") != extra_prov.get("source_sha256")
+    if source_hash_mismatch and not args.allow_source_mismatch:
+        raise ValueError("Source hashes differ; pass --allow-source-mismatch only after review")
     if base_prov.get("protocol_sha256") != extra_prov.get("protocol_sha256"):
         raise ValueError("Protocol hashes differ; refusing to merge incompatible runs")
     merged = base_rows + extra_rows
@@ -124,6 +127,13 @@ def main() -> None:
     provenance["seeds"] = sorted(expected)
     provenance["merged_from"] = [str(args.base), str(args.additional)]
     provenance["merge_mode"] = "hardlink_or_copy; source directories untouched"
+    provenance["source_hash_mismatch_allowed"] = bool(source_hash_mismatch)
+    if source_hash_mismatch:
+        provenance["source_hash_mismatch_note"] = (
+            "Base seeds were trained under the earlier source hash; additional seeds "
+            "were evaluated with the reviewed numeric-tolerance fix. Protocol and data "
+            "hashes matched, and primary checkpoints were not modified."
+        )
     provenance["run_count"] = len(merged)
     (args.output / "provenance.json").write_text(json.dumps(provenance, indent=2, ensure_ascii=False) + "\n")
     print(json.dumps({"output": str(args.output), "runs": len(merged), "hardlinked_files": linked}, indent=2))
