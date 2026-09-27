@@ -31,19 +31,28 @@ if [[ ! -f "${BASE_PROBE}" ]]; then
     --data data/full_splits --runs research/artifacts/full_runs --threads "${THREADS}"
 fi
 
-"${PYTHON_BIN}" -u -m nids_minibatch.training \
-  --data data/full_splits \
-  --output "${EXTRA_RUNS}" \
-  --datasets NF-UNSW-NB15-v2 NF-BoT-IoT-v2 NF-ToN-IoT-v2 NF-CSE-CIC-IDS2018-v2 \
-  --tasks multiclass binary \
-  --models edge_mlp sage sage_edge \
-  --seeds 44 55 \
-  --epochs 1 --patience 10 --batch-size 4096 --fanout 15 10 \
-  --threads "${THREADS}" --device cuda --scope full --eval-every 3 --amp \
-  --prediction-cap "${NIDS_PREDICTION_CAP:-100000}" --max-train-batches 0 \
-  --num-workers "${NUM_WORKERS}" \
-  --train-passes 2 --min-train-steps 1500 --evals-per-pass 4 \
-  $(if [[ -d "${EXTRA_RUNS}" ]]; then echo --resume; fi)
+EXTRA_COMPLETE=0
+if [[ -f "${EXTRA_RUNS}/runs.csv" ]]; then
+  EXTRA_ROWS=$(tail -n +2 "${EXTRA_RUNS}/runs.csv" | wc -l)
+  if [[ "${EXTRA_ROWS}" -eq 48 ]]; then EXTRA_COMPLETE=1; fi
+fi
+if [[ "${EXTRA_COMPLETE}" -eq 1 ]]; then
+  printf 'Additional seed artifacts already complete: %s\n' "${EXTRA_RUNS}"
+else
+  "${PYTHON_BIN}" -u -m nids_minibatch.training \
+    --data data/full_splits \
+    --output "${EXTRA_RUNS}" \
+    --datasets NF-UNSW-NB15-v2 NF-BoT-IoT-v2 NF-ToN-IoT-v2 NF-CSE-CIC-IDS2018-v2 \
+    --tasks multiclass binary \
+    --models edge_mlp sage sage_edge \
+    --seeds 44 55 \
+    --epochs 1 --patience 10 --batch-size 4096 --fanout 15 10 \
+    --threads "${THREADS}" --device cuda --scope full --eval-every 3 --amp \
+    --prediction-cap "${NIDS_PREDICTION_CAP:-100000}" --max-train-batches 0 \
+    --num-workers "${NUM_WORKERS}" \
+    --train-passes 2 --min-train-steps 1500 --evals-per-pass 4 \
+    $(if [[ -d "${EXTRA_RUNS}" ]]; then echo --resume; fi)
+fi
 
 "${PYTHON_BIN}" -u research/rebuild_full_evaluation.py \
   --data data/full_splits --runs "${EXTRA_RUNS}" --threads "${THREADS}"
