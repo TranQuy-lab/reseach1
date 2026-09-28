@@ -78,3 +78,24 @@ def test_extension_analysis_preserves_paired_seed_unit():
     assert 'PAIR_KEYS = ["dataset", "task", "seed"]' in source
     assert "positive_seeds" in source
     assert "computational repeats" in source
+
+
+def test_extension_notebooks_capture_algorithm_evidence():
+    notebook_root = Path("notebooks/server")
+    expected = [
+        "13_EXTENSION_PREFLIGHT.ipynb",
+        "14_TABULAR_RF_ET_HGB.ipynb",
+        "15_GRAPH_REWIRING.ipynb",
+        "16_ENDPOINT_HOLDOUT.ipynb",
+        "17_BOT_BUDGET_SENSITIVITY.ipynb",
+        "18_EXTENSION_VERIFY_REPORT.ipynb",
+    ]
+    for name in expected:
+        assert (notebook_root / name).is_file()
+    tabular = (notebook_root / "14_TABULAR_RF_ET_HGB.ipynb").read_text()
+    for required in (
+        "random_forest", "extra_trees", "hist_gradient_boosting",
+        "tabular_train", "tabular_verify", "runs_checked",
+    ):
+        assert required in tabular
+    assert "verification['passed'] is True" in tabular

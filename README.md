@@ -57,6 +57,21 @@ Sau đó chạy lần lượt:
 3. `notebooks/server/11_FULL_TRAIN_72.ipynb`
 4. `notebooks/server/12_FULL_VERIFY_REPORT.ipynb`
 
+Phần mở rộng phục vụ claim bài báo chạy theo thứ tự và phải lưu lại output
+của từng notebook làm bằng chứng thực thi:
+
+5. `notebooks/server/13_EXTENSION_PREFLIGHT.ipynb`
+6. `notebooks/server/14_TABULAR_RF_ET_HGB.ipynb`
+7. `notebooks/server/15_GRAPH_REWIRING.ipynb`
+8. `notebooks/server/16_ENDPOINT_HOLDOUT.ipynb`
+9. `notebooks/server/17_BOT_BUDGET_SENSITIVITY.ipynb`
+10. `notebooks/server/18_EXTENSION_VERIFY_REPORT.ipynb`
+
+Notebook 14 chứa các cell huấn luyện và replay độc lập cho Random Forest,
+ExtraTrees và HistGradientBoosting. Một notebook chưa có output chỉ là bộ điều
+phối; chỉ được dùng làm bằng chứng sau khi chạy thành công, lưu output và commit
+cùng các manifest/CSV/checkpoint tương ứng.
+
 Thiết kế full-data đã dùng toàn bộ 75.987.976 flow. Mini-batch là cơ chế nạp và
 tối ưu mô hình, không có nghĩa là lấy mẫu bỏ bớt dữ liệu. Các thí nghiệm phục
 vụ claim bài báo chạy riêng qua `research/server/run_next_experiments.sh` và

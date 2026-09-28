@@ -204,5 +204,11 @@ Các đối chứng cho bài báo được khóa trong
 bash research/server/run_next_experiments.sh help
 ```
 
+Để tạo chuỗi bằng chứng notebook, chạy tuần tự notebook 13–18 trong
+`notebooks/server/`. Không xóa output trước khi commit. Notebook 14 phải kết
+thúc với 120/120 tabular run được verifier replay; notebook 15–17 phải qua các
+assertion về manifest, số run và verification trước khi notebook 18 sinh bảng
+paired effect.
+
 Đây là điều kiện hoàn tất máy kiểm tra được; không dựa vào việc notebook chỉ
 chạy hết cell mà không báo lỗi.
