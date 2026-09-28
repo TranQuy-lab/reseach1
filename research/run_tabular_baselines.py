@@ -24,16 +24,19 @@ from typing import Any
 import numpy as np
 import pandas as pd
 import joblib
-from sklearn.ensemble import ExtraTreesClassifier, HistGradientBoostingClassifier, RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, f1_score
 
 from nids_minibatch.data import Preprocessor
 from nids_minibatch.schema import DATASETS, FEATURES
 
-MODELS = ("random_forest", "extra_trees", "hist_gradient_boosting")
-TASKS = ("multiclass", "binary")
-DEFAULT_SEEDS = (11, 22, 33, 44, 55)
-PROTOCOL = Path("research/PROTOCOL_PAPER_EXTENSION_VI.md")
+# Cost-controlled paper comparator: one RF seed on the four multiclass cells.
+# The existing 120-run GNN study remains the primary result; this arm is a
+# bounded external comparator, not a claim about every tabular algorithm.
+MODELS = ("random_forest",)
+TASKS = ("multiclass",)
+DEFAULT_SEEDS = (11,)
+PROTOCOL = Path("research/PROTOCOL_RF_BOUNDED_VI.md")
 
 
 def sha256_file(path: Path) -> str:
@@ -76,39 +79,16 @@ def target(pre: Preprocessor, frame: pd.DataFrame) -> np.ndarray:
 
 def make_model(name: str, seed: int, n_jobs: int, n_estimators: int,
                max_depth: int | None):
-    if name == "random_forest":
-        return RandomForestClassifier(
-            n_estimators=n_estimators,
-            max_depth=max_depth,
-            class_weight="balanced",
-            random_state=seed,
-            n_jobs=n_jobs,
-            max_features="sqrt",
-        )
-    if name == "extra_trees":
-        return ExtraTreesClassifier(
-            n_estimators=n_estimators,
-            max_depth=max_depth,
-            class_weight="balanced",
-            random_state=seed,
-            n_jobs=n_jobs,
-            max_features="sqrt",
-        )
-    if name == "hist_gradient_boosting":
-        return HistGradientBoostingClassifier(
-            max_iter=n_estimators,
-            max_depth=max_depth,
-            learning_rate=0.08,
-            random_state=seed,
-            early_stopping=False,
-        )
-    raise ValueError(f"Unknown model: {name}")
-
-
-def balanced_sample_weight(y: np.ndarray) -> np.ndarray:
-    counts = np.bincount(y)
-    weights = len(y) / (len(counts) * np.maximum(counts, 1))
-    return weights[y]
+    if name != "random_forest":
+        raise ValueError(f"This bounded protocol only permits random_forest, got {name}")
+    return RandomForestClassifier(
+        n_estimators=n_estimators,
+        max_depth=max_depth,
+        class_weight="balanced",
+        random_state=seed,
+        n_jobs=n_jobs,
+        max_features="sqrt",
+    )
 
 
 def score(model, x: np.ndarray, y: np.ndarray, classes: list[str]) -> dict[str, Any]:
@@ -152,10 +132,7 @@ def run_one(data_root: Path, runs_root: Path, output_root: Path, dataset: str,
         )
     fit_started = time.perf_counter()
     model = make_model(model_name, seed, n_jobs, n_estimators, max_depth)
-    fit_kwargs = {}
-    if model_name == "hist_gradient_boosting":
-        fit_kwargs["sample_weight"] = balanced_sample_weight(y["train"])
-    model.fit(x["train"], y["train"], **fit_kwargs)
+    model.fit(x["train"], y["train"])
     fit_seconds = time.perf_counter() - fit_started
     val_metrics = score(model, x["val"], y["val"], pre.classes)
     test_metrics = score(model, x["test"], y["test"], pre.classes)
@@ -180,8 +157,8 @@ def run_one(data_root: Path, runs_root: Path, output_root: Path, dataset: str,
         "dataset": dataset, "task": task, "model": model_name, "seed": seed,
         "features": list(FEATURES), "classes": pre.classes, "scope": "full",
         "n_estimators_or_max_iter": n_estimators, "max_depth": max_depth,
-        "early_stopping": False if model_name == "hist_gradient_boosting" else None,
-        "class_weight": "balanced" if model_name != "hist_gradient_boosting" else "sample_weight",
+        "early_stopping": None,
+        "class_weight": "balanced",
         "n_jobs": n_jobs, "prediction_cap": prediction_cap,
         "preprocessor_source": str((runs_root / f"{dataset}__{task}__edge_mlp__seed11" / "preprocessor.json").as_posix()),
     }

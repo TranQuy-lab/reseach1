@@ -37,19 +37,20 @@ case "${STAGE}" in
     exec "${PYTHON_BIN}" -u research/run_tabular_baselines.py \
       --data data/full_splits \
       --runs research/artifacts/full_runs_5seed \
-      --output research/artifacts/tabular_full_runs \
-      --seeds 11 22 33 44 55 \
+      --output research/artifacts/tabular_rf_bounded_multiclass \
+      --datasets NF-UNSW-NB15-v2 NF-BoT-IoT-v2 NF-ToN-IoT-v2 NF-CSE-CIC-IDS2018-v2 \
+      --tasks multiclass --models random_forest --seeds 11 \
       --n-jobs "${THREADS}" \
-      --n-estimators "${NIDS_TABULAR_ESTIMATORS:-100}" \
-      --max-depth "${NIDS_TABULAR_MAX_DEPTH:-32}" \
+      --n-estimators "${NIDS_TABULAR_ESTIMATORS:-25}" \
+      --max-depth "${NIDS_TABULAR_MAX_DEPTH:-16}" \
       --prediction-cap "${NIDS_PREDICTION_CAP:-100000}" \
-      $(if [[ -d research/artifacts/tabular_full_runs ]]; then echo --resume; fi)
+      $(if [[ -d research/artifacts/tabular_rf_bounded_multiclass ]]; then echo --resume; fi)
     ;;
   tabular_verify)
     exec "${PYTHON_BIN}" -u research/validate_tabular_results.py \
       --data data/full_splits \
-      --runs research/artifacts/tabular_full_runs \
-      --output research/results/tabular_full_verification.json
+      --runs research/artifacts/tabular_rf_bounded_multiclass \
+      --output research/results/tabular_rf_bounded_verification.json
     ;;
   endpoint_prepare)
     exec "${PYTHON_BIN}" -u research/server/prepare_endpoint_holdout.py \
@@ -142,8 +143,8 @@ case "${STAGE}" in
     cat <<'USAGE'
 Usage: run_next_experiments.sh STAGE
 
-  tabular_train    Run RF, ExtraTrees and HGB on all full splits and five seeds.
-  tabular_verify   Reload every tabular model and recompute full-test metrics.
+  tabular_train    Run bounded RF on four multiclass full splits (seed 11, 25 trees).
+  tabular_verify   Reload four RF runs and recompute full-test metrics.
   endpoint_prepare Create strict endpoint-disjoint splits; never overwrites full_splits.
   endpoint_train   Train five seeds only for dataset/tasks passing the class gate.
   endpoint_verify  Verify every eligible endpoint-holdout matrix cell.
