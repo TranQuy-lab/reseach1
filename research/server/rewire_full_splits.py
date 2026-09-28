@@ -157,6 +157,10 @@ def prepare(source: Path, output: Path, report: Path, threads: int, seed: int) -
                     raise AssertionError(
                         f"{dataset}/{split}: destination marginal was not preserved"
                     )
+                if count and changed_edges == 0:
+                    raise AssertionError(
+                        f"{dataset}/{split}: rewiring changed no endpoint rows"
+                    )
                 source_self_loops = int(con.execute(
                     "SELECT count(*) FROM read_parquet(?, hive_partitioning=true) "
                     "WHERE IPV4_SRC_ADDR = IPV4_DST_ADDR AND L4_SRC_PORT = L4_DST_PORT",
