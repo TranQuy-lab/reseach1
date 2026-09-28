@@ -1,15 +1,15 @@
 {
-  "generator": "/workspace/reseach1/research/build_full_report.py",
+  "generator": "research/build_full_report.py",
   "inputs_sha256": {
     "research/artifacts/full_runs_5seed/runs.csv": "bfce44e38abacf8c16cc15b1e9eb342dacd2668f2b80f898e974690431829ab6",
     "research/artifacts/full_runs_5seed/provenance.json": "cc586e16b50d578dd0d69b88c08b8ef61a50591e8db57b1ac956f91d207ba10f",
     "research/results/full_verification_5seed.json": "0403b850e1e24b2815ed20149b8dd8520277f8b2770fdf4fe4f7afc906623d7c",
     "research/results/full_benchmark_estimate.json": "69693910f340ba7231078428019c03c4da6471ce9ed969fd4abaf1e6ea3785c9",
-    "research/results/full_prepare_recovered.json": "b8ff702728bce5b6a2656badee6cf17ef5ee5bb1f8d830b4f31824908401d60a",
-    "/workspace/reseach1/research/build_full_report.py": "5dd6cb8ed35e784198178b0e19783ee30c0e69f2e715d5a6434a336f1f2b4d83"
+    "research/results/full_5seed/prepare_manifest.json": "b8ff702728bce5b6a2656badee6cf17ef5ee5bb1f8d830b4f31824908401d60a",
+    "research/build_full_report.py": "0e9f30b57a314b938cfcba1b7bbd952f38ca6779f4ea7f889b34b412a08edeb9"
   },
   "outputs_sha256": {
-    "macro_f1_full.png": "c3fb139e7fc8af146f618acb363ec056b63f1f02a76ccb1819c880b438c666ec",
-    "macro_f1_full.svg": "68b7c528a65798dbdb6b007aef1909f22c82010081c0d9928f75b503e97e3e3c"
+    "macro_f1_full.png": "d68f3cb5c2aeba51cc75dfadcf04f0bd18b153978594e8cad82c7c2208051b6c",
+    "macro_f1_full.svg": "8acc9cd4b6f1ff6d34fe44577b73d7e4a1a3c84647fdabfa5d4387a7e06a7a9f"
   }
 }

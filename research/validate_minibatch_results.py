@@ -48,7 +48,13 @@ def main():
                      else torch.float32)
     replay_tolerance = 1e-5 if str(provenance.get("effective_device", "cpu")).startswith("cuda") else 1e-7
     scope = provenance.get("scope", "pilot")
-    protocol = "research/PROTOCOL_FULL_DATA_VI.md" if scope == "full" else "research/PROTOCOL_MINIBATCH_VI.md"
+    protocol = Path(provenance.get(
+        "protocol_path",
+        "research/PROTOCOL_FULL_DATA_VI.md" if scope == "full"
+        else "research/PROTOCOL_MINIBATCH_VI.md",
+    ))
+    if not protocol.is_file():
+        raise FileNotFoundError(f"Missing locked protocol: {protocol}")
     if provenance["protocol_sha256"] != sha256(protocol):
         raise AssertionError("Protocol checksum changed after experiment start")
     current_sources = experiment_source_sha256()

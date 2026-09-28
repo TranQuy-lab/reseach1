@@ -4,9 +4,9 @@ This script deliberately consumes ``data/full_splits`` and the persisted
 Preprocessor from a verified E-GraphSAGE run. It does not resplit data, fit
 preprocessing on validation/test, or overwrite existing runs.
 
-The models are secondary comparators for the paper, not replacements for the
-paper-faithful E-GraphSAGE reference. Metrics are computed on the complete
-validation/test split; only an optional bounded prediction artifact is stored.
+The models are external tabular comparators for the paper. Metrics are
+computed on the complete validation/test split; only an optional bounded
+prediction artifact is stored.
 """
 from __future__ import annotations
 
@@ -16,12 +16,14 @@ import hashlib
 import json
 import os
 import platform
+import shutil
 import time
 from pathlib import Path
 from typing import Any
 
 import numpy as np
 import pandas as pd
+import joblib
 from sklearn.ensemble import ExtraTreesClassifier, HistGradientBoostingClassifier, RandomForestClassifier
 from sklearn.metrics import accuracy_score, f1_score
 
@@ -30,7 +32,8 @@ from nids_minibatch.schema import DATASETS, FEATURES
 
 MODELS = ("random_forest", "extra_trees", "hist_gradient_boosting")
 TASKS = ("multiclass", "binary")
-DEFAULT_SEEDS = (11, 22, 33)
+DEFAULT_SEEDS = (11, 22, 33, 44, 55)
+PROTOCOL = Path("research/PROTOCOL_PAPER_EXTENSION_VI.md")
 
 
 def sha256_file(path: Path) -> str:
@@ -97,6 +100,7 @@ def make_model(name: str, seed: int, n_jobs: int, n_estimators: int,
             max_depth=max_depth,
             learning_rate=0.08,
             random_state=seed,
+            early_stopping=False,
         )
     raise ValueError(f"Unknown model: {name}")
 
@@ -119,21 +123,33 @@ def score(model, x: np.ndarray, y: np.ndarray, classes: list[str]) -> dict[str, 
 
 def run_one(data_root: Path, runs_root: Path, output_root: Path, dataset: str,
             task: str, model_name: str, seed: int, n_jobs: int,
-            n_estimators: int, max_depth: int | None, prediction_cap: int) -> dict[str, Any]:
+            n_estimators: int, max_depth: int | None, prediction_cap: int,
+            resume: bool = False) -> dict[str, Any]:
     run_id = f"{dataset}__{task}__{model_name}__seed{seed}"
     dest = output_root / run_id
     metrics_path = dest / "metrics.json"
-    if metrics_path.is_file() and (dest / "config.json").is_file():
+    required_outputs = [
+        metrics_path, dest / "config.json", dest / "model.joblib",
+        dest / "preprocessor.json", dest / "test_predictions.parquet",
+    ]
+    if all(path.is_file() for path in required_outputs):
         print(f"SKIP {run_id}", flush=True)
         return json.loads(metrics_path.read_text())
     if dest.exists():
-        raise RuntimeError(f"Partial existing run refuses overwrite: {dest}")
+        if not resume:
+            raise RuntimeError(f"Partial existing run refuses overwrite: {dest}")
+        shutil.rmtree(dest)
     dest.mkdir(parents=True)
     started = time.perf_counter()
     pre = load_persisted_preprocessor(runs_root, dataset, task)
     frames = {split: load_split(data_root, dataset, split) for split in ("train", "val", "test")}
     x = {split: pre.transform(frame).astype(np.float32, copy=False) for split, frame in frames.items()}
     y = {split: target(pre, frame) for split, frame in frames.items()}
+    expected_classes = np.arange(len(pre.classes), dtype=np.int64)
+    if not np.array_equal(np.unique(y["train"]), expected_classes):
+        raise ValueError(
+            f"{dataset}/{task}: train split does not contain every persisted class"
+        )
     fit_started = time.perf_counter()
     model = make_model(model_name, seed, n_jobs, n_estimators, max_depth)
     fit_kwargs = {}
@@ -153,20 +169,24 @@ def run_one(data_root: Path, runs_root: Path, output_root: Path, dataset: str,
         "y_pred": model.predict(x["test"][offsets]),
     })
     if hasattr(model, "predict_proba"):
-        prob = model.predict_proba(x["test"][offsets])
+        raw_probability = model.predict_proba(x["test"][offsets])
+        probability = np.zeros((len(offsets), len(pre.classes)), dtype=np.float64)
+        probability[:, np.asarray(model.classes_, dtype=np.int64)] = raw_probability
         for i, name in enumerate(pre.classes):
-            pred_frame[f"p_{name}"] = prob[:, i]
+            pred_frame[f"p_{name}"] = probability[:, i]
     pred_frame.to_parquet(dest / "test_predictions.parquet", index=False)
-    import joblib
     joblib.dump(model, dest / "model.joblib", compress=3)
     config = {
         "dataset": dataset, "task": task, "model": model_name, "seed": seed,
         "features": list(FEATURES), "classes": pre.classes, "scope": "full",
         "n_estimators_or_max_iter": n_estimators, "max_depth": max_depth,
+        "early_stopping": False if model_name == "hist_gradient_boosting" else None,
         "class_weight": "balanced" if model_name != "hist_gradient_boosting" else "sample_weight",
         "n_jobs": n_jobs, "prediction_cap": prediction_cap,
         "preprocessor_source": str((runs_root / f"{dataset}__{task}__edge_mlp__seed11" / "preprocessor.json").as_posix()),
     }
+    write_json(dest / "preprocessor.json", pre.as_dict())
+    config["preprocessor_sha256"] = sha256_file(dest / "preprocessor.json")
     write_json(dest / "config.json", config)
     result = {
         **config, "seconds_fit_and_evaluate": elapsed, "seconds_fit": fit_seconds,
@@ -181,7 +201,7 @@ def run_one(data_root: Path, runs_root: Path, output_root: Path, dataset: str,
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--data", type=Path, default=Path("data/full_splits"))
-    parser.add_argument("--runs", type=Path, default=Path("research/artifacts/full_runs"))
+    parser.add_argument("--runs", type=Path, default=Path("research/artifacts/full_runs_5seed"))
     parser.add_argument("--output", type=Path, default=Path("research/artifacts/tabular_full_runs"))
     parser.add_argument("--datasets", nargs="+", choices=DATASETS, default=DATASETS)
     parser.add_argument("--tasks", nargs="+", choices=TASKS, default=TASKS)
@@ -191,10 +211,15 @@ def main() -> None:
     parser.add_argument("--n-estimators", type=int, default=100)
     parser.add_argument("--max-depth", type=int, default=32)
     parser.add_argument("--prediction-cap", type=int, default=100_000)
+    parser.add_argument("--resume", action="store_true")
     args = parser.parse_args()
     if args.n_jobs < 1 or args.n_estimators < 1 or args.prediction_cap < 0:
         parser.error("n-jobs, n-estimators and prediction-cap must be valid")
-    args.output.mkdir(parents=True, exist_ok=True)
+    if not PROTOCOL.is_file():
+        parser.error(f"missing locked protocol: {PROTOCOL}")
+    if args.output.exists() and not args.resume:
+        raise ValueError(f"Output exists; pass --resume or choose a new directory: {args.output}")
+    args.output.mkdir(parents=True, exist_ok=args.resume)
     rows, started = [], time.perf_counter()
     for dataset in args.datasets:
         for task in args.tasks:
@@ -202,7 +227,8 @@ def main() -> None:
                 for seed in args.seeds:
                     result = run_one(
                         args.data, args.runs, args.output, dataset, task, model_name, seed,
-                        args.n_jobs, args.n_estimators, args.max_depth, args.prediction_cap,
+                        args.n_jobs, args.n_estimators, args.max_depth,
+                        args.prediction_cap, args.resume,
                     )
                     rows.append({
                         "dataset": dataset, "task": task, "model": model_name, "seed": seed,
@@ -221,12 +247,23 @@ def main() -> None:
     with (args.output / "runs.csv").open("w", newline="") as stream:
         writer = csv.DictWriter(stream, fieldnames=fields)
         writer.writeheader(); writer.writerows(rows)
+    frame = pd.DataFrame(rows)
+    summary = frame.groupby(["dataset", "task", "model"], as_index=False)[
+        ["test_macro_f1", "test_weighted_f1", "test_accuracy", "seconds_fit_and_evaluate"]
+    ].agg(["mean", "std"])
+    summary.columns = ["_".join(value).rstrip("_") for value in summary.columns]
+    summary.to_csv(args.output / "summary.csv", index=False)
     write_json(args.output / "provenance.json", {
         "scope": "full", "datasets": args.datasets, "tasks": args.tasks,
         "models": args.models, "seeds": args.seeds, "features": list(FEATURES),
         "n_jobs": args.n_jobs, "n_estimators": args.n_estimators, "max_depth": args.max_depth,
         "prediction_cap": args.prediction_cap, "elapsed_seconds": time.perf_counter() - started,
-        "python": platform.python_version(), "note": "Secondary tabular comparators; not the primary E-GraphSAGE baseline.",
+        "python": platform.python_version(),
+        "protocol_path": PROTOCOL.as_posix(),
+        "protocol_sha256": sha256_file(PROTOCOL),
+        "source_sha256": sha256_file(Path(__file__)),
+        "gnn_runs_root": args.runs.as_posix(),
+        "note": "External tabular comparators on the locked full-data splits.",
     })
 
 

@@ -1,8 +1,10 @@
 # Gói chạy server E-GraphSAGE
 
 Gói này tái tạo benchmark đã kiểm chứng: bốn dataset v2, hai task, ba mô
-hình, ba seed, tổng cộng 72 run. Notebook chỉ điều phối các module trong
-`src/nids_minibatch`; không sao chép logic huấn luyện sang cell riêng.
+hình. Protocol chính ban đầu có 72 run/ba seed; phần mở rộng seed 44/55 đã tạo
+thành 120 run/năm seed và được xác minh 120/120. Notebook chỉ điều phối các
+module trong `src/nids_minibatch`; không sao chép logic huấn luyện sang cell
+riêng.
 
 ## Cấu hình server
 
@@ -186,6 +188,21 @@ notebook 10 và 11 vì launch gate kiểm tra cấu hình này. Trước noteboo
 - `research/results/full_verification.json` có `passed: true`.
 - `research/results/full/summary.csv` và biểu đồ PNG/SVG.
 - `research/FULL_DATA_REPORT_VI.md`.
+
+Đối với phần mở rộng năm seed:
+
+- `research/artifacts/full_runs_5seed/runs.csv` có đúng 120 dòng.
+- `research/results/full_verification_5seed.json` có `passed: true` và
+  `runs_checked: 120`.
+- `research/results/full_5seed/summary.csv` và biểu đồ PNG/SVG.
+- `research/FULL_DATA_REPORT_5SEED_VI.md`.
+
+Các đối chứng cho bài báo được khóa trong
+`research/PROTOCOL_PAPER_EXTENSION_VI.md`. Xem danh sách stage mà không chạy:
+
+```bash
+bash research/server/run_next_experiments.sh help
+```
 
 Đây là điều kiện hoàn tất máy kiểm tra được; không dựa vào việc notebook chỉ
 chạy hết cell mà không báo lỗi.

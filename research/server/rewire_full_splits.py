@@ -15,7 +15,7 @@ from pathlib import Path
 
 import duckdb
 
-from nids_minibatch.schema import DATASETS, REQUIRED
+from nids_minibatch.schema import DATASETS, FEATURES, REQUIRED
 
 
 def quote(path: Path) -> str:
@@ -38,7 +38,7 @@ def prepare(source: Path, output: Path, report: Path, threads: int, seed: int) -
     started = time.perf_counter()
     result = {
         "manifest_schema_version": 1,
-        "protocol": "GRAPH_REWIRE_ABLATION_VI.md",
+        "protocol": "PROTOCOL_PAPER_EXTENSION_VI.md",
         "rewire": "destination endpoint tuple permuted within each original split",
         "seed": seed, "datasets": {},
         "software": {"python": platform.python_version(), "duckdb": duckdb.__version__},
@@ -59,11 +59,12 @@ def prepare(source: Path, output: Path, report: Path, threads: int, seed: int) -
                 missing = set(REQUIRED) - columns
                 if missing:
                     raise ValueError(f"{dataset}/{split}: missing {sorted(missing)}")
-                out_glob = dataset_out / f"split={split}"
-                out_glob.mkdir(parents=True)
+                out_folder = dataset_out / f"split={split}"
+                out_folder.mkdir(parents=True)
                 # Position rows by source_row_id, then pair them with a
                 # separately hash-ordered destination pool. This preserves the
                 # destination marginal and rewires row-to-endpoint relations.
+                output_file = out_folder / "part-00000.parquet"
                 query = f"""
                     COPY (
                         WITH rows AS (
@@ -83,17 +84,104 @@ def prepare(source: Path, output: Path, report: Path, threads: int, seed: int) -
                                pool.__new_dst_ip AS IPV4_DST_ADDR,
                                pool.__new_dst_port AS L4_DST_PORT
                         FROM rows JOIN pool USING (__rewire_pos)
-                    ) TO '{quote(dataset_out)}'
-                    (FORMAT PARQUET, PARTITION_BY (split), COMPRESSION ZSTD,
-                     ROW_GROUP_SIZE 100000)
+                    ) TO '{quote(output_file)}'
+                    (FORMAT PARQUET, COMPRESSION ZSTD, ROW_GROUP_SIZE 100000)
                 """
                 con.execute(query)
+                out_glob = out_folder / "*.parquet"
                 count = int(con.execute(
                     "SELECT count(*) FROM read_parquet(?, hive_partitioning=true)",
-                    [str(dataset_out / "split=*" / "*.parquet")],
+                    [str(out_glob)],
                 ).fetchone()[0])
-                result["datasets"][dataset][split] = {"rows": count}
-                print(json.dumps({"dataset": dataset, "split": split, "rows": count}), flush=True)
+                source_count = int(con.execute(
+                    "SELECT count(*) FROM read_parquet(?, hive_partitioning=true)",
+                    [str(glob)],
+                ).fetchone()[0])
+                if count != source_count:
+                    raise AssertionError(
+                        f"{dataset}/{split}: row count changed {source_count} -> {count}"
+                    )
+                duplicate_ids = int(con.execute(
+                    "SELECT count(*) - count(DISTINCT source_row_id) "
+                    "FROM read_parquet(?, hive_partitioning=true)",
+                    [str(out_glob)],
+                ).fetchone()[0])
+                if duplicate_ids:
+                    raise AssertionError(
+                        f"{dataset}/{split}: duplicate source_row_id after rewiring"
+                    )
+                protected = [
+                    "IPV4_SRC_ADDR", "L4_SRC_PORT", *FEATURES,
+                    "Attack", "Label", "Dataset", "flow_group_id",
+                ]
+                mismatch_expr = " OR ".join(
+                    f"s.{name} IS DISTINCT FROM o.{name}" for name in protected
+                )
+                protected_mismatches, changed_edges = con.execute(
+                    f"""
+                    SELECT
+                        sum(CASE WHEN {mismatch_expr} THEN 1 ELSE 0 END),
+                        sum(CASE WHEN s.IPV4_DST_ADDR IS DISTINCT FROM o.IPV4_DST_ADDR
+                                      OR s.L4_DST_PORT IS DISTINCT FROM o.L4_DST_PORT
+                                 THEN 1 ELSE 0 END)
+                    FROM read_parquet(?, hive_partitioning=true) s
+                    JOIN read_parquet(?, hive_partitioning=true) o USING (source_row_id)
+                    """,
+                    [str(glob), str(out_glob)],
+                ).fetchone()
+                protected_mismatches = int(protected_mismatches or 0)
+                changed_edges = int(changed_edges or 0)
+                if protected_mismatches:
+                    raise AssertionError(
+                        f"{dataset}/{split}: {protected_mismatches} protected rows changed"
+                    )
+                marginal_difference = int(con.execute(
+                    """
+                    SELECT count(*) FROM (
+                        (SELECT IPV4_DST_ADDR, L4_DST_PORT
+                         FROM read_parquet(?, hive_partitioning=true)
+                         EXCEPT ALL
+                         SELECT IPV4_DST_ADDR, L4_DST_PORT
+                         FROM read_parquet(?, hive_partitioning=true))
+                        UNION ALL
+                        (SELECT IPV4_DST_ADDR, L4_DST_PORT
+                         FROM read_parquet(?, hive_partitioning=true)
+                         EXCEPT ALL
+                         SELECT IPV4_DST_ADDR, L4_DST_PORT
+                         FROM read_parquet(?, hive_partitioning=true))
+                    )
+                    """,
+                    [str(glob), str(out_glob), str(out_glob), str(glob)],
+                ).fetchone()[0])
+                if marginal_difference:
+                    raise AssertionError(
+                        f"{dataset}/{split}: destination marginal was not preserved"
+                    )
+                source_self_loops = int(con.execute(
+                    "SELECT count(*) FROM read_parquet(?, hive_partitioning=true) "
+                    "WHERE IPV4_SRC_ADDR = IPV4_DST_ADDR AND L4_SRC_PORT = L4_DST_PORT",
+                    [str(glob)],
+                ).fetchone()[0])
+                rewired_self_loops = int(con.execute(
+                    "SELECT count(*) FROM read_parquet(?, hive_partitioning=true) "
+                    "WHERE IPV4_SRC_ADDR = IPV4_DST_ADDR AND L4_SRC_PORT = L4_DST_PORT",
+                    [str(out_glob)],
+                ).fetchone()[0])
+                result["datasets"][dataset][split] = {
+                    "rows": count,
+                    "protected_row_mismatches": protected_mismatches,
+                    "destination_marginal_difference_rows": marginal_difference,
+                    "changed_endpoint_rows": changed_edges,
+                    "changed_endpoint_fraction": changed_edges / count if count else 0.0,
+                    "source_self_loop_rows": source_self_loops,
+                    "rewired_self_loop_rows": rewired_self_loops,
+                }
+                report.parent.mkdir(parents=True, exist_ok=True)
+                report.write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n")
+                print(json.dumps({
+                    "dataset": dataset, "split": split, "rows": count,
+                    "changed_endpoint_fraction": changed_edges / count if count else 0.0,
+                }), flush=True)
     finally:
         con.close()
     result["elapsed_seconds"] = time.perf_counter() - started

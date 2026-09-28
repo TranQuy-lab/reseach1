@@ -24,18 +24,19 @@ danh node theo `(IP, port)`.
 - `research/RESEARCH_PLAN_VI.md`: kế hoạch nghiên cứu.
 - `research/PREPROCESSING_FOUR_VI.md`: quy trình tiền xử lý bốn dataset.
 - `research/PROTOCOL_FULL_DATA_VI.md`: protocol kết quả chính trên toàn bộ dữ liệu.
+- `research/PROTOCOL_PAPER_EXTENSION_VI.md`: protocol khóa trước cho baseline
+  bảng, graph rewiring, endpoint holdout và budget sensitivity.
+- `research/RESEARCH_GAP_AND_POSITIONING_VI.md`: khoảng trống nghiên cứu và
+  ranh giới giữa đóng góp an toàn thông tin với phương pháp graph AI.
 - `research/server/README_SERVER_VI.md`: cài đặt và vận hành trên server.
 - `research/EVIDENCE_NOTES_VI.md`: nguồn chứng cứ và giới hạn diễn giải.
 
 ## Chạy trên server
 
-> **Run chính vẫn khóa cho tới khi benchmark server đạt:** pipeline hiện dùng
-> ngân sách hai lượt qua train/dataset, tối thiểu 1.500 optimizer step/run và
-> chỉ cho checkpoint hợp lệ sau một lượt đầy đủ. Estimator đo nhiều cửa sổ
-> sau warm-up và tự từ chối khởi chạy nếu ETA/RAM/VRAM/ổ đĩa không đạt.
-
-Ma trận vẫn là 72 run. Với split hiện tại, chính sách hai lượt dự kiến dùng
-479.916 optimizer step, giảm 66,7% so với 20.000 step cố định cho từng run.
+Run chính đã hoàn thành 72 cấu hình khóa ban đầu và phần mở rộng seed 44/55,
+tạo thành **120 run qua năm seed**. Verifier đã nạp đủ 120 checkpoint;
+probability replay error lớn nhất bằng 0 và metric recomputation error lớn nhất
+bằng 1,11e-16. Kết quả gọn nằm trong `research/results/full_5seed/`.
 
 ```bash
 git lfs install --skip-repo
@@ -56,9 +57,10 @@ Sau đó chạy lần lượt:
 3. `notebooks/server/11_FULL_TRAIN_72.ipynb`
 4. `notebooks/server/12_FULL_VERIFY_REPORT.ipynb`
 
-Thiết kế full-data sẽ dùng toàn bộ 75.987.976 flow; kết quả full-data chưa được
-chạy. Mini-batch là cơ chế nạp và tối ưu mô hình, không có nghĩa là lấy mẫu bỏ
-bớt dữ liệu.
+Thiết kế full-data đã dùng toàn bộ 75.987.976 flow. Mini-batch là cơ chế nạp và
+tối ưu mô hình, không có nghĩa là lấy mẫu bỏ bớt dữ liệu. Các thí nghiệm phục
+vụ claim bài báo chạy riêng qua `research/server/run_next_experiments.sh` và
+không ghi đè 120 run đã xác minh.
 
 ## Kiểm thử
 

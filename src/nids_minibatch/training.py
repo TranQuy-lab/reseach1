@@ -691,7 +691,7 @@ def run(data: Path, output: Path, datasets: list[str], tasks: list[str], models:
         max_train_batches: int = 0, max_train_steps: int = 0,
         eval_every_steps: int = 0, train_passes: int = 0,
         min_train_steps: int = 0, evals_per_pass: int = 4,
-        num_workers: int = 0) -> None:
+        num_workers: int = 0, protocol_path: Path | None = None) -> None:
     data, output = Path(data), Path(output)
     if output.exists() and not resume:
         raise ValueError("Output exists; refusing overwrite")
@@ -700,8 +700,12 @@ def run(data: Path, output: Path, datasets: list[str], tasks: list[str], models:
     effective_device = resolve_device(device)
     uses_step_budget = bool(max_train_steps or train_passes)
     storage_dtype = torch.float16 if scope == "full" and effective_device.type == "cuda" else torch.float32
-    protocol = Path("research/PROTOCOL_FULL_DATA_VI.md" if scope == "full"
-                    else "research/PROTOCOL_MINIBATCH_VI.md")
+    protocol = Path(protocol_path) if protocol_path is not None else Path(
+        "research/PROTOCOL_FULL_DATA_VI.md" if scope == "full"
+        else "research/PROTOCOL_MINIBATCH_VI.md"
+    )
+    if not protocol.is_file():
+        raise FileNotFoundError(f"Missing locked protocol: {protocol}")
     expected_provenance = {
         "environment": environment(),
         "protocol_sha256": sha256_file(protocol),
@@ -729,6 +733,10 @@ def run(data: Path, output: Path, datasets: list[str], tasks: list[str], models:
         "edge_storage_dtype": str(storage_dtype),
         "requested_device": device, "effective_device": str(effective_device),
     }
+    # Keep the historical provenance schema byte-for-byte compatible when the
+    # default scope protocol is used. Extension experiments opt in explicitly.
+    if protocol_path is not None:
+        expected_provenance["protocol_path"] = protocol.as_posix()
     if resume:
         stored = json.loads((output / "provenance.json").read_text())
         comparable = {k: v for k, v in stored.items() if k != "environment"}
@@ -933,6 +941,8 @@ def main() -> None:
                         help="Target validation frequency per full train pass")
     parser.add_argument("--num-workers", type=int, default=0,
                         help="Data-loader workers; benchmark on the target server")
+    parser.add_argument("--protocol", type=Path,
+                        help="Locked protocol file; defaults to the scope protocol")
     args = parser.parse_args()
     if min(args.epochs, args.patience, args.batch_size, args.threads, args.eval_every) < 1:
         parser.error("epochs, patience, batch-size, threads and eval-every must be positive")
@@ -955,7 +965,7 @@ def main() -> None:
         args.resume, args.device, args.scope, args.eval_every, args.amp,
         args.prediction_cap, args.max_train_batches, args.max_train_steps,
         args.eval_every_steps, args.train_passes, args.min_train_steps,
-        args.evals_per_pass, args.num_workers)
+        args.evals_per_pass, args.num_workers, args.protocol)
 
 
 if __name__ == "__main__":
