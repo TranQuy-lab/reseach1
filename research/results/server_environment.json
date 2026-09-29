@@ -1,46 +1,38 @@
 {
-  "platform": "Linux-5.15.0-173-generic-x86_64-with-glibc2.39",
+  "platform": "Linux-5.15.0-185-generic-x86_64-with-glibc2.39",
   "python": "3.12.3",
-  "logical_cpu": 96,
-  "physical_cpu": 48,
-  "memory_gib": 1007.7263565063477,
-  "free_disk_gib": 79.69092559814453,
-  "processed_data_present": true,
+  "logical_cpu": 64,
+  "physical_cpu": 32,
+  "memory_gib": 251.55448532104492,
+  "free_disk_gib": 26.319190979003906,
+  "processed_data_present": false,
   "processed_data": {
     "NF-UNSW-NB15-v2": {
       "path": "data/processed_four/NF-UNSW-NB15-v2.parquet",
-      "ready": true,
-      "bytes": 138576927,
-      "problem": null,
-      "rows": 2390275,
-      "sha256": "ec59445b8995025fb3a1a442e7d761e7b81ac507bd49051200dd7f60b93665b3"
+      "ready": false,
+      "bytes": null,
+      "problem": "missing"
     },
     "NF-BoT-IoT-v2": {
       "path": "data/processed_four/NF-BoT-IoT-v2.parquet",
-      "ready": true,
-      "bytes": 1314809602,
-      "problem": null,
-      "rows": 37763497,
-      "sha256": "3181bc41c8cf956a6d177e0f37fb2442a096dc490bfe1927d6a49e8216c06bfc"
+      "ready": false,
+      "bytes": null,
+      "problem": "missing"
     },
     "NF-ToN-IoT-v2": {
       "path": "data/processed_four/NF-ToN-IoT-v2.parquet",
-      "ready": true,
-      "bytes": 798311168,
-      "problem": null,
-      "rows": 16940496,
-      "sha256": "71b1c9294edfda7c3a4c75b30d7605d9688f65d9cea09d813e81348f5b2ed7b3"
+      "ready": false,
+      "bytes": null,
+      "problem": "missing"
     },
     "NF-CSE-CIC-IDS2018-v2": {
       "path": "data/processed_four/NF-CSE-CIC-IDS2018-v2.parquet",
-      "ready": true,
-      "bytes": 1024343192,
-      "problem": null,
-      "rows": 18893708,
-      "sha256": "63d4275606c609787ba4c501c0060238dc7049bf66276f3417901cccac72cc3c"
+      "ready": false,
+      "bytes": null,
+      "problem": "missing"
     }
   },
-  "required_free_disk_gib": 12,
+  "required_free_disk_gib": 25,
   "torch": "2.8.0+cu128",
   "packages": {
     "numpy": "2.2.6",
@@ -54,12 +46,12 @@
   "device": "cuda",
   "cuda_runtime": "12.8",
   "gpu": "NVIDIA GeForce RTX 3090",
-  "gpu_memory_gib": 23.55877685546875,
+  "gpu_memory_gib": 23.56072998046875,
   "bf16_supported": true,
   "scope": "full",
-  "git_commit": "f87d29bc22ec0a856cbc0d93210404ea3e03db43",
-  "tracked_files_dirty": true,
+  "git_commit": "f16e03e9e534a31daec34b9695fbb379ccf0fbac",
+  "tracked_files_dirty": false,
   "resource_problems": [
-    "tracked repository files are dirty"
+    "one or more processed Parquet files are missing or invalid"
   ]
 }
