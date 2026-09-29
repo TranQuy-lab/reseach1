@@ -39,7 +39,7 @@ case "${STAGE}" in
       --runs research/artifacts/full_runs_5seed \
       --output research/artifacts/tabular_rf_bounded_multiclass \
       --datasets NF-UNSW-NB15-v2 NF-BoT-IoT-v2 NF-ToN-IoT-v2 NF-CSE-CIC-IDS2018-v2 \
-      --tasks multiclass --models random_forest --seeds 11 22 \
+      --tasks multiclass --models random_forest --seeds 11 22 33 44 55 \
       --n-jobs "${THREADS}" \
       --n-estimators "${NIDS_TABULAR_ESTIMATORS:-25}" \
       --max-depth "${NIDS_TABULAR_MAX_DEPTH:-16}" \
@@ -143,7 +143,7 @@ case "${STAGE}" in
     cat <<'USAGE'
 Usage: run_next_experiments.sh STAGE
 
-  tabular_train    Run bounded RF on four multiclass full splits (seeds 11/22, 25 trees).
+  tabular_train    Run bounded RF on four multiclass full splits (five seeds, 25 trees).
   tabular_verify   Reload four RF runs and recompute full-test metrics.
   endpoint_prepare Create strict endpoint-disjoint splits; never overwrites full_splits.
   endpoint_train   Train five seeds only for dataset/tasks passing the class gate.
