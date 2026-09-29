@@ -13,7 +13,7 @@ Protocol: four datasets, multiclass, seeds 11/22, 25 trees, max_depth 16, full-d
 
 - Passed: **true**
 - Runs checked: **8**
-- Largest metric recomputation error: 
-- Largest probability replay error: 
+- Largest metric recomputation error: 1.1102230246251565e-16
+- Largest probability replay error: 6.661338147750939e-16
 
 The bounded RF arm is descriptive; it does not support claims about all tabular baselines or full five-seed RF stability.
