@@ -14,7 +14,10 @@
   ],
   "seeds": [
     11,
-    22
+    22,
+    33,
+    44,
+    55
   ],
   "features": [
     "PROTOCOL",
@@ -61,11 +64,11 @@
   "n_estimators": 25,
   "max_depth": 16,
   "prediction_cap": 100000,
-  "elapsed_seconds": 0.010315182007616386,
+  "elapsed_seconds": 0.012326984986430034,
   "python": "3.12.3",
   "protocol_path": "research/PROTOCOL_RF_BOUNDED_VI.md",
-  "protocol_sha256": "b1826aed3a8f9dea6a50c8378e843b8d618fc5c64c7b663599649157fae66719",
-  "source_sha256": "ac269699f51225b5ece425270428c6c6c1cfcf27d5be3358fdc109ef248f33a6",
+  "protocol_sha256": "1ac9eb574b1652a12763739b1f11f0c5dcdbb8189a310653e88f42a2c98ab69e",
+  "source_sha256": "e9d1c30e8c087009ad764d6728658ca00c370bee62c57d3ac9c4258f91a779af",
   "gnn_runs_root": "research/artifacts/full_runs_5seed",
   "note": "External tabular comparators on the locked full-data splits."
 }
