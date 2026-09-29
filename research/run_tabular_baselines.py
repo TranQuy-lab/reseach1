@@ -30,12 +30,12 @@ from sklearn.metrics import accuracy_score, f1_score
 from nids_minibatch.data import Preprocessor
 from nids_minibatch.schema import DATASETS, FEATURES
 
-# Cost-controlled paper comparator: one RF seed on the four multiclass cells.
+# Cost-controlled paper comparator: two RF seeds on the four multiclass cells.
 # The existing 120-run GNN study remains the primary result; this arm is a
 # bounded external comparator, not a claim about every tabular algorithm.
 MODELS = ("random_forest",)
 TASKS = ("multiclass",)
-DEFAULT_SEEDS = (11,)
+DEFAULT_SEEDS = (11, 22)
 PROTOCOL = Path("research/PROTOCOL_RF_BOUNDED_VI.md")
 
 

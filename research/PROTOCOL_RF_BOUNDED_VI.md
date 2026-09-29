@@ -8,8 +8,8 @@ Trạng thái: **khóa trước khi chạy**. Đây là comparator tiết kiệm
 - Dataset: NF-UNSW-NB15-v2, NF-BoT-IoT-v2, NF-ToN-IoT-v2, NF-CSE-CIC-IDS2018-v2.
 - Task: multiclass.
 - Model: Random Forest duy nhất.
-- Seed: `{11}`.
-- Số run: `4 dataset × 1 task × 1 seed = 4`.
+- Seed: `{11, 22}`.
+- Số run: `4 dataset × 1 task × 2 seed = 8`.
 - Features/preprocessor: dùng preprocessor đã persist từ `full_runs_5seed`, fit trên train của cùng dataset/task.
 - Cây: `n_estimators=25`, `max_depth=16`, `max_features='sqrt'`, `class_weight='balanced'`.
 - Test không dùng để chọn cấu hình.
@@ -32,8 +32,8 @@ Không được gọi đây là:
 Mỗi run phải reload `model.joblib`, tính lại metric trên toàn bộ test split, đối chiếu source row ID và probability artifact được lưu bounded. Cổng hoàn tất yêu cầu:
 
 ```text
-runs_checked = 4
+runs_checked = 8
 passed = true
 ```
 
-Kết quả được dùng như comparator chi phí thấp và phải được ghi rõ `n_estimators=25`, `max_depth=16`, seed 11 trong báo cáo.
+Kết quả được dùng như comparator chi phí thấp và phải được ghi rõ `n_estimators=25`, `max_depth=16`, seed 11 và 22 trong báo cáo.
