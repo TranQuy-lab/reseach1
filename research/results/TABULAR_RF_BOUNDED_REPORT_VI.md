@@ -17,3 +17,7 @@ Protocol: four datasets, multiclass, seeds 11/22, 25 trees, max_depth 16, full-d
 - Largest probability replay error: 6.661338147750939e-16
 
 The bounded RF arm is descriptive; it does not support claims about all tabular baselines or full five-seed RF stability.
+
+## Provenance note
+
+The original full-run checkpoint directories were not present on this fresh server. For this bounded comparator, each preprocessor was regenerated with the repository Preprocessor code using only that dataset/task train split; validation and test were not used to fit preprocessing. This is a bounded same-split comparator, not a replay of the original GNN preprocessor artifact.
