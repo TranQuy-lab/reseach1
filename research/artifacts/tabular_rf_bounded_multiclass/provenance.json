@@ -1,0 +1,71 @@
+{
+  "scope": "full",
+  "datasets": [
+    "NF-UNSW-NB15-v2",
+    "NF-BoT-IoT-v2",
+    "NF-ToN-IoT-v2",
+    "NF-CSE-CIC-IDS2018-v2"
+  ],
+  "tasks": [
+    "multiclass"
+  ],
+  "models": [
+    "random_forest"
+  ],
+  "seeds": [
+    11,
+    22
+  ],
+  "features": [
+    "PROTOCOL",
+    "L7_PROTO",
+    "IN_BYTES",
+    "IN_PKTS",
+    "OUT_BYTES",
+    "OUT_PKTS",
+    "TCP_FLAGS",
+    "CLIENT_TCP_FLAGS",
+    "SERVER_TCP_FLAGS",
+    "FLOW_DURATION_MILLISECONDS",
+    "DURATION_IN",
+    "DURATION_OUT",
+    "MIN_TTL",
+    "MAX_TTL",
+    "LONGEST_FLOW_PKT",
+    "SHORTEST_FLOW_PKT",
+    "MIN_IP_PKT_LEN",
+    "MAX_IP_PKT_LEN",
+    "SRC_TO_DST_SECOND_BYTES",
+    "DST_TO_SRC_SECOND_BYTES",
+    "RETRANSMITTED_IN_BYTES",
+    "RETRANSMITTED_IN_PKTS",
+    "RETRANSMITTED_OUT_BYTES",
+    "RETRANSMITTED_OUT_PKTS",
+    "SRC_TO_DST_AVG_THROUGHPUT",
+    "DST_TO_SRC_AVG_THROUGHPUT",
+    "NUM_PKTS_UP_TO_128_BYTES",
+    "NUM_PKTS_128_TO_256_BYTES",
+    "NUM_PKTS_256_TO_512_BYTES",
+    "NUM_PKTS_512_TO_1024_BYTES",
+    "NUM_PKTS_1024_TO_1514_BYTES",
+    "TCP_WIN_MAX_IN",
+    "TCP_WIN_MAX_OUT",
+    "ICMP_TYPE",
+    "ICMP_IPV4_TYPE",
+    "DNS_QUERY_ID",
+    "DNS_QUERY_TYPE",
+    "DNS_TTL_ANSWER",
+    "FTP_COMMAND_RET_CODE"
+  ],
+  "n_jobs": 56,
+  "n_estimators": 25,
+  "max_depth": 16,
+  "prediction_cap": 100000,
+  "elapsed_seconds": 0.010315182007616386,
+  "python": "3.12.3",
+  "protocol_path": "research/PROTOCOL_RF_BOUNDED_VI.md",
+  "protocol_sha256": "b1826aed3a8f9dea6a50c8378e843b8d618fc5c64c7b663599649157fae66719",
+  "source_sha256": "ac269699f51225b5ece425270428c6c6c1cfcf27d5be3358fdc109ef248f33a6",
+  "gnn_runs_root": "research/artifacts/full_runs_5seed",
+  "note": "External tabular comparators on the locked full-data splits."
+}

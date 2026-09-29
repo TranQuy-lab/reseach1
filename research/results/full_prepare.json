@@ -434,6 +434,6 @@
     "duckdb": "1.4.3",
     "pandas": "2.3.3"
   },
-  "elapsed_seconds": 65.30458422499942,
+  "elapsed_seconds": 43.65645949399914,
   "complete": true
 }

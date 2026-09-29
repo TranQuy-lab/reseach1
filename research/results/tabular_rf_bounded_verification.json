@@ -1,0 +1,66 @@
+{
+  "passed": true,
+  "runs_checked": 8,
+  "largest_metric_recomputation_error": 1.1102230246251565e-16,
+  "largest_probability_replay_error": 6.661338147750939e-16,
+  "protocol_sha256": "b1826aed3a8f9dea6a50c8378e843b8d618fc5c64c7b663599649157fae66719",
+  "source_sha256": "ac269699f51225b5ece425270428c6c6c1cfcf27d5be3358fdc109ef248f33a6",
+  "artifact_sha256": {
+    "NF-UNSW-NB15-v2__multiclass__random_forest__seed11": {
+      "config.json": "8ecf0906df6b41e4e6decd24a92ad5e9792ddc85480a1d2426a6dea9e8fc30ed",
+      "preprocessor.json": "5bc27513a0b4fb86c817138627f09c673c914b218ccc331aa336a0159d6254d4",
+      "metrics.json": "b25849adb0267ca0843ee160ef65ab3519c8982966043bfe8d4a12b75357153f",
+      "model.joblib": "022641849e21333bd6bf8c05adcd43023d61511888658046547a78d12c3d9245",
+      "test_predictions.parquet": "bd0b8c552a7a56602fdd4c01ef25c94632d27183980ad753f4ae50868566c5e5"
+    },
+    "NF-UNSW-NB15-v2__multiclass__random_forest__seed22": {
+      "config.json": "c3a4701edf8e7d32c414eab1b56f85d61390589a94efdc57356fda1c2908e656",
+      "preprocessor.json": "5bc27513a0b4fb86c817138627f09c673c914b218ccc331aa336a0159d6254d4",
+      "metrics.json": "ac1d7a95e43d27bb127bf4c7943027eca3024a295c59cd12f1333f3276a2d80c",
+      "model.joblib": "ac055b0dcf536f39af745c1d3f28b5d4fa4d09694caac3bf25e91609b926757f",
+      "test_predictions.parquet": "9d23762893dd8c55a66c1ba49ff999b3b44ee8471aaed3da2fcc65e65157bd06"
+    },
+    "NF-BoT-IoT-v2__multiclass__random_forest__seed11": {
+      "config.json": "3f32231e27a592bf9db9546ff9d2a0b6b23bd108296fa729348a7a117a370817",
+      "preprocessor.json": "fe579d56a58dfd247ded784b2ed21ed0a3c2410315bc61c1b7c0e67533fcefea",
+      "metrics.json": "15d61103fa74bb1b6629582e2efaca6c452023eb79eb1c26b8c0afeda7aae8cc",
+      "model.joblib": "51d1aac91d62c3ce8b7e982f73a819ff7ea4bdf5623801d2a1ab88829f915cdd",
+      "test_predictions.parquet": "9ef4339b0570c4f3c053344079b5f7047c8e0c2284875ccf9d2758d90fd9b477"
+    },
+    "NF-BoT-IoT-v2__multiclass__random_forest__seed22": {
+      "config.json": "c13ee5db5c5f04dac2264f23ac9ceb6899d9c4a68aebf27f8203c18b1090024f",
+      "preprocessor.json": "fe579d56a58dfd247ded784b2ed21ed0a3c2410315bc61c1b7c0e67533fcefea",
+      "metrics.json": "aa772e3f89db7d8c2a3cfd4840765235370fe3072fd27458b066c0a6b5482f58",
+      "model.joblib": "123a6aa4a40ee04b78699b212d679d431fdfd62955b515b452af84067dcbb0b0",
+      "test_predictions.parquet": "a5d2c9eba5e36b024c8d32501386c3462f98a183ec89220392de8addcc762991"
+    },
+    "NF-ToN-IoT-v2__multiclass__random_forest__seed11": {
+      "config.json": "4e8a8df0a5b350645106f90193d141d0ae8e3394b1a1ead8b61be43894344925",
+      "preprocessor.json": "97cec4bd1448317b44aea8b475a8e107b7518b399938e8afe553f8ba0e973f66",
+      "metrics.json": "1aec5f52a8c8efa7649f65d11458d8f77336349b90486658007a0c52ec128757",
+      "model.joblib": "6c8cd0136a30d0ed55b9cec9003e10a5adc64590ab32d146eae671a941f2c0bb",
+      "test_predictions.parquet": "8109b2cc6c5b71c480ca5ad582ab3954f133b237f1fdff808ae9c5cbc7c29f02"
+    },
+    "NF-ToN-IoT-v2__multiclass__random_forest__seed22": {
+      "config.json": "63266f4ee92259ed4898bca0b3238340225631a32aa9def31aae46a5a427d8cb",
+      "preprocessor.json": "97cec4bd1448317b44aea8b475a8e107b7518b399938e8afe553f8ba0e973f66",
+      "metrics.json": "f6312fa8dd9fdc605481833a67b76399b1e8f3f3275fa69a3b68af453878b89d",
+      "model.joblib": "8cc6da38d7205c9edd9040486e77a05a9928fb5e705241f00e13afe6bb17c69d",
+      "test_predictions.parquet": "94fc6e32159c14cf43c107e6e89a946f4a622d82e1fec127ffd5d69953fb930b"
+    },
+    "NF-CSE-CIC-IDS2018-v2__multiclass__random_forest__seed11": {
+      "config.json": "a9152c9d2fe8315fbf2d03bd990ec17ec980b00842f4a52209810f804cd9c55e",
+      "preprocessor.json": "2518f1ebe95beda9787aaf6b4ddc83e7af3cdab0aa1339b43c64aec2cdaff919",
+      "metrics.json": "076ff533a374e47967483336f8f8a11a0c8278d3258b7e348c2bb13b190c928c",
+      "model.joblib": "54c67386018ae8b7dd28e32f79162b97c083b62793d86884a84dfa4a25bc10d9",
+      "test_predictions.parquet": "9b8b2b5b51ef7a8cdba61fa36db44f14ff0d087c3a356f04eb5318b7015c64c7"
+    },
+    "NF-CSE-CIC-IDS2018-v2__multiclass__random_forest__seed22": {
+      "config.json": "f12800278aaa2a36c09f452d39b504a1438458bb692a1d0855bdd3541eaa96d0",
+      "preprocessor.json": "2518f1ebe95beda9787aaf6b4ddc83e7af3cdab0aa1339b43c64aec2cdaff919",
+      "metrics.json": "a8238be2f74ef35e491ca525c9911647a6e44f315aded518966df1bac39e7406",
+      "model.joblib": "f40d13e831082c963e581fd09f0ff9e418a958d02c9079b6b163d451d5381371",
+      "test_predictions.parquet": "fef6107a7f1635de5fc60fd399a05a43546475d1ec70c609acf750d147c5d6d1"
+    }
+  }
+}
