@@ -29,7 +29,10 @@ còn lại đúng **2,0 lượt**, do `min_train_steps=1500` ghi đè ngân sác
 
 | Thư mục | Nội dung |
 |---|---|
-| `reports/` | Báo cáo kiểm tra, chẩn đoán, định vị lại và hướng tiếp theo (tiếng Việt) |
+| `reports/01_BAO_CAO_KIEM_TRA_DINH_VI_LAI_VI.md` | Kiểm tra, chẩn đoán, định vị lại, chọn hướng tiếp theo |
+| `reports/02_BAO_CAO_KET_QUA_VI.md` | **Báo cáo kết quả tổng hợp, sinh tự động** từ `results/` |
+| `reports/03_DINH_VI_LAI_VA_CLAIM_VI.md` | Sổ đăng ký claim thay thế + threat to validity |
+| `reports/04_MANUSCRIPT_DRAFT_EN.md` | Bản thảo tiếng Anh theo định vị mới (DRAFT) |
 | `protocols/` | Protocol khóa trước cho Phase B (baseline cùng capacity + comparator bảng) |
 | `scripts/` | Toàn bộ mã phân tích và thí nghiệm, tái chạy được |
 | `results/` | Bảng CSV/JSON sinh ra |
@@ -44,6 +47,11 @@ python scripts/03_five_seed_stats.py            # thống kê ghép cặp + meta
 python scripts/04_rare_class_and_instability.py # lớp hiếm + bất ổn định
 python scripts/05_collapse_sensitivity.py       # sụp đổ tối ưu hóa + độ nhạy
 python scripts/06_figures.py                    # hình Phase A
+python scripts/11_phaseB_analysis.py            # tổng hợp Phase B + hình 5,6
+python scripts/12_endpoint_feasibility.py       # cổng khả thi endpoint (hình 7)
+python scripts/13_build_report_02.py            # sinh báo cáo kết quả tổng hợp
+python scripts/14_collapse_robustness.py        # độ bền của kết luận sụp đổ (hình 8)
+python scripts/15_graph_statistics.py           # thống kê đồ thị theo dataset
 ```
 
 Các script Phase B (`07`…`11`) cần dữ liệu Parquet đã hydrate và split tái tạo;
@@ -69,7 +77,9 @@ split (đã chứng minh bằng tái tạo ở trên).
 | Thống kê 5 seed + meta-analysis | Xong |
 | Lớp hiếm + bất ổn định | Xong |
 | Tái tạo split, kiểm chứng provenance | Xong |
-| TN-1 baseline cùng capacity | Đang chạy |
-| TN-2 comparator bảng | Chưa chạy |
-| Endpoint-disjoint split (Gate C, phần CPU) | Chưa chạy |
+| TN-1 baseline cùng capacity | Đang chạy (UNSW xong một phần; ToN/CSE/BoT đang chạy) |
+| TN-2 comparator bảng | Đang chạy (UNSW xong; ToN/CSE đang chạy) |
+| Endpoint-disjoint split (Gate C, phần CPU) | Xong — khả thi ở UNSW/ToN, không ở CSE-CIC/BoT-IoT |
+| Thống kê đồ thị giải thích cơ chế | Xong |
+| Độ bền kết luận sụp đổ + Fisher/Holm | Xong |
 | Convergence-first 8 lượt, rewiring, GNN trên endpoint-holdout | **Chặn: cần GPU** |

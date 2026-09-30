@@ -144,14 +144,14 @@
       "sage": 0.9702453950314227,
       "sage_edge": 0.9699112540542479,
       "hist_gradient_boosting": 0.9761201621201977,
-      "extra_trees": null,
-      "random_forest": null
+      "extra_trees": 0.9802747312320066,
+      "random_forest": 0.9828466143713581
     },
     "NF-UNSW-NB15-v2|multiclass": {
       "edge_mlp": 0.4140653194828297,
       "mlp_h128_1l": 0.42150433444845187,
       "mlp_h128_2l": null,
-      "mlp_h273_2l": null,
+      "mlp_h273_2l": 0.4734863744959448,
       "sage": 0.4897698759899759,
       "sage_edge": 0.4885246784102887,
       "hist_gradient_boosting": 0.6535982945778533,

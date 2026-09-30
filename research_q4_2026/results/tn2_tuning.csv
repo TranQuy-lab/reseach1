@@ -1,2 +1,4 @@
 dataset,task,model,seed,config,fit_seconds,val_macro_f1,val_weighted_f1,val_accuracy
 NF-UNSW-NB15-v2,binary,extra_trees,11,"{""n_estimators"": 100, ""max_features"": ""sqrt"", ""min_samples_leaf"": 1}",37.837069683000664,0.9809147443378177,0.9970558235402757,0.9970605944038401
+NF-UNSW-NB15-v2,binary,extra_trees,11,"{""n_estimators"": 200, ""max_features"": 0.3, ""min_samples_leaf"": 2}",119.61692151100033,0.9811401666661039,0.9970481076000454,0.9970104196283721
+NF-UNSW-NB15-v2,binary,random_forest,11,"{""n_estimators"": 100, ""max_features"": ""sqrt"", ""min_samples_leaf"": 1}",37.11960945999999,0.9818186708712204,0.9971716407558054,0.9971525814921979
