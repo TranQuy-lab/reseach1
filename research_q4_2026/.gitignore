@@ -1,0 +1,5 @@
+# Data and derived artefacts stay out of git (regenerable / huge)
+data/
+work/
+logs/
+*.npy

@@ -1,0 +1,448 @@
+{
+  "datasets": {
+    "NF-UNSW-NB15-v2": {
+      "features": [
+        "PROTOCOL",
+        "L7_PROTO",
+        "IN_BYTES",
+        "IN_PKTS",
+        "OUT_BYTES",
+        "OUT_PKTS",
+        "TCP_FLAGS",
+        "CLIENT_TCP_FLAGS",
+        "SERVER_TCP_FLAGS",
+        "FLOW_DURATION_MILLISECONDS",
+        "DURATION_IN",
+        "DURATION_OUT",
+        "MIN_TTL",
+        "MAX_TTL",
+        "LONGEST_FLOW_PKT",
+        "SHORTEST_FLOW_PKT",
+        "MIN_IP_PKT_LEN",
+        "MAX_IP_PKT_LEN",
+        "SRC_TO_DST_SECOND_BYTES",
+        "DST_TO_SRC_SECOND_BYTES",
+        "RETRANSMITTED_IN_BYTES",
+        "RETRANSMITTED_IN_PKTS",
+        "RETRANSMITTED_OUT_BYTES",
+        "RETRANSMITTED_OUT_PKTS",
+        "SRC_TO_DST_AVG_THROUGHPUT",
+        "DST_TO_SRC_AVG_THROUGHPUT",
+        "NUM_PKTS_UP_TO_128_BYTES",
+        "NUM_PKTS_128_TO_256_BYTES",
+        "NUM_PKTS_256_TO_512_BYTES",
+        "NUM_PKTS_512_TO_1024_BYTES",
+        "NUM_PKTS_1024_TO_1514_BYTES",
+        "TCP_WIN_MAX_IN",
+        "TCP_WIN_MAX_OUT",
+        "ICMP_TYPE",
+        "ICMP_IPV4_TYPE",
+        "DNS_QUERY_ID",
+        "DNS_QUERY_TYPE",
+        "DNS_TTL_ANSWER",
+        "FTP_COMMAND_RET_CODE"
+      ],
+      "classes_multiclass": [
+        "Analysis",
+        "Backdoor",
+        "Benign",
+        "DoS",
+        "Exploits",
+        "Fuzzers",
+        "Generic",
+        "Reconnaissance",
+        "Shellcode",
+        "Worms"
+      ],
+      "classes_binary": [
+        "Benign",
+        "Attack"
+      ],
+      "observed_relative_scaler_drift_across_seeds": 2.8636648933607962e-11,
+      "splits": {
+        "train": {
+          "rows": 1673104,
+          "multiclass_counts": [
+            1613,
+            1514,
+            1606514,
+            4058,
+            22148,
+            15590,
+            11633,
+            8939,
+            983,
+            112
+          ],
+          "binary_counts": [
+            1673104,
+            0
+          ]
+        },
+        "val": {
+          "rows": 239164,
+          "multiclass_counts": [
+            238,
+            223,
+            229538,
+            593,
+            3152,
+            2311,
+            1663,
+            1283,
+            148,
+            15
+          ],
+          "binary_counts": [
+            239164,
+            0
+          ]
+        },
+        "test": {
+          "rows": 478007,
+          "multiclass_counts": [
+            448,
+            432,
+            459170,
+            1143,
+            6251,
+            4409,
+            3264,
+            2557,
+            296,
+            37
+          ],
+          "binary_counts": [
+            478007,
+            0
+          ]
+        }
+      }
+    },
+    "NF-BoT-IoT-v2": {
+      "features": [
+        "PROTOCOL",
+        "L7_PROTO",
+        "IN_BYTES",
+        "IN_PKTS",
+        "OUT_BYTES",
+        "OUT_PKTS",
+        "TCP_FLAGS",
+        "CLIENT_TCP_FLAGS",
+        "SERVER_TCP_FLAGS",
+        "FLOW_DURATION_MILLISECONDS",
+        "DURATION_IN",
+        "DURATION_OUT",
+        "MIN_TTL",
+        "MAX_TTL",
+        "LONGEST_FLOW_PKT",
+        "SHORTEST_FLOW_PKT",
+        "MIN_IP_PKT_LEN",
+        "MAX_IP_PKT_LEN",
+        "SRC_TO_DST_SECOND_BYTES",
+        "DST_TO_SRC_SECOND_BYTES",
+        "RETRANSMITTED_IN_BYTES",
+        "RETRANSMITTED_IN_PKTS",
+        "RETRANSMITTED_OUT_BYTES",
+        "RETRANSMITTED_OUT_PKTS",
+        "SRC_TO_DST_AVG_THROUGHPUT",
+        "DST_TO_SRC_AVG_THROUGHPUT",
+        "NUM_PKTS_UP_TO_128_BYTES",
+        "NUM_PKTS_128_TO_256_BYTES",
+        "NUM_PKTS_256_TO_512_BYTES",
+        "NUM_PKTS_512_TO_1024_BYTES",
+        "NUM_PKTS_1024_TO_1514_BYTES",
+        "TCP_WIN_MAX_IN",
+        "TCP_WIN_MAX_OUT",
+        "ICMP_TYPE",
+        "ICMP_IPV4_TYPE",
+        "DNS_QUERY_ID",
+        "DNS_QUERY_TYPE",
+        "DNS_TTL_ANSWER",
+        "FTP_COMMAND_RET_CODE"
+      ],
+      "classes_multiclass": [
+        "Benign",
+        "DDoS",
+        "DoS",
+        "Reconnaissance",
+        "Theft"
+      ],
+      "classes_binary": [
+        "Benign",
+        "Attack"
+      ],
+      "observed_relative_scaler_drift_across_seeds": 1.5137156188269317e-11,
+      "splits": {
+        "train": {
+          "rows": 26438303,
+          "multiclass_counts": [
+            94373,
+            12833692,
+            11672248,
+            1836302,
+            1688
+          ],
+          "binary_counts": [
+            26438303,
+            0
+          ]
+        },
+        "val": {
+          "rows": 3776826,
+          "multiclass_counts": [
+            13471,
+            1834026,
+            1667297,
+            261769,
+            263
+          ],
+          "binary_counts": [
+            3776826,
+            0
+          ]
+        },
+        "test": {
+          "rows": 7548368,
+          "multiclass_counts": [
+            27193,
+            3664129,
+            3333638,
+            522928,
+            480
+          ],
+          "binary_counts": [
+            7548368,
+            0
+          ]
+        }
+      }
+    },
+    "NF-ToN-IoT-v2": {
+      "features": [
+        "PROTOCOL",
+        "L7_PROTO",
+        "IN_BYTES",
+        "IN_PKTS",
+        "OUT_BYTES",
+        "OUT_PKTS",
+        "TCP_FLAGS",
+        "CLIENT_TCP_FLAGS",
+        "SERVER_TCP_FLAGS",
+        "FLOW_DURATION_MILLISECONDS",
+        "DURATION_IN",
+        "DURATION_OUT",
+        "MIN_TTL",
+        "MAX_TTL",
+        "LONGEST_FLOW_PKT",
+        "SHORTEST_FLOW_PKT",
+        "MIN_IP_PKT_LEN",
+        "MAX_IP_PKT_LEN",
+        "SRC_TO_DST_SECOND_BYTES",
+        "DST_TO_SRC_SECOND_BYTES",
+        "RETRANSMITTED_IN_BYTES",
+        "RETRANSMITTED_IN_PKTS",
+        "RETRANSMITTED_OUT_BYTES",
+        "RETRANSMITTED_OUT_PKTS",
+        "SRC_TO_DST_AVG_THROUGHPUT",
+        "DST_TO_SRC_AVG_THROUGHPUT",
+        "NUM_PKTS_UP_TO_128_BYTES",
+        "NUM_PKTS_128_TO_256_BYTES",
+        "NUM_PKTS_256_TO_512_BYTES",
+        "NUM_PKTS_512_TO_1024_BYTES",
+        "NUM_PKTS_1024_TO_1514_BYTES",
+        "TCP_WIN_MAX_IN",
+        "TCP_WIN_MAX_OUT",
+        "ICMP_TYPE",
+        "ICMP_IPV4_TYPE",
+        "DNS_QUERY_ID",
+        "DNS_QUERY_TYPE",
+        "DNS_TTL_ANSWER",
+        "FTP_COMMAND_RET_CODE"
+      ],
+      "classes_multiclass": [
+        "Backdoor",
+        "Benign",
+        "DDoS",
+        "DoS",
+        "injection",
+        "mitm",
+        "password",
+        "ransomware",
+        "scanning",
+        "xss"
+      ],
+      "classes_binary": [
+        "Benign",
+        "Attack"
+      ],
+      "observed_relative_scaler_drift_across_seeds": 5.7460497659242234e-11,
+      "splits": {
+        "train": {
+          "rows": 11861039,
+          "multiclass_counts": [
+            11787,
+            4271066,
+            1418482,
+            498447,
+            478631,
+            5387,
+            807607,
+            2401,
+            2648961,
+            1718270
+          ],
+          "binary_counts": [
+            11861039,
+            0
+          ]
+        },
+        "val": {
+          "rows": 1693905,
+          "multiclass_counts": [
+            1683,
+            609407,
+            202610,
+            71635,
+            68589,
+            748,
+            115159,
+            350,
+            377990,
+            245734
+          ],
+          "binary_counts": [
+            1693905,
+            0
+          ]
+        },
+        "test": {
+          "rows": 3385552,
+          "multiclass_counts": [
+            3339,
+            1218996,
+            405142,
+            142527,
+            137245,
+            1588,
+            230557,
+            674,
+            754468,
+            491016
+          ],
+          "binary_counts": [
+            3385552,
+            0
+          ]
+        }
+      }
+    },
+    "NF-CSE-CIC-IDS2018-v2": {
+      "features": [
+        "PROTOCOL",
+        "L7_PROTO",
+        "IN_BYTES",
+        "IN_PKTS",
+        "OUT_BYTES",
+        "OUT_PKTS",
+        "TCP_FLAGS",
+        "CLIENT_TCP_FLAGS",
+        "SERVER_TCP_FLAGS",
+        "FLOW_DURATION_MILLISECONDS",
+        "DURATION_IN",
+        "DURATION_OUT",
+        "MIN_TTL",
+        "MAX_TTL",
+        "LONGEST_FLOW_PKT",
+        "SHORTEST_FLOW_PKT",
+        "MIN_IP_PKT_LEN",
+        "MAX_IP_PKT_LEN",
+        "SRC_TO_DST_SECOND_BYTES",
+        "DST_TO_SRC_SECOND_BYTES",
+        "RETRANSMITTED_IN_BYTES",
+        "RETRANSMITTED_IN_PKTS",
+        "RETRANSMITTED_OUT_BYTES",
+        "RETRANSMITTED_OUT_PKTS",
+        "SRC_TO_DST_AVG_THROUGHPUT",
+        "DST_TO_SRC_AVG_THROUGHPUT",
+        "NUM_PKTS_UP_TO_128_BYTES",
+        "NUM_PKTS_128_TO_256_BYTES",
+        "NUM_PKTS_256_TO_512_BYTES",
+        "NUM_PKTS_512_TO_1024_BYTES",
+        "NUM_PKTS_1024_TO_1514_BYTES",
+        "TCP_WIN_MAX_IN",
+        "TCP_WIN_MAX_OUT",
+        "ICMP_TYPE",
+        "ICMP_IPV4_TYPE",
+        "DNS_QUERY_ID",
+        "DNS_QUERY_TYPE",
+        "DNS_TTL_ANSWER",
+        "FTP_COMMAND_RET_CODE"
+      ],
+      "classes_multiclass": [
+        "Benign",
+        "Bot",
+        "Brute Force",
+        "DDoS",
+        "DoS",
+        "Infilteration",
+        "injection"
+      ],
+      "classes_binary": [
+        "Benign",
+        "Attack"
+      ],
+      "observed_relative_scaler_drift_across_seeds": 8.672239925331341e-12,
+      "splits": {
+        "train": {
+          "rows": 13227184,
+          "multiclass_counts": [
+            11647005,
+            99994,
+            86760,
+            973374,
+            338291,
+            81453,
+            307
+          ],
+          "binary_counts": [
+            13227184,
+            0
+          ]
+        },
+        "val": {
+          "rows": 1887144,
+          "multiclass_counts": [
+            1662121,
+            14384,
+            12560,
+            138349,
+            48247,
+            11443,
+            40
+          ],
+          "binary_counts": [
+            1887144,
+            0
+          ]
+        },
+        "test": {
+          "rows": 3779380,
+          "multiclass_counts": [
+            3326441,
+            28719,
+            24662,
+            278547,
+            97461,
+            23465,
+            85
+          ],
+          "binary_counts": [
+            3779380,
+            0
+          ]
+        }
+      }
+    }
+  }
+}

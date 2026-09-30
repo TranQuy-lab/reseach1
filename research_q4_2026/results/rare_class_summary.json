@@ -1,0 +1,190 @@
+{
+  "n_per_class_records": 1200,
+  "n_test_class_cells": 120,
+  "rare_class_cells_support_lt_1000": 21,
+  "rare_class_list": [
+    {
+      "dataset": "NF-UNSW-NB15-v2",
+      "task": "multiclass",
+      "class": "Worms",
+      "support": 37.0
+    },
+    {
+      "dataset": "NF-CSE-CIC-IDS2018-v2",
+      "task": "multiclass",
+      "class": "injection",
+      "support": 85.0
+    },
+    {
+      "dataset": "NF-UNSW-NB15-v2",
+      "task": "multiclass",
+      "class": "Shellcode",
+      "support": 296.0
+    },
+    {
+      "dataset": "NF-UNSW-NB15-v2",
+      "task": "multiclass",
+      "class": "Backdoor",
+      "support": 432.0
+    },
+    {
+      "dataset": "NF-UNSW-NB15-v2",
+      "task": "multiclass",
+      "class": "Analysis",
+      "support": 448.0
+    },
+    {
+      "dataset": "NF-BoT-IoT-v2",
+      "task": "multiclass",
+      "class": "Theft",
+      "support": 480.0
+    },
+    {
+      "dataset": "NF-ToN-IoT-v2",
+      "task": "multiclass",
+      "class": "ransomware",
+      "support": 674.0
+    }
+  ],
+  "classes_with_highest_seed_variance": [
+    {
+      "dataset": "NF-BoT-IoT-v2",
+      "task": "multiclass",
+      "class": "Benign",
+      "model": "sage",
+      "support": 27193.0,
+      "f1_mean": 0.5041724600002812,
+      "f1_std": 0.26365079197683167
+    },
+    {
+      "dataset": "NF-CSE-CIC-IDS2018-v2",
+      "task": "multiclass",
+      "class": "DDoS",
+      "model": "sage",
+      "support": 278547.0,
+      "f1_mean": 0.8518599604118455,
+      "f1_std": 0.1833892579867219
+    },
+    {
+      "dataset": "NF-CSE-CIC-IDS2018-v2",
+      "task": "multiclass",
+      "class": "DDoS",
+      "model": "sage_edge",
+      "support": 278547.0,
+      "f1_mean": 0.819418342840722,
+      "f1_std": 0.16285359398624555
+    },
+    {
+      "dataset": "NF-BoT-IoT-v2",
+      "task": "multiclass",
+      "class": "Theft",
+      "model": "sage",
+      "support": 480.0,
+      "f1_mean": 0.346183133208479,
+      "f1_std": 0.16064922530384548
+    },
+    {
+      "dataset": "NF-UNSW-NB15-v2",
+      "task": "multiclass",
+      "class": "Shellcode",
+      "model": "sage",
+      "support": 296.0,
+      "f1_mean": 0.41549846219735426,
+      "f1_std": 0.10250439635744288
+    },
+    {
+      "dataset": "NF-CSE-CIC-IDS2018-v2",
+      "task": "multiclass",
+      "class": "Benign",
+      "model": "edge_mlp",
+      "support": 3326441.0,
+      "f1_mean": 0.7633953166412267,
+      "f1_std": 0.10032583721061988
+    },
+    {
+      "dataset": "NF-BoT-IoT-v2",
+      "task": "multiclass",
+      "class": "DoS",
+      "model": "sage",
+      "support": 3333638.0,
+      "f1_mean": 0.6322199247129703,
+      "f1_std": 0.09607645878365613
+    },
+    {
+      "dataset": "NF-CSE-CIC-IDS2018-v2",
+      "task": "multiclass",
+      "class": "Benign",
+      "model": "sage_edge",
+      "support": 3326441.0,
+      "f1_mean": 0.9289515741434275,
+      "f1_std": 0.08255783703702825
+    },
+    {
+      "dataset": "NF-CSE-CIC-IDS2018-v2",
+      "task": "multiclass",
+      "class": "Infilteration",
+      "model": "sage_edge",
+      "support": 23465.0,
+      "f1_mean": 0.10899020950799976,
+      "f1_std": 0.08037904318005823
+    },
+    {
+      "dataset": "NF-BoT-IoT-v2",
+      "task": "multiclass",
+      "class": "Theft",
+      "model": "sage_edge",
+      "support": 480.0,
+      "f1_mean": 0.40207937892025347,
+      "f1_std": 0.07855712900044565
+    },
+    {
+      "dataset": "NF-UNSW-NB15-v2",
+      "task": "multiclass",
+      "class": "Backdoor",
+      "model": "sage",
+      "support": 432.0,
+      "f1_mean": 0.12846788795601097,
+      "f1_std": 0.07366253196903637
+    },
+    {
+      "dataset": "NF-UNSW-NB15-v2",
+      "task": "multiclass",
+      "class": "Analysis",
+      "model": "sage",
+      "support": 448.0,
+      "f1_mean": 0.15934666877919393,
+      "f1_std": 0.07292909575154201
+    }
+  ],
+  "spearman_valstd_vs_testmacro": {
+    "rho": -0.5385582332106396,
+    "p": 2.2284974769009502e-10,
+    "n": 120
+  },
+  "spearman_dropafterbest_vs_testmacro": {
+    "rho": -0.09716328029575938,
+    "p": 0.2910915852346474
+  },
+  "spearman_within_model": {
+    "edge_mlp": {
+      "n": 40,
+      "spearman_rho": -0.6981238273921202,
+      "p": 5.503528115514461e-07
+    },
+    "sage": {
+      "n": 40,
+      "spearman_rho": -0.3647279549718575,
+      "p": 0.02067086576379
+    },
+    "sage_edge": {
+      "n": 40,
+      "spearman_rho": -0.5048780487804879,
+      "p": 0.0008923630402938022
+    }
+  },
+  "mean_generalisation_gap_by_model": {
+    "edge_mlp": 0.0005269563173131916,
+    "sage": -0.028432460655425384,
+    "sage_edge": -0.006256906070604841
+  }
+}

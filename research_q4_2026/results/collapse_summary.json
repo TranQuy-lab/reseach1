@@ -1,0 +1,71 @@
+{
+  "rule": {
+    "val_std_threshold": 0.05,
+    "drop_after_best_threshold": 0.1
+  },
+  "collapse_by_model": [
+    {
+      "model": "edge_mlp",
+      "n_collapsed": 0,
+      "n_runs": 40,
+      "collapse_rate": 0.0
+    },
+    {
+      "model": "sage",
+      "n_collapsed": 10,
+      "n_runs": 40,
+      "collapse_rate": 0.25
+    },
+    {
+      "model": "sage_edge",
+      "n_collapsed": 2,
+      "n_runs": 40,
+      "collapse_rate": 0.05
+    }
+  ],
+  "collapse_by_dataset": [
+    {
+      "dataset": "NF-BoT-IoT-v2",
+      "n_collapsed": 9,
+      "n_runs": 30,
+      "collapse_rate": 0.3
+    },
+    {
+      "dataset": "NF-CSE-CIC-IDS2018-v2",
+      "n_collapsed": 3,
+      "n_runs": 30,
+      "collapse_rate": 0.1
+    },
+    {
+      "dataset": "NF-ToN-IoT-v2",
+      "n_collapsed": 0,
+      "n_runs": 30,
+      "collapse_rate": 0.0
+    },
+    {
+      "dataset": "NF-UNSW-NB15-v2",
+      "n_collapsed": 0,
+      "n_runs": 30,
+      "collapse_rate": 0.0
+    }
+  ],
+  "n_cells_compared": 22,
+  "sign_changes_all_vs_noncollapsed": 1,
+  "corr_mean_delta_all_vs_noncollapsed": 0.9984135106864838,
+  "noncollapsed_contrast_direction_counts": {
+    "sage_edge_minus_edge_mlp|sign+1": 7,
+    "sage_edge_minus_edge_mlp|sign-1": 1,
+    "sage_edge_minus_sage|sign+1": 5,
+    "sage_edge_minus_sage|sign-1": 2,
+    "sage_minus_edge_mlp|sign+1": 6,
+    "sage_minus_edge_mlp|sign-1": 1
+  },
+  "all_contrast_direction_counts": {
+    "sage_edge_minus_edge_mlp|sign+1": 7,
+    "sage_edge_minus_edge_mlp|sign-1": 1,
+    "sage_edge_minus_sage|sign+1": 5,
+    "sage_edge_minus_sage|sign-1": 3,
+    "sage_minus_edge_mlp|sign+1": 6,
+    "sage_minus_edge_mlp|sign-1": 2
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "n_runs": 120,
+  "classification_counts": {
+    "R2_optimization_decay": 53,
+    "R1_still_rising": 44,
+    "R3_plateau": 23
+  },
+  "classification_share": {
+    "R2_optimization_decay": 0.4417,
+    "R1_still_rising": 0.3667,
+    "R3_plateau": 0.1917
+  },
+  "frac_best_is_first_eval": 0.11666666666666667,
+  "frac_best_is_last_eval": 0.36666666666666664,
+  "frac_decay_after_best": 0.44166666666666665,
+  "frac_improved_over_first": 0.4083333333333333,
+  "mean_last_minus_best": -0.026806900531082402,
+  "by_model_classification": {
+    "edge_mlp": {
+      "R1_still_rising": 24,
+      "R2_optimization_decay": 9,
+      "R3_plateau": 7
+    },
+    "sage": {
+      "R2_optimization_decay": 22,
+      "R1_still_rising": 11,
+      "R3_plateau": 7
+    },
+    "sage_edge": {
+      "R2_optimization_decay": 22,
+      "R1_still_rising": 9,
+      "R3_plateau": 9
+    }
+  },
+  "by_dataset_classification": {
+    "NF-BoT-IoT-v2": {
+      "R2_optimization_decay": 22,
+      "R1_still_rising": 7,
+      "R3_plateau": 1
+    },
+    "NF-CSE-CIC-IDS2018-v2": {
+      "R2_optimization_decay": 13,
+      "R3_plateau": 9,
+      "R1_still_rising": 8
+    },
+    "NF-ToN-IoT-v2": {
+      "R1_still_rising": 11,
+      "R2_optimization_decay": 10,
+      "R3_plateau": 9
+    },
+    "NF-UNSW-NB15-v2": {
+      "R1_still_rising": 18,
+      "R2_optimization_decay": 8,
+      "R3_plateau": 4
+    }
+  },
+  "by_task_classification": {
+    "binary": {
+      "R2_optimization_decay": 22,
+      "R1_still_rising": 20,
+      "R3_plateau": 18
+    },
+    "multiclass": {
+      "R2_optimization_decay": 31,
+      "R1_still_rising": 24,
+      "R3_plateau": 5
+    }
+  },
+  "budget_binding_counts": {
+    "dataset_passes": 90,
+    "min_train_steps": 30
+  },
+  "effective_passes_by_dataset": {
+    "NF-BoT-IoT-v2": {
+      "mean": 2.0,
+      "min": 2.0,
+      "max": 2.0
+    },
+    "NF-CSE-CIC-IDS2018-v2": {
+      "mean": 2.0,
+      "min": 2.0,
+      "max": 2.0
+    },
+    "NF-ToN-IoT-v2": {
+      "mean": 2.0,
+      "min": 2.0,
+      "max": 2.0
+    },
+    "NF-UNSW-NB15-v2": {
+      "mean": 3.667481662591686,
+      "min": 3.667481662591687,
+      "max": 3.667481662591687
+    }
+  }
+}
