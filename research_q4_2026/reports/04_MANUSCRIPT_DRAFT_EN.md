@@ -329,6 +329,52 @@ therefore substantially measure endpoint familiarity rather than transferable fl
 structure. `[PENDING: ToN binary and `mlp_h273_2l` cells; CSE-CIC and BoT-IoT fail the
 feasibility gate.]`
 
+### 4.6c Cheap structural statistics beat message passing
+
+If the contribution of message passing is the aggregation of neighbourhood
+information, then supplying those aggregates *directly* to a flow-only model should
+reproduce it. We built five structural features from the **train split only**—source
+flow count, destination flow count, distinct source partners, distinct destination
+partners, and the repetition count of the exact endpoint pair—and added them to the
+capacity-matched MLP. A second variant adds the training-label attack rate of each
+endpoint (a transductive statistic).
+
+UNSW multiclass, test macro-F1:
+
+| Model | Parameters | Test macro-F1 |
+|---|---:|---:|
+| `mlp_h273_2l` (flow only, capacity-matched) | 88,462 | 0.4628 |
+| `sage` (message passing) | 87,301 | 0.4898 |
+| `sage_edge` (message passing + direct edge) | 87,379 | 0.4885 |
+| **`mlp_struct` (flow + 5 structural counts)** | **89,827** | **0.5045 / 0.4970** (seeds 11, 22) |
+| `mlp_struct_lab` (flow + counts + train-label rates) | `[PENDING]` | `[PENDING]` |
+
+A flow-only MLP with five cheap neighbourhood summaries **exceeds both message-passing
+variants** at essentially the same parameter count. On this dataset, "relational
+structure" reduces to local summary statistics; two layers of mean aggregation buy
+nothing beyond them.
+
+### 4.6d The collapsed variant is also operationally unusable
+
+From the archived full-test confusion matrices at each model's own operating point
+(the repository does not store GNN probabilities, so PR-AUC is not recoverable):
+
+Binary detector false-alarm rate (benign flows flagged as attack):
+
+| Dataset | `edge_mlp` | `sage` | `sage_edge` |
+|---|---:|---:|---:|
+| NF-BoT-IoT-v2 | 0.19% | **25.02%** | 0.32% |
+| NF-CSE-CIC-IDS2018-v2 | 0.19% | 0.20% | 0.12% |
+| NF-ToN-IoT-v2 | 3.26% | 1.55% | 1.47% |
+| NF-UNSW-NB15-v2 | 0.60% | 0.50% | 0.50% |
+
+The topology-only variant on NF-BoT-IoT-v2 raises **250,189 false alarms per million
+benign flows** while its benign recall falls to 0.75. This is not a marginal ranking
+difference; it is a detector that cannot be deployed. Its worst per-class
+false-alarm rates are 37.3% (`DoS`) and 23.4% (`DDoS`). The same variant is
+well-behaved on the other three datasets, confirming that the failure is specific to
+the configuration that collapses.
+
 ### 4.7 Rare classes go in both directions
 
 With five seeds (support < 1,000), topology helps NF-ToN-IoT-v2 `ransomware`

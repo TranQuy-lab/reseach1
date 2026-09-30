@@ -305,6 +305,49 @@ def main() -> int:
         P.append("\nMức giảm **dương** nghĩa là split endpoint-holdout làm giảm chất lượng. "
                  "Nếu KTC chứa 0 thì không có bằng chứng suy giảm.\n")
 
+    # ---------------------------------------------------- 8c structural feats
+    t5 = RES / "tn5_struct_runs.csv"
+    if t5.exists():
+        d = pd.read_csv(t5)
+        P.append("\n## 8c. Thống kê cấu trúc cục bộ thay cho message passing (TN-5)\n")
+        P.append("Đặc trưng cấu trúc **chỉ tính từ train**: số flow theo endpoint nguồn/đích, "
+                 "số đối tác phân biệt, số lần lặp đúng cặp endpoint, và (biến thể `_lab`) "
+                 "tỉ lệ tấn công theo nhãn train của endpoint. Endpoint chưa thấy nhận 0 / "
+                 "prior.\n")
+        g = d.groupby(["dataset", "task", "model"]).agg(
+            n=("seed", "size"), params=("parameters", "first"),
+            test_macro_f1_mean=("test_macro_f1", "mean"),
+            test_macro_f1_std=("test_macro_f1", "std"),
+            best_val=("best_val_macro_f1", "mean")).reset_index()
+        g["Ô"] = g.dataset.map(SHORT) + " · " + g.task
+        g = g[["Ô", "model", "n", "params", "test_macro_f1_mean", "test_macro_f1_std", "best_val"]]
+        g.columns = ["Ô", "Model", "n", "tham số", "test macro-F1", "SD", "best val macro-F1"]
+        P.append(md_table(g))
+        P.append("\nĐối chiếu: trên cùng ô, `mlp_h273_2l` (chỉ flow, capacity khớp) và "
+                 "`sage`/`sage_edge` nằm ở §8.1.\n")
+
+    # -------------------------------------------------- 8d operational metrics
+    op = RES / "operational_summary.json"
+    if op.exists():
+        o = json.loads(op.read_text())
+        P.append("\n## 8d. Hồ sơ báo động giả (từ confusion matrix test đầy đủ)\n")
+        P.append("Repo không lưu probability của GNN nên **không** tính lại được PR-AUC; "
+                 "confusion matrix đầy đủ thì có, đủ để tính tỉ lệ báo động giả tại chính "
+                 "operating point argmax của từng model.\n")
+        det = pd.DataFrame(o.get("binary_detector_false_alarm", []))
+        if len(det):
+            det["Ô"] = det.dataset.map(SHORT)
+            det = det[["Ô", "model", "false_alarm_rate", "fp_per_million", "benign_recall"]]
+            det.columns = ["Dataset", "Model", "tỉ lệ báo động giả", "báo động giả/triệu flow", "recall Benign"]
+            P.append(md_table(det))
+        worst = pd.DataFrame(o.get("worst_false_alarm_classes", []))
+        if len(worst):
+            worst["Ô"] = worst.dataset.map(SHORT)
+            worst = worst[["Ô", "model", "class", "support", "fpr_mean", "fp_per_million_mean"]]
+            worst.columns = ["Ô", "Model", "Lớp", "support", "FPR", "FP/triệu"]
+            P.append("\nCác lớp có FPR xấu nhất:\n")
+            P.append(md_table(worst))
+
     # ------------------------------------------------------------ 9 remaining
     P.append("""
 ## 9. Kết luận và việc còn lại
