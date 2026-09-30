@@ -28,17 +28,17 @@
     },
     {
       "contrast": "capacity_no_topology",
-      "k": 3,
-      "pooled_mean": 0.03266140955769115,
-      "n_positive": 3,
+      "k": 4,
+      "pooled_mean": 0.027543078229097816,
+      "n_positive": 4,
       "n_negative": 0
     },
     {
       "contrast": "control_vs_archive",
-      "k": 2,
-      "pooled_mean": 0.00355954007731204,
+      "k": 4,
+      "pooled_mean": -0.0006936716313190373,
       "n_positive": 1,
-      "n_negative": 1
+      "n_negative": 3
     },
     {
       "contrast": "direct_edge_path",
@@ -49,16 +49,16 @@
     },
     {
       "contrast": "topology_at_matched_capacity",
-      "k": 3,
-      "pooled_mean": 0.00916519331314361,
-      "n_positive": 2,
+      "k": 4,
+      "pooled_mean": 0.01370353445438698,
+      "n_positive": 3,
       "n_negative": 1
     },
     {
       "contrast": "topology_at_matched_capacity_edge",
-      "k": 3,
-      "pooled_mean": 0.015617760978183967,
-      "n_positive": 3,
+      "k": 4,
+      "pooled_mean": 0.014485239123046743,
+      "n_positive": 4,
       "n_negative": 0
     },
     {
@@ -105,9 +105,9 @@
     },
     "NF-CSE-CIC-IDS2018-v2|multiclass": {
       "edge_mlp": 0.6686086823753221,
-      "mlp_h128_1l": null,
+      "mlp_h128_1l": 0.6535070877041451,
       "mlp_h128_2l": null,
-      "mlp_h273_2l": null,
+      "mlp_h273_2l": 0.6738119224851086,
       "sage": 0.692632206357677,
       "sage_edge": 0.6893567529803717,
       "hist_gradient_boosting": null,
@@ -118,7 +118,7 @@
       "edge_mlp": 0.9707167768867169,
       "mlp_h128_1l": null,
       "mlp_h128_2l": null,
-      "mlp_h273_2l": null,
+      "mlp_h273_2l": 0.9810002032046372,
       "sage": 0.9775049146633259,
       "sage_edge": 0.9802216239215868,
       "hist_gradient_boosting": null,
@@ -127,9 +127,9 @@
     },
     "NF-ToN-IoT-v2|multiclass": {
       "edge_mlp": 0.7039837155270707,
-      "mlp_h128_1l": null,
+      "mlp_h128_1l": 0.7012675101674617,
       "mlp_h128_2l": 0.7296248143335035,
-      "mlp_h273_2l": 0.7504358766111446,
+      "mlp_h273_2l": 0.7493849348563547,
       "sage": 0.7493819968825661,
       "sage_edge": 0.765810346569587,
       "hist_gradient_boosting": null,
@@ -139,8 +139,8 @@
     "NF-UNSW-NB15-v2|binary": {
       "edge_mlp": 0.9644750715186332,
       "mlp_h128_1l": 0.9641551367076353,
-      "mlp_h128_2l": null,
-      "mlp_h273_2l": 0.9674996367205428,
+      "mlp_h128_2l": 0.9661891208043112,
+      "mlp_h273_2l": 0.967359825379831,
       "sage": 0.9702453950314227,
       "sage_edge": 0.9699112540542479,
       "hist_gradient_boosting": 0.9761201621201977,

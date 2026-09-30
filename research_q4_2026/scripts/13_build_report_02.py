@@ -286,6 +286,25 @@ def main() -> int:
             P.append("\n### 8.3 Tổng hợp\n")
             P.append(md_table(pl))
 
+    # ------------------------------------------------------- 8b holdout eval
+    hs = RES / "holdout_summary.csv"
+    if hs.exists():
+        P.append("\n## 8b. Đánh giá trên split endpoint-holdout (cùng model, cùng ngân sách)\n")
+        P.append("So sánh trực tiếp giữa split khóa (`flow_group_id`) và split "
+                 "endpoint-disjoint. Kiến trúc, seed và ngân sách giống hệt; khác biệt "
+                 "duy nhất là flow test có thể chứa endpoint **chưa từng thấy** trong train. "
+                 "Scaler được fit lại trên train của từng split (dân số huấn luyện khác nhau) "
+                 "và điều này được ghi rõ.\n")
+        h = pd.read_csv(hs)
+        h["Ô"] = h.dataset.map(SHORT) + " · " + h.task + " · " + h.model
+        h = h[["Ô", "n", "locked_mean", "holdout_mean", "mean_drop", "ci_lo", "ci_hi",
+               "relative_drop_percent"]]
+        h.columns = ["Ô", "n", "split khóa", "endpoint-holdout", "mức giảm",
+                     "KTC 2.5%", "KTC 97.5%", "giảm tương đối (%)"]
+        P.append(md_table(h))
+        P.append("\nMức giảm **dương** nghĩa là split endpoint-holdout làm giảm chất lượng. "
+                 "Nếu KTC chứa 0 thì không có bằng chứng suy giảm.\n")
+
     # ------------------------------------------------------------ 9 remaining
     P.append("""
 ## 9. Kết luận và việc còn lại

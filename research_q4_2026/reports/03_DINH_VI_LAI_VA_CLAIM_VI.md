@@ -74,6 +74,7 @@ Quy ước trạng thái: **OK** = có artefact hỗ trợ và phát biểu khô
 | N07 | 3 seed không đủ | **OK** | "SD increased by up to 6.67× when two further seeds were added; 4 of 24 bootstrap-CI decisions changed." |
 | N08 | UNSW chạy 3,67 lượt, ba bộ còn lại 2,0 | **OK** | Bắt buộc nêu như threat to validity. |
 | N09 | Endpoint-holdout khả thi ở UNSW/ToN, không ở CSE-CIC/BoT-IoT | **OK** | Nêu TV distance nhãn và số lớp bị mất. |
+| N16 | **Mức phụ thuộc endpoint phụ thuộc độ giàu đồ thị**: UNSW không suy giảm (KTC chứa 0; binary còn tốt hơn), ToN multiclass giảm **0,293** macro-F1 (0,701 → 0,409) trên split endpoint-holdout với **cùng model, cùng ngân sách** | **OK** | Đây là kết quả mạnh nhất ủng hộ cơ chế; phải báo kèm việc scaler được fit lại trên train của từng split |
 | N10 | Tổng quát hóa sang host/mạng mới | **RÚT** | Chỉ nói "we construct and release an endpoint-disjoint split; model evaluation on it is future work" trừ khi chạy xong. |
 | N11 | GNN vượt baseline truyền thống | **RÚT** | Bằng chứng hiện tại đi theo hướng ngược lại. |
 | N12 | Tái lập trực tiếp bài báo gốc | **RÚT** | Giữ "controlled adaptation". |
@@ -87,7 +88,9 @@ Quy ước trạng thái: **OK** = có artefact hỗ trợ và phát biểu khô
 2. **Sụp đổ tối ưu hóa theo seed** chưa được loại bỏ bằng early stopping/learning-rate
    schedule chính thức (đây là việc của protocol convergence-first).
 3. **Chỉ 5 seed**, không đủ để suy luận thống kê cấp ô.
-4. **Endpoint overlap** trong split chính (92,7–100 % IP holdout đã có trong train).
+4. **Endpoint overlap** trong split chính (92,7–100 % IP holdout đã có trong train). Đã định
+   lượng: gần như không ảnh hưởng ở UNSW, nhưng làm mất **0,293** macro-F1 ở ToN
+   multiclass; không đo được ở CSE-CIC và BoT-IoT vì split endpoint-disjoint mất lớp.
 5. **Split theo `flow_group_id`** là within-environment, không phải temporal.
 6. **Tabular comparator** dùng chính đặc trưng flow mà GNN dùng; không có leakage
    IP/port, nhưng cũng không mô hình hóa được quan hệ.

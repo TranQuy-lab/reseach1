@@ -247,10 +247,12 @@ Established so far (paired by seed, 95% bootstrap CI):
 
 | Contrast | UNSW multiclass | ToN multiclass |
 |---|---:|---:|
-| capacity only, no topology (`mlp_h273_2l − edge_mlp`) | **+0.049** [+0.035, +0.059] | **+0.046** [+0.044, +0.049] |
-| **topology at matched capacity (`sage − mlp_h273_2l`)** | **+0.027** [+0.016, +0.041] | **−0.002** [−0.011, +0.006] |
-| tabular vs. `edge_mlp` | **+0.240** [+0.234, +0.253] | `[PENDING]` |
-| tabular vs. best graph variant | **+0.168** [+0.163, +0.175] | `[PENDING]` |
+| Contrast | UNSW mc | UNSW bin | ToN mc | CSE-CIC mc |
+|---|---:|---:|---:|---:|
+| capacity only, no topology (`mlp_h273_2l − edge_mlp`) | **+0.049** [+0.034, +0.060] | **+0.003** [+0.0025, +0.0034] | **+0.045** [+0.041, +0.050] | **+0.013** [+0.007, +0.020] |
+| **topology at matched capacity (`sage − mlp_h273_2l`)** | **+0.027** [+0.016, +0.041] | **+0.003** [+0.002, +0.004] | **−0.000** [−0.006, +0.005] | +0.025 [−0.001, +0.051] |
+| tabular vs. `edge_mlp` | **+0.240** [+0.234, +0.253] | **+0.012** [+0.011, +0.012] | `[PENDING]` | `[PENDING]` |
+| tabular vs. best graph variant | **+0.168** [+0.163, +0.175] | **+0.006** [+0.005, +0.006] | `[PENDING]` | `[PENDING]` |
 
 - **Capacity is a first-order confound.** Roughly half of the apparent graph advantage on
   both completed cells is reproduced by adding parameters and depth with no message passing.
@@ -301,6 +303,32 @@ The holdout passes a feasibility gate only on UNSW and ToN. Any "unseen host" cl
 be confined to those datasets and must report the label shift; for BoT-IoT the retained
 test set changes the class distribution almost completely (TV = 0.93).
 
+### 4.6b Endpoint familiarity matters only where the graph is rich
+
+We trained the *same* flow-only architectures on both splits, with identical budgets and
+seeds, fitting the scaler on each split's own train. On NF-UNSW-NB15-v2 multiclass the
+endpoint-disjoint test set costs **+0.008 to +0.017** macro-F1 (95% CI includes zero), and
+on NF-UNSW-NB15-v2 binary it *improves* by 0.016. On NF-ToN-IoT-v2 multiclass, by
+contrast, it collapses:
+
+| Dataset · task · model | Locked split | Endpoint holdout | Change |
+|---|---:|---:|---:|
+| UNSW · binary · `mlp_h128_1l` | 0.9641 | 0.9802 | **+0.016** |
+| UNSW · multiclass · `mlp_h128_1l` | 0.4218 | 0.4053 | −0.017 (CI [−0.038, +0.013]) |
+| UNSW · multiclass · `mlp_h273_2l` | 0.4697 | 0.4616 | −0.008 (CI [−0.029, +0.023]) |
+| ToN · multiclass · `mlp_h273_2l` | 0.7508 | 0.4385 | **−0.312** (41.6%) |
+| **ToN · multiclass · `mlp_h128_1l`** | **0.6963** | **0.4088** | **−0.287** (41.3%, CI [0.273, 0.298]) |
+
+This is the clearest evidence for the mechanism. On the dataset whose endpoint graph is
+nearly information-free, unseen endpoints cost nothing: there is no host identity to rely
+on. On NF-ToN-IoT-v2, where endpoints recur 11.3 times on average and 36.5% of flows
+repeat an endpoint pair, a flow-only model loses **0.29–0.31 macro-F1**—about 41% of its
+score—when those endpoints are held out, and the drop is far outside the seed noise
+(paired 95% CI [0.273, 0.298]). Published within-environment scores on such datasets
+therefore substantially measure endpoint familiarity rather than transferable flow
+structure. `[PENDING: ToN binary and `mlp_h273_2l` cells; CSE-CIC and BoT-IoT fail the
+feasibility gate.]`
+
 ### 4.7 Rare classes go in both directions
 
 With five seeds (support < 1,000), topology helps NF-ToN-IoT-v2 `ransomware`
@@ -336,7 +364,10 @@ is weak (1.7–1.8 edges per endpoint, ~20% repeated pairs). NF-ToN-IoT-v2 is in
 NF-UNSW-NB15-v2 is the cell where a structural increment survives capacity matching
 (+0.027), yet there the graph is nearly information-free—so the increment cannot plausibly
 come from rich relational context and is more likely a modest architectural regularisation
-effect that we cannot separate with the present design. Finally, for NF-BoT-IoT-v2 the
+effect that we cannot separate with the present design. The endpoint-holdout experiment
+supplies the missing corroboration: on NF-UNSW-NB15-v2 the graph carries no exploitable
+host identity (no degradation when endpoints are held out), whereas on NF-ToN-IoT-v2 it
+carries a great deal (42% of the score lost). Finally, for NF-BoT-IoT-v2 the
 graph is by far the richest (78.7 edges per endpoint, 91.6% repeated pairs)—and precisely
 there the topology-only architecture becomes untrainable across seeds (5 of 5 binary),
 while the variant that also keeps a direct flow-feature path to the head remains stable.
@@ -356,7 +387,11 @@ examined here is therefore not justified by their measured performance.
 
 1. Budget heterogeneity (UNSW 3.67 passes vs. 2.00 elsewhere).
 2. Only five seeds; no cell-level contrast survives multiplicity correction.
-3. Endpoint overlap in the primary split (92.7–100% of holdout IPs already appear in train).
+3. Endpoint overlap in the primary split (92.7–100% of holdout IPs already appear in
+   train). We now quantify its cost rather than merely flagging it: negligible on
+   NF-UNSW-NB15-v2, severe on NF-ToN-IoT-v2 (−0.29 macro-F1), and not measurable on
+   NF-CSE-CIC-IDS2018-v2 or NF-BoT-IoT-v2 because the endpoint-disjoint split loses
+   classes there.
 4. `flow_group_id` split is within-environment, not temporal.
 5. Tabular comparators cannot model relations by construction; they are a floor, not a ceiling.
 6. Some comparator cells are unrun due to CPU RAM limits.
