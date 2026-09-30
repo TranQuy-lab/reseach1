@@ -85,6 +85,9 @@ def main() -> int:
     ap.add_argument("--models", nargs="+", default=list(GRIDS))
     ap.add_argument("--seeds", nargs="+", type=int, default=[11, 22, 33])
     ap.add_argument("--n-jobs", type=int, default=16)
+    ap.add_argument("--tune-seed", type=int, default=11,
+                    help="hyper-parameters are selected on validation with this single "
+                         "seed; the selected configuration is then refit for every seed")
     args = ap.parse_args()
 
     done = set()
@@ -104,29 +107,38 @@ def main() -> int:
             yva = np.load(WORK / f"{dataset}__val__y_{task}.npy")
             yte = np.load(WORK / f"{dataset}__test__y_{task}.npy")
             for name in args.models:
-                for seed in args.seeds:
-                    if (dataset, task, name, seed) in done:
-                        print("skip", dataset, task, name, seed, flush=True)
-                        continue
-                    best = None
-                    for cfg in GRIDS[name]:
-                        t0 = time.perf_counter()
-                        model = build(name, cfg, seed, args.n_jobs)
-                        model.fit(Xtr, ytr)
-                        fit_s = time.perf_counter() - t0
-                        v = score(model, Xva, yva)
-                        tune_rows.append({"dataset": dataset, "task": task, "model": name,
-                                          "seed": seed, "config": json.dumps(cfg),
-                                          "fit_seconds": fit_s,
-                                          "val_macro_f1": v["macro_f1"],
-                                          "val_weighted_f1": v["weighted_f1"],
-                                          "val_accuracy": v["accuracy"]})
-                        pd.DataFrame(tune_rows).to_csv(TUNE, index=False)
-                        print(f"  tune {name:24s} s{seed} {cfg} -> val_macro_f1="
-                              f"{v['macro_f1']:.4f} ({fit_s:.0f}s)", flush=True)
-                        if best is None or v["macro_f1"] > best[1]["macro_f1"]:
-                            best = (cfg, v, model, fit_s)
-                    cfg, v, model, fit_s = best
+                pending = [s for s in args.seeds if (dataset, task, name, s) not in done]
+                if not pending:
+                    print("skip", dataset, task, name, flush=True)
+                    continue
+                # ---- stage 1: select configuration on validation, tune seed only ----
+                best_cfg, best_val = None, -np.inf
+                for cfg in GRIDS[name]:
+                    t0 = time.perf_counter()
+                    model = build(name, cfg, args.tune_seed, args.n_jobs)
+                    model.fit(Xtr, ytr)
+                    fit_s = time.perf_counter() - t0
+                    v = score(model, Xva, yva)
+                    tune_rows.append({"dataset": dataset, "task": task, "model": name,
+                                      "seed": args.tune_seed, "config": json.dumps(cfg),
+                                      "fit_seconds": fit_s,
+                                      "val_macro_f1": v["macro_f1"],
+                                      "val_weighted_f1": v["weighted_f1"],
+                                      "val_accuracy": v["accuracy"]})
+                    pd.DataFrame(tune_rows).to_csv(TUNE, index=False)
+                    print(f"  tune {name:24s} s{args.tune_seed} {cfg} -> val_macro_f1="
+                          f"{v['macro_f1']:.4f} ({fit_s:.0f}s)", flush=True)
+                    if v["macro_f1"] > best_val:
+                        best_cfg, best_val = cfg, v["macro_f1"]
+                    del model
+                # ---- stage 2: refit the selected configuration for each seed ----
+                for seed in pending:
+                    cfg = best_cfg
+                    t0 = time.perf_counter()
+                    model = build(name, cfg, seed, args.n_jobs)
+                    model.fit(Xtr, ytr)
+                    fit_s = time.perf_counter() - t0
+                    v = score(model, Xva, yva)
                     t0 = time.perf_counter()
                     te = score(model, Xte, yte)
                     test_s = time.perf_counter() - t0

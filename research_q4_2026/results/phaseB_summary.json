@@ -1,0 +1,162 @@
+{
+  "models_present": [
+    "edge_mlp",
+    "mlp_h128_1l",
+    "mlp_h128_2l",
+    "mlp_h273_2l",
+    "sage",
+    "sage_edge",
+    "hist_gradient_boosting",
+    "extra_trees",
+    "random_forest"
+  ],
+  "n_cells": 8,
+  "pooled_by_contrast": [
+    {
+      "contrast": "best_tabular_vs_edge_mlp",
+      "k": 2,
+      "pooled_mean": 0.12586072110882773,
+      "n_positive": 2,
+      "n_negative": 0
+    },
+    {
+      "contrast": "best_tabular_vs_topo",
+      "k": 2,
+      "pooled_mean": 0.08687992860618338,
+      "n_positive": 2,
+      "n_negative": 0
+    },
+    {
+      "contrast": "capacity_no_topology",
+      "k": 1,
+      "pooled_mean": 0.04620682412574199,
+      "n_positive": 1,
+      "n_negative": 0
+    },
+    {
+      "contrast": "control_vs_archive",
+      "k": 2,
+      "pooled_mean": 0.00355954007731204,
+      "n_positive": 1,
+      "n_negative": 1
+    },
+    {
+      "contrast": "direct_edge_path",
+      "k": 8,
+      "pooled_mean": 0.04595449460180096,
+      "n_positive": 5,
+      "n_negative": 3
+    },
+    {
+      "contrast": "topology_at_matched_capacity",
+      "k": 1,
+      "pooled_mean": -0.0017779894848300633,
+      "n_positive": 0,
+      "n_negative": 1
+    },
+    {
+      "contrast": "topology_at_matched_capacity_edge",
+      "k": 1,
+      "pooled_mean": 0.018996087921009524,
+      "n_positive": 1,
+      "n_negative": 0
+    },
+    {
+      "contrast": "topology_confounded_archive",
+      "k": 8,
+      "pooled_mean": -0.025352996265125986,
+      "n_positive": 6,
+      "n_negative": 2
+    }
+  ],
+  "matrix": {
+    "NF-BoT-IoT-v2|binary": {
+      "edge_mlp": 0.9003060806872512,
+      "mlp_h128_1l": null,
+      "mlp_h128_2l": null,
+      "mlp_h273_2l": null,
+      "sage": 0.8042945730472674,
+      "sage_edge": 0.8817967549855735,
+      "hist_gradient_boosting": null,
+      "extra_trees": null,
+      "random_forest": null
+    },
+    "NF-BoT-IoT-v2|multiclass": {
+      "edge_mlp": 0.8169013170624708,
+      "mlp_h128_1l": null,
+      "mlp_h128_2l": null,
+      "mlp_h273_2l": null,
+      "sage": 0.5511532113672154,
+      "sage_edge": 0.8259787817819397,
+      "hist_gradient_boosting": null,
+      "extra_trees": null,
+      "random_forest": null
+    },
+    "NF-CSE-CIC-IDS2018-v2|binary": {
+      "edge_mlp": 0.9837114171988951,
+      "mlp_h128_1l": null,
+      "mlp_h128_2l": null,
+      "mlp_h273_2l": null,
+      "sage": 0.9849622372787312,
+      "sage_edge": 0.9859801747289941,
+      "hist_gradient_boosting": null,
+      "extra_trees": null,
+      "random_forest": null
+    },
+    "NF-CSE-CIC-IDS2018-v2|multiclass": {
+      "edge_mlp": 0.6686086823753221,
+      "mlp_h128_1l": null,
+      "mlp_h128_2l": null,
+      "mlp_h273_2l": null,
+      "sage": 0.692632206357677,
+      "sage_edge": 0.6893567529803717,
+      "hist_gradient_boosting": null,
+      "extra_trees": null,
+      "random_forest": null
+    },
+    "NF-ToN-IoT-v2|binary": {
+      "edge_mlp": 0.9707167768867169,
+      "mlp_h128_1l": null,
+      "mlp_h128_2l": null,
+      "mlp_h273_2l": null,
+      "sage": 0.9775049146633259,
+      "sage_edge": 0.9802216239215868,
+      "hist_gradient_boosting": null,
+      "extra_trees": null,
+      "random_forest": null
+    },
+    "NF-ToN-IoT-v2|multiclass": {
+      "edge_mlp": 0.7039837155270707,
+      "mlp_h128_1l": null,
+      "mlp_h128_2l": 0.7296248143335035,
+      "mlp_h273_2l": 0.7504358766111446,
+      "sage": 0.7493819968825661,
+      "sage_edge": 0.765810346569587,
+      "hist_gradient_boosting": null,
+      "extra_trees": null,
+      "random_forest": null
+    },
+    "NF-UNSW-NB15-v2|binary": {
+      "edge_mlp": 0.9644750715186332,
+      "mlp_h128_1l": 0.9641551367076353,
+      "mlp_h128_2l": null,
+      "mlp_h273_2l": null,
+      "sage": 0.9702453950314227,
+      "sage_edge": 0.9699112540542479,
+      "hist_gradient_boosting": 0.9761201621201977,
+      "extra_trees": null,
+      "random_forest": null
+    },
+    "NF-UNSW-NB15-v2|multiclass": {
+      "edge_mlp": 0.4140653194828297,
+      "mlp_h128_1l": 0.42150433444845187,
+      "mlp_h128_2l": null,
+      "mlp_h273_2l": null,
+      "sage": 0.4897698759899759,
+      "sage_edge": 0.4885246784102887,
+      "hist_gradient_boosting": 0.6535982945778533,
+      "extra_trees": 0.6697952973020523,
+      "random_forest": 0.6683487346219218
+    }
+  }
+}

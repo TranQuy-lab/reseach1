@@ -1,0 +1,2 @@
+dataset,task,model,seed,config,fit_seconds,val_macro_f1,val_weighted_f1,val_accuracy
+NF-UNSW-NB15-v2,binary,extra_trees,11,"{""n_estimators"": 100, ""max_features"": ""sqrt"", ""min_samples_leaf"": 1}",37.837069683000664,0.9809147443378177,0.9970558235402757,0.9970605944038401

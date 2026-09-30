@@ -1,0 +1,114 @@
+{
+  "split_seed": 20260920,
+  "endpoint_mode": "ipport",
+  "strategy": "holdout",
+  "split_rule": "hash(component_id, seed) % 10: 0-6 train, 7 val, 8-9 test",
+  "datasets": {
+    "NF-UNSW-NB15-v2": {
+      "strategy": "holdout",
+      "source_rows": 2390275,
+      "retained_rows": 1412101,
+      "dropped_rows": 978174,
+      "dropped_fraction": 0.4092307370490843,
+      "split_rows": {
+        "val": 66965,
+        "train": 1211599,
+        "test": 133537
+      },
+      "n_endpoints": 1090451,
+      "holdout_endpoints_also_in_train": 0,
+      "row_conservation_ok": true,
+      "classes_in_train_not_in_split": {
+        "train": [],
+        "val": [],
+        "test": []
+      },
+      "classes_total": 10,
+      "note": "val and test share endpoints with each other; neither shares endpoints with train",
+      "elapsed_seconds": 5.0
+    },
+    "NF-BoT-IoT-v2": {
+      "strategy": "holdout",
+      "source_rows": 37763497,
+      "retained_rows": 26193454,
+      "dropped_rows": 11570043,
+      "dropped_fraction": 0.30638166269400313,
+      "split_rows": {
+        "val": 60440,
+        "train": 26011809,
+        "test": 121205
+      },
+      "n_endpoints": 337330,
+      "holdout_endpoints_also_in_train": 0,
+      "row_conservation_ok": true,
+      "classes_in_train_not_in_split": {
+        "train": [],
+        "val": [
+          "DDoS",
+          "DoS"
+        ],
+        "test": [
+          "DDoS",
+          "DoS"
+        ]
+      },
+      "classes_total": 5,
+      "note": "val and test share endpoints with each other; neither shares endpoints with train",
+      "elapsed_seconds": 40.6
+    },
+    "NF-ToN-IoT-v2": {
+      "strategy": "holdout",
+      "source_rows": 16940496,
+      "retained_rows": 10703037,
+      "dropped_rows": 6237459,
+      "dropped_fraction": 0.3681981330416772,
+      "split_rows": {
+        "val": 293904,
+        "train": 9821413,
+        "test": 587720
+      },
+      "n_endpoints": 1125416,
+      "holdout_endpoints_also_in_train": 0,
+      "row_conservation_ok": true,
+      "classes_in_train_not_in_split": {
+        "train": [],
+        "val": [],
+        "test": []
+      },
+      "classes_total": 10,
+      "note": "val and test share endpoints with each other; neither shares endpoints with train",
+      "elapsed_seconds": 19.9
+    },
+    "NF-CSE-CIC-IDS2018-v2": {
+      "strategy": "holdout",
+      "source_rows": 18893708,
+      "retained_rows": 12156002,
+      "dropped_rows": 6737706,
+      "dropped_fraction": 0.35661110037267435,
+      "split_rows": {
+        "val": 265097,
+        "train": 11358819,
+        "test": 532086
+      },
+      "n_endpoints": 9686040,
+      "holdout_endpoints_also_in_train": 0,
+      "row_conservation_ok": true,
+      "classes_in_train_not_in_split": {
+        "train": [],
+        "val": [
+          "Bot",
+          "DDoS",
+          "injection"
+        ],
+        "test": [
+          "Bot",
+          "DDoS",
+          "injection"
+        ]
+      },
+      "classes_total": 7,
+      "note": "val and test share endpoints with each other; neither shares endpoints with train",
+      "elapsed_seconds": 24.9
+    }
+  }
+}

@@ -97,4 +97,6 @@ random_forest:          {100 cây, max_features sqrt, min_samples_leaf 1}
 | Ngày | Thay đổi | Lý do |
 |---|---|---|
 | 2026-10-01 | Khóa protocol trước khi chạy | Ngăn HARKing |
-| — | (chưa có) | |
+| 2026-10-01 | TN-2: chọn cấu hình bằng **một** seed tuning (11) trên validation, sau đó refit **đúng cấu hình đã chọn** cho mọi seed | Giảm chi phí mà không đổi tính công bằng: test vẫn chỉ đọc một lần, chọn cấu hình vẫn chỉ bằng validation |
+| 2026-10-01 | TN-2: ExtraTrees/RandomForest chạy trên UNSW và ToN; CSE-CIC và BoT-IoT chỉ chạy HistGradientBoosting nếu vượt RAM | Quy tắc 7 của protocol: ghi rõ giới hạn tài nguyên, không subsample ngầm |
+| 2026-10-01 | TN-1: `mlp_h128_2l` (đối chứng độ sâu) chỉ chạy trên UNSW; ToN/CSE/BoT chỉ chạy `mlp_h273_2l` (khớp capacity, contrast trung tâm) và `mlp_h128_1l` (đối chứng harness) | Chi phí CPU: ước tính 10 h nếu giữ đủ ba biến thể; cắt biến thể không thiết yếu, **không** cắt seed, không cắt dataset |

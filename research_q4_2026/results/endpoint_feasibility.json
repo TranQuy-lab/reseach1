@@ -1,0 +1,152 @@
+{
+  "endpoint_split_reports": {
+    "NF-UNSW-NB15-v2": {
+      "strategy": "holdout",
+      "source_rows": 2390275,
+      "retained_rows": 1412101,
+      "dropped_rows": 978174,
+      "dropped_fraction": 0.4092307370490843,
+      "split_rows": {
+        "val": 66965,
+        "train": 1211599,
+        "test": 133537
+      },
+      "n_endpoints": 1090451,
+      "holdout_endpoints_also_in_train": 0,
+      "row_conservation_ok": true,
+      "classes_in_train_not_in_split": {
+        "train": [],
+        "val": [],
+        "test": []
+      },
+      "classes_total": 10,
+      "note": "val and test share endpoints with each other; neither shares endpoints with train",
+      "elapsed_seconds": 5.0
+    },
+    "NF-BoT-IoT-v2": {
+      "strategy": "holdout",
+      "source_rows": 37763497,
+      "retained_rows": 26193454,
+      "dropped_rows": 11570043,
+      "dropped_fraction": 0.30638166269400313,
+      "split_rows": {
+        "val": 60440,
+        "train": 26011809,
+        "test": 121205
+      },
+      "n_endpoints": 337330,
+      "holdout_endpoints_also_in_train": 0,
+      "row_conservation_ok": true,
+      "classes_in_train_not_in_split": {
+        "train": [],
+        "val": [
+          "DDoS",
+          "DoS"
+        ],
+        "test": [
+          "DDoS",
+          "DoS"
+        ]
+      },
+      "classes_total": 5,
+      "note": "val and test share endpoints with each other; neither shares endpoints with train",
+      "elapsed_seconds": 40.6
+    },
+    "NF-ToN-IoT-v2": {
+      "strategy": "holdout",
+      "source_rows": 16940496,
+      "retained_rows": 10703037,
+      "dropped_rows": 6237459,
+      "dropped_fraction": 0.3681981330416772,
+      "split_rows": {
+        "val": 293904,
+        "train": 9821413,
+        "test": 587720
+      },
+      "n_endpoints": 1125416,
+      "holdout_endpoints_also_in_train": 0,
+      "row_conservation_ok": true,
+      "classes_in_train_not_in_split": {
+        "train": [],
+        "val": [],
+        "test": []
+      },
+      "classes_total": 10,
+      "note": "val and test share endpoints with each other; neither shares endpoints with train",
+      "elapsed_seconds": 19.9
+    },
+    "NF-CSE-CIC-IDS2018-v2": {
+      "strategy": "holdout",
+      "source_rows": 18893708,
+      "retained_rows": 12156002,
+      "dropped_rows": 6737706,
+      "dropped_fraction": 0.35661110037267435,
+      "split_rows": {
+        "val": 265097,
+        "train": 11358819,
+        "test": 532086
+      },
+      "n_endpoints": 9686040,
+      "holdout_endpoints_also_in_train": 0,
+      "row_conservation_ok": true,
+      "classes_in_train_not_in_split": {
+        "train": [],
+        "val": [
+          "Bot",
+          "DDoS",
+          "injection"
+        ],
+        "test": [
+          "Bot",
+          "DDoS",
+          "injection"
+        ]
+      },
+      "classes_total": 7,
+      "note": "val and test share endpoints with each other; neither shares endpoints with train",
+      "elapsed_seconds": 24.9
+    }
+  },
+  "comparison": {
+    "NF-UNSW-NB15-v2": {
+      "locked_test_rows": 478007,
+      "holdout_test_rows": 133537,
+      "holdout_retained_fraction": 0.5907692629509157,
+      "holdout_dropped_fraction": 0.4092307370490843,
+      "classes_locked_test": 10,
+      "classes_holdout_test": 10,
+      "test_label_total_variation_distance": 0.018030040868697972,
+      "holdout_endpoints_in_train": 0
+    },
+    "NF-ToN-IoT-v2": {
+      "locked_test_rows": 3385552,
+      "holdout_test_rows": 587720,
+      "holdout_retained_fraction": 0.6318018669583229,
+      "holdout_dropped_fraction": 0.3681981330416772,
+      "classes_locked_test": 10,
+      "classes_holdout_test": 10,
+      "test_label_total_variation_distance": 0.29251947145715335,
+      "holdout_endpoints_in_train": 0
+    },
+    "NF-CSE-CIC-IDS2018-v2": {
+      "locked_test_rows": 3779380,
+      "holdout_test_rows": 532086,
+      "holdout_retained_fraction": 0.6433888996273257,
+      "holdout_dropped_fraction": 0.35661110037267435,
+      "classes_locked_test": 7,
+      "classes_holdout_test": 4,
+      "test_label_total_variation_distance": 0.10196219380726951,
+      "holdout_endpoints_in_train": 0
+    },
+    "NF-BoT-IoT-v2": {
+      "locked_test_rows": 7548368,
+      "holdout_test_rows": 121205,
+      "holdout_retained_fraction": 0.6936183373059969,
+      "holdout_dropped_fraction": 0.30638166269400313,
+      "classes_locked_test": 5,
+      "classes_holdout_test": 3,
+      "test_label_total_variation_distance": 0.9270569479389451,
+      "holdout_endpoints_in_train": 0
+    }
+  }
+}

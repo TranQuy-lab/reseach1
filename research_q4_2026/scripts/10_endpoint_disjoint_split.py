@@ -31,6 +31,7 @@ from pathlib import Path
 
 import duckdb
 import numpy as np
+import pyarrow as pa
 
 HERE = Path(__file__).resolve().parents[1]
 SRC = HERE / "data/processed_four"
@@ -40,43 +41,31 @@ DATASETS = ["NF-UNSW-NB15-v2", "NF-BoT-IoT-v2", "NF-ToN-IoT-v2", "NF-CSE-CIC-IDS
 SPLIT_SEED = 20260920
 
 
-def union_find_components(n_nodes: int, a: np.ndarray, b: np.ndarray,
-                          verbose: bool = True) -> np.ndarray:
-    """Vectorised union-find. Returns component id per node (0..n_comp-1)."""
-    parent = np.arange(n_nodes, dtype=np.int64)
+def connected_components(n_nodes: int, a: np.ndarray, b: np.ndarray) -> np.ndarray:
+    """Component id per node using scipy's C implementation.
 
-    def find(x: np.ndarray) -> np.ndarray:
-        x = x.copy()
-        while True:
-            p = parent[x]
-            if np.array_equal(p, x):
-                return x
-            parent[x] = parent[p]
-            x = p
-
-    ra, rb = find(a), find(b)
-    rounds = 0
-    while True:
-        root_a, root_b = find(ra), find(rb)
-        differing = root_a != root_b
-        if not differing.any():
-            break
-        lo = np.minimum(root_a, root_b)
-        hi = np.maximum(root_a, root_b)
-        parent[hi] = lo
-        ra, rb = find(ra), find(rb)
-        rounds += 1
-        if verbose and rounds % 5 == 0:
-            print(f"    union-find round {rounds}, remaining merges pending", flush=True)
-    roots = find(np.arange(n_nodes, dtype=np.int64))
-    _, comp = np.unique(roots, return_inverse=True)
-    return comp.astype(np.int64)
+    A python/NumPy union-find over tens of millions of edges is far too slow, so
+    the same connected-component semantics are obtained from a sparse adjacency
+    matrix via scipy.sparse.csgraph.connected_components.
+    """
+    from scipy.sparse import coo_matrix
+    from scipy.sparse.csgraph import connected_components as cc
+    data = np.ones(len(a), dtype=np.int8)
+    g = coo_matrix((data, (a, b)), shape=(n_nodes, n_nodes))
+    n_comp, labels = cc(g, directed=False, return_labels=True)
+    return labels.astype(np.int64)
 
 
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--datasets", nargs="+", default=DATASETS)
     ap.add_argument("--endpoint-mode", choices=["ipport", "ip"], default="ipport")
+    ap.add_argument("--strategy", choices=["holdout", "flowhash", "component"],
+                    default="holdout",
+                    help="holdout: endpoints split train/holdout (70/30); a flow is kept "
+                         "only when both endpoints share a group, and holdout flows are "
+                         "split into val/test by hashed flow group. flowhash: 70/10/20 "
+                         "endpoint groups. component: connected-component holdout")
     ap.add_argument("--threads", type=int, default=12)
     ap.add_argument("--memory-limit", default="8GB")
     ap.add_argument("--resume", action="store_true")
@@ -84,9 +73,9 @@ def main() -> int:
 
     OUT.mkdir(parents=True, exist_ok=True)
     RES.mkdir(parents=True, exist_ok=True)
-    report_path = RES / f"endpoint_split_report_{args.endpoint_mode}.json"
+    report_path = RES / f"endpoint_split_report_{args.endpoint_mode}_{args.strategy}.json"
     report: dict = json.loads(report_path.read_text()) if report_path.exists() else {}
-    report.update({"split_seed": SPLIT_SEED, "endpoint_mode": args.endpoint_mode,
+    report.update({"split_seed": SPLIT_SEED, "endpoint_mode": args.endpoint_mode, "strategy": args.strategy,
                    "split_rule": "hash(component_id, seed) % 10: 0-6 train, 7 val, 8-9 test"})
     report.setdefault("datasets", {})
 
@@ -95,7 +84,7 @@ def main() -> int:
             print("skip (done)", dataset, flush=True)
             continue
         src = SRC / f"{dataset}.parquet"
-        ds_out = OUT / f"{dataset}__{args.endpoint_mode}"
+        ds_out = OUT / f"{dataset}__{args.endpoint_mode}__{args.strategy}"
         if ds_out.exists():
             print("skip (exists)", ds_out, flush=True)
             continue
@@ -125,6 +114,148 @@ def main() -> int:
         n_ep = con.execute("SELECT count(*) FROM ep").fetchone()[0]
         print(f"[{dataset}] endpoints={n_ep:,d} ({time.perf_counter()-t0:.0f}s)", flush=True)
 
+        if args.strategy == "holdout":
+            # Two endpoint groups: train (70 %) and holdout (30 %). A flow survives
+            # only when both endpoints are in the same group, so no holdout endpoint
+            # ever occurs in train. Holdout flows are then split 1/3 validation,
+            # 2/3 test by hashed flow group. val and test therefore share endpoints
+            # with each other but never with train; this is stated explicitly.
+            print(f"[{dataset}] assign endpoint groups (train/holdout) ...", flush=True)
+            con.execute(f"""
+                CREATE TEMP TABLE ep_split AS
+                SELECT e AS endpoint,
+                       CASE WHEN (hash(e, {SPLIT_SEED}) % 10) < 7 THEN 'train'
+                            ELSE 'holdout' END AS grp
+                FROM ep
+            """)
+            print(f"[{dataset}] writing split parquet (holdout) ...", flush=True)
+            ds_out.mkdir(parents=True)
+            con.execute(f"""
+                COPY (
+                    SELECT r.*,
+                           CASE WHEN ls.grp = 'train' THEN 'train'
+                                WHEN (hash(CAST(r.flow_group_id AS VARCHAR), {SPLIT_SEED}) % 3) = 0
+                                     THEN 'val'
+                                ELSE 'test' END AS split
+                    FROM read_parquet('{src.as_posix()}') r
+                    JOIN ep_split ls ON ls.endpoint = {skey}
+                    JOIN ep_split ld ON ld.endpoint = {dkey}
+                    WHERE ls.grp = ld.grp
+                ) TO '{ds_out.as_posix()}'
+                (FORMAT PARQUET, PARTITION_BY (split), COMPRESSION ZSTD, ROW_GROUP_SIZE 100000)
+            """)
+            all_glob = (ds_out / "split=*" / "*.parquet").as_posix()
+            rows = dict(con.execute(
+                f"SELECT split, count(*) FROM read_parquet('{all_glob}', hive_partitioning=true) "
+                f"GROUP BY split").fetchall())
+            src_rows = con.execute("SELECT count(*) FROM read_parquet(?)",
+                                   [str(src)]).fetchone()[0]
+            leak = con.execute(f"""
+                WITH tr AS (SELECT {skey} k FROM read_parquet('{ds_out.as_posix()}/split=train/*.parquet')
+                            UNION SELECT {dkey} k FROM read_parquet('{ds_out.as_posix()}/split=train/*.parquet')),
+                     ho AS (SELECT {skey} k FROM read_parquet('{ds_out.as_posix()}/split=test/*.parquet')
+                            UNION SELECT {dkey} k FROM read_parquet('{ds_out.as_posix()}/split=test/*.parquet')
+                            UNION SELECT {skey} k FROM read_parquet('{ds_out.as_posix()}/split=val/*.parquet')
+                            UNION SELECT {dkey} k FROM read_parquet('{ds_out.as_posix()}/split=val/*.parquet'))
+                SELECT count(*) FROM (SELECT k FROM ho INTERSECT SELECT k FROM tr)
+            """).fetchone()[0]
+            classes = {sp: set(x[0] for x in con.execute(
+                f"SELECT DISTINCT Attack FROM read_parquet('{ds_out.as_posix()}/split={sp}/*.parquet')"
+            ).fetchall()) for sp in ("train", "val", "test")}
+            info = {
+                "strategy": "holdout",
+                "source_rows": int(src_rows),
+                "retained_rows": int(sum(rows.values())),
+                "dropped_rows": int(src_rows - sum(rows.values())),
+                "dropped_fraction": float((src_rows - sum(rows.values())) / src_rows),
+                "split_rows": {k: int(v) for k, v in rows.items()},
+                "n_endpoints": int(n_ep),
+                "holdout_endpoints_also_in_train": int(leak),
+                "row_conservation_ok": bool(sum(rows.values()) <= src_rows),
+                "classes_in_train_not_in_split": {
+                    sp: sorted(classes["train"] - classes[sp]) for sp in classes},
+                "classes_total": len(classes["train"]),
+                "note": "val and test share endpoints with each other; neither shares "
+                        "endpoints with train",
+                "elapsed_seconds": round(time.perf_counter() - t0, 1),
+            }
+            report["datasets"][dataset] = info
+            report_path.write_text(json.dumps(report, indent=2))
+            print(json.dumps({dataset: info}, indent=1), flush=True)
+            con.close()
+            for f in tmp.rglob("*"):
+                if f.is_file():
+                    f.unlink()
+            tmp.rmdir()
+            continue
+
+        if args.strategy == "flowhash":
+            # Endpoint-level disjoint holdout: an endpoint is assigned to exactly one
+            # group; a flow is retained only when both endpoints share that group, so
+            # no validation/test endpoint can occur in train. Mixed flows are dropped
+            # and the dropped fraction is reported.
+            print(f"[{dataset}] assign endpoint groups ...", flush=True)
+            con.execute(f"""
+                CREATE TEMP TABLE ep_split AS
+                SELECT e AS endpoint,
+                       CASE WHEN (hash(e, {SPLIT_SEED}) % 10) < 7 THEN 'train'
+                            WHEN (hash(e, {SPLIT_SEED}) % 10) = 7 THEN 'val'
+                            ELSE 'test' END AS split
+                FROM ep
+            """)
+            print(f"[{dataset}] writing split parquet (flowhash) ...", flush=True)
+            ds_out.mkdir(parents=True)
+            con.execute(f"""
+                COPY (
+                    SELECT r.*, ls.split AS split
+                    FROM read_parquet('{src.as_posix()}') r
+                    JOIN ep_split ls ON ls.endpoint = {skey}
+                    JOIN ep_split ld ON ld.endpoint = {dkey}
+                    WHERE ls.split = ld.split
+                ) TO '{ds_out.as_posix()}'
+                (FORMAT PARQUET, PARTITION_BY (split), COMPRESSION ZSTD, ROW_GROUP_SIZE 100000)
+            """)
+            all_glob = (ds_out / "split=*" / "*.parquet").as_posix()
+            rows = dict(con.execute(
+                f"SELECT split, count(*) FROM read_parquet('{all_glob}', hive_partitioning=true) "
+                f"GROUP BY split").fetchall())
+            src_rows = con.execute("SELECT count(*) FROM read_parquet(?)",
+                                   [str(src)]).fetchone()[0]
+            leak = con.execute(f"""
+                WITH e AS (
+                  SELECT split, {skey} k FROM read_parquet('{all_glob}', hive_partitioning=true)
+                  UNION ALL
+                  SELECT split, {dkey} k FROM read_parquet('{all_glob}', hive_partitioning=true))
+                SELECT count(*) FROM (SELECT k FROM e GROUP BY k HAVING count(DISTINCT split) > 1)
+            """).fetchone()[0]
+            classes = {sp: set(x[0] for x in con.execute(
+                f"SELECT DISTINCT Attack FROM read_parquet('{ds_out.as_posix()}/split={sp}/*.parquet')"
+            ).fetchall()) for sp in ("train", "val", "test")}
+            info = {
+                "strategy": "flowhash",
+                "source_rows": int(src_rows),
+                "retained_rows": int(sum(rows.values())),
+                "dropped_rows": int(src_rows - sum(rows.values())),
+                "dropped_fraction": float((src_rows - sum(rows.values())) / src_rows),
+                "split_rows": {k: int(v) for k, v in rows.items()},
+                "n_endpoints": int(n_ep),
+                "endpoints_in_multiple_splits": int(leak),
+                "row_conservation_ok": bool(sum(rows.values()) <= src_rows),
+                "classes_in_train_not_in_split": {
+                    sp: sorted(classes["train"] - classes[sp]) for sp in classes},
+                "classes_total": len(classes["train"]),
+                "elapsed_seconds": round(time.perf_counter() - t0, 1),
+            }
+            report["datasets"][dataset] = info
+            report_path.write_text(json.dumps(report, indent=2))
+            print(json.dumps({dataset: info}, indent=1), flush=True)
+            con.close()
+            for f in tmp.rglob("*"):
+                if f.is_file():
+                    f.unlink()
+            tmp.rmdir()
+            continue
+
         print(f"[{dataset}] build flow pair table ...", flush=True)
         con.execute(f"""
             CREATE TEMP TABLE flow_pairs AS
@@ -140,7 +271,7 @@ def main() -> int:
         del arr
         con.execute("DROP TABLE flow_pairs")
         print(f"[{dataset}] union-find over {n_flows:,d} flows ...", flush=True)
-        comp = union_find_components(int(n_ep), a, b)
+        comp = connected_components(int(n_ep), a, b)
         n_comp = int(comp.max()) + 1
         print(f"[{dataset}] components={n_comp:,d} ({time.perf_counter()-t0:.0f}s)",
               flush=True)
@@ -152,15 +283,20 @@ def main() -> int:
                      dtype=np.int8)
         split_code = np.where(h < 7, 0, np.where(h == 7, 1, 2)).astype(np.int8)
 
-        con.execute("CREATE TEMP TABLE comp_split(comp BIGINT, split VARCHAR)")
-        con.executemany("INSERT INTO comp_split VALUES (?, ?)",
-                        [(int(c), ("train", "val", "test")[int(split_code[c])])
-                         for c in range(n_comp)])
-        # component id per endpoint
-        con.execute("CREATE TEMP TABLE ep_comp(eid BIGINT, comp BIGINT)")
-        ep_ids = np.arange(int(n_ep), dtype=np.int64)
-        con.executemany("INSERT INTO ep_comp VALUES (?, ?)",
-                        zip(ep_ids.tolist(), comp.tolist()))
+        # Register the numpy results as Arrow so the join stays vectorised.
+        split_names = np.array(["train", "val", "test"], dtype=object)[split_code]
+        tbl_comp = pa.table({
+            "comp": pa.array(np.arange(n_comp, dtype=np.int64)),
+            "split": pa.array([str(x) for x in split_names], type=pa.string()),
+        })
+        tbl_epcomp = pa.table({
+            "eid": pa.array(np.arange(int(n_ep), dtype=np.int64)),
+            "comp": pa.array(comp.astype(np.int64)),
+        })
+        con.register("arrow_comp", tbl_comp)
+        con.register("arrow_epcomp", tbl_epcomp)
+        con.execute("CREATE TEMP TABLE comp_split AS SELECT * FROM arrow_comp")
+        con.execute("CREATE TEMP TABLE ep_comp AS SELECT * FROM arrow_epcomp")
         con.execute("""
             CREATE TEMP TABLE ep_split AS
             SELECT e.e AS endpoint, c.split AS split

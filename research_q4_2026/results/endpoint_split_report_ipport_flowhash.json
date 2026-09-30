@@ -1,0 +1,33 @@
+{
+  "split_seed": 20260920,
+  "endpoint_mode": "ipport",
+  "strategy": "flowhash",
+  "split_rule": "hash(component_id, seed) % 10: 0-6 train, 7 val, 8-9 test",
+  "datasets": {
+    "NF-UNSW-NB15-v2": {
+      "strategy": "flowhash",
+      "source_rows": 2390275,
+      "retained_rows": 1321434,
+      "dropped_rows": 1068841,
+      "dropped_fraction": 0.4471623557958812,
+      "split_rows": {
+        "val": 23685,
+        "train": 1211599,
+        "test": 86150
+      },
+      "n_endpoints": 1090451,
+      "endpoints_in_multiple_splits": 0,
+      "row_conservation_ok": true,
+      "classes_in_train_not_in_split": {
+        "train": [],
+        "val": [
+          "Analysis",
+          "Worms"
+        ],
+        "test": []
+      },
+      "classes_total": 10,
+      "elapsed_seconds": 6.2
+    }
+  }
+}
