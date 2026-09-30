@@ -33,8 +33,9 @@ NF-UNSW-NB15-v2, +0.046 on NF-ToN-IoT-v2). What survives capacity matching is
 small positive increment over the matched baseline (+0.027, 95% CI [+0.016, +0.041]),
 whereas on NF-ToN-IoT-v2 multiclass the residual is zero (−0.002, 95% CI [−0.011, +0.006]).
 Third, on NF-UNSW-NB15-v2 a strong tabular comparator reaches 0.654–0.670 macro-F1
-against 0.414–0.490 for all graph variants, i.e. any residual structural gain is an order
-of magnitude smaller than the gap to classical tabular learning. A flow-only model
+against 0.414–0.490 for all graph variants, and on NF-ToN-IoT-v2 multiclass it reaches
+0.866 against 0.766—so any residual structural gain is an order of magnitude smaller than
+the gap to classical tabular learning. A flow-only model
 augmented with five neighbourhood counts reaches 0.5003, exceeding both message-passing
 variants, while the same model given hand-computed neighbour feature averages drops to
 0.4218—so the graph helps only through coarse endpoint summaries, not through neighbour
@@ -242,7 +243,7 @@ flow-only baseline. Full matrix `[PENDING: CSE-CIC and BoT-IoT still running]`:
 |---|---:|---:|---:|---:|---:|---:|---:|
 | UNSW · multiclass | 0.414 | `[PENDING]` | 0.490 | 0.489 | 0.654 | 0.670 | 0.668 |
 | UNSW · binary | 0.964 | `[PENDING]` | 0.970 | 0.970 | 0.976 | `[PENDING]` | `[PENDING]` |
-| ToN · multiclass | 0.704 | **0.750** | **0.749** | 0.766 | `[PENDING]` | `[PENDING]` | `[PENDING]` |
+| ToN · multiclass | 0.704 | **0.749** | **0.749** | 0.766 | **0.866** | `[PENDING]` | `[PENDING]` |
 | ToN · binary | 0.971 | `[PENDING]` | 0.977 | 0.980 | `[PENDING]` | `[PENDING]` | `[PENDING]` |
 | CSE-CIC · mc/bin | 0.669 / 0.984 | `[PENDING]` | 0.693 / 0.985 | 0.689 / 0.986 | `[PENDING]` | — | — |
 | BoT-IoT · mc/bin | 0.817 / 0.900 | `[PENDING]` | 0.551 / 0.804 | 0.826 / 0.882 | `[PENDING]` | — | — |
@@ -255,8 +256,8 @@ Established so far (paired by seed, 95% bootstrap CI):
 |---|---:|---:|---:|---:|
 | capacity only, no topology (`mlp_h273_2l − edge_mlp`) | **+0.049** [+0.034, +0.060] | **+0.003** [+0.0025, +0.0034] | **+0.045** [+0.041, +0.050] | **+0.013** [+0.007, +0.020] |
 | **topology at matched capacity (`sage − mlp_h273_2l`)** | **+0.027** [+0.016, +0.041] | **+0.003** [+0.002, +0.004] | **−0.000** [−0.006, +0.005] | +0.025 [−0.001, +0.051] |
-| tabular vs. `edge_mlp` | **+0.240** [+0.234, +0.253] | **+0.012** [+0.011, +0.012] | `[PENDING]` | `[PENDING]` |
-| tabular vs. best graph variant | **+0.168** [+0.163, +0.175] | **+0.006** [+0.005, +0.006] | `[PENDING]` | `[PENDING]` |
+| tabular mean vs. `edge_mlp` | **+0.240** | **+0.012** | **+0.162** | `[PENDING]` |
+| tabular mean vs. best graph variant | **+0.168** | **+0.006** | **+0.101** | `[PENDING]` |
 
 - **Capacity is a first-order confound.** Roughly half of the apparent graph advantage on
   both completed cells is reproduced by adding parameters and depth with no message passing.
@@ -307,33 +308,49 @@ The holdout passes a feasibility gate only on UNSW and ToN. Any "unseen host" cl
 be confined to those datasets and must report the label shift; for BoT-IoT the retained
 test set changes the class distribution almost completely (TV = 0.93).
 
-### 4.6b Endpoint familiarity matters only where the graph is rich
+### 4.6b Endpoint familiarity: measured, and found immaterial on this split
 
-We trained the *same* flow-only architectures on both splits, with identical budgets and
-seeds, fitting the scaler on each split's own train. On NF-UNSW-NB15-v2 multiclass the
-endpoint-disjoint test set costs **+0.008 to +0.017** macro-F1 (95% CI includes zero), and
-on NF-UNSW-NB15-v2 binary it *improves* by 0.016. On NF-ToN-IoT-v2 multiclass, by
-contrast, it collapses:
+The repository documents that 99.21–100% of validation/test flows have both IP addresses
+already present in train, and treats endpoint overlap as a limitation on interpretation.
+We tested it directly in two ways, and the second test corrected the first.
 
-| Dataset · task · model | Locked split | Endpoint holdout | Change |
+**Test 1 (endpoint-disjoint split).** On the held-out-endpoint design, the
+capacity-matched flow-only MLP falls from 0.750 to 0.440 macro-F1 on NF-ToN-IoT-v2
+multiclass—a 41% loss—while the binary task loses only 0.001. Read alone this looks like
+strong evidence that endpoint familiarity supplies attack-type discrimination.
+
+**Test 2 (the necessary control).** We then trained HistGradientBoosting on the same
+endpoint-disjoint split. It has no access to endpoint identity of any kind, yet it also
+falls, from 0.866 on the locked split to **0.472** here. A model that cannot use endpoint
+identity cannot be losing 45% of its score to endpoint unfamiliarity. The drop must come
+from the split construction itself: the endpoint-disjoint design discards 37% of flows,
+changes the training population, and shifts the test label distribution
+(total-variation distance 0.293). **Test 1 is therefore confounded and we do not use it to
+attribute anything to endpoint familiarity.**
+
+**Test 3 (clean isolation).** Finally we held the model, the training data, the
+preprocessing and the test population completely fixed, and merely partitioned the locked
+test split by whether each flow's endpoints occur in train:
+
+| Test subset | Flows | Share | HGB macro-F1 |
 |---|---:|---:|---:|
-| UNSW · binary · `mlp_h128_1l` | 0.9641 | 0.9802 | **+0.016** |
-| UNSW · multiclass · `mlp_h128_1l` | 0.4218 | 0.4053 | −0.017 (CI [−0.038, +0.013]) |
-| UNSW · multiclass · `mlp_h273_2l` | 0.4697 | 0.4616 | −0.008 (CI [−0.029, +0.023]) |
-| ToN · multiclass · `mlp_h273_2l` | 0.7504 | 0.4396 | **−0.311** (41.4%, CI [0.306, 0.319]) |
-| ToN · multiclass · `mlp_h128_1l` | 0.6963 | 0.4088 | **−0.287** (41.3%, CI [0.273, 0.298]) |
-| **ToN · binary · `mlp_h273_2l`** | **0.9817** | **0.9807** | **−0.001 (CI [0.0002, 0.002]) — no effect** |
+| all test flows | 3,385,552 | 100% | 0.8628 |
+| both endpoints seen in train | 3,319,739 | 98.1% | 0.8628 |
+| exactly one endpoint seen | 65,192 | 1.9% | 0.8629 |
+| **neither endpoint seen** | **621** | **0.018%** | **0.8236** |
 
-This is the clearest evidence for the mechanism, and the binary/multiclass contrast
-sharpens it. On the dataset whose endpoint graph is nearly information-free, unseen
-endpoints cost nothing. On NF-ToN-IoT-v2, where endpoints recur 11.3 times on average and
-36.5% of flows repeat an endpoint pair, the *same architecture under the same budget*
-loses **0.31 macro-F1 on multiclass** (about 41% of its score, paired 95% CI
-[0.306, 0.319]) while losing **0.001 on binary**. Endpoint familiarity therefore does not
-help separate benign from attack traffic at all; it substitutes for **fine-grained
-attack-type discrimination**. Any published multiclass score on a dataset with recurrent
-endpoint interaction therefore substantially measures host identity rather than
-transferable flow structure. `[PENDING: CSE-CIC and BoT-IoT fail the feasibility gate.]`
+Two conclusions. First, the documented overlap figure is confirmed at endpoint
+(pair) granularity: **only 0.018% of test flows have no endpoint in common with the
+training data**, so there is almost nothing for endpoint familiarity to act on. Second, on
+those few flows the score is 0.039 lower—a difference far too small, and too poorly
+supported at n = 621, to explain any model ranking.
+
+**What this changes.** The endpoint-overlap limitation is real as a statement about
+population coverage but empirically immaterial for the comparisons reported here: the
+within-environment scores are not inflated by host memorisation. The corollary is that an
+honest "unseen host" experiment cannot be built by discarding mixed-endpoint flows; it
+requires a temporal or cross-network holdout. `[PENDING: the same three tests for the
+remaining datasets.]`
 
 ### 4.6c Cheap structural statistics beat message passing
 
@@ -463,11 +480,13 @@ that looks most attractive on F1 alone is, on NF-BoT-IoT-v2, a 25% false-alarm d
 
 1. Budget heterogeneity (UNSW 3.67 passes vs. 2.00 elsewhere).
 2. Only five seeds; no cell-level contrast survives multiplicity correction.
-3. Endpoint overlap in the primary split (92.7–100% of holdout IPs already appear in
-   train). We now quantify its cost rather than merely flagging it: negligible on
-   NF-UNSW-NB15-v2, severe on NF-ToN-IoT-v2 (−0.29 macro-F1), and not measurable on
-   NF-CSE-CIC-IDS2018-v2 or NF-BoT-IoT-v2 because the endpoint-disjoint split loses
-   classes there.
+3. Endpoint overlap in the primary split. Measured, not assumed: 98.1% of NF-ToN-IoT-v2
+   multiclass test flows have both endpoints in train and only 0.018% have neither, on
+   which the score is 0.039 lower. The overlap therefore does **not** inflate the reported
+   comparisons, but it also means this split cannot support any unseen-host claim. An
+   endpoint-disjoint split is not a valid substitute: it shifts the distribution so
+   strongly that a model with no endpoint access (HistGradientBoosting) loses 45% of its
+   score on it.
 4. `flow_group_id` split is within-environment, not temporal.
 5. Tabular comparators cannot model relations by construction; they are a floor, not a ceiling.
 6. Some comparator cells are unrun due to CPU RAM limits.
@@ -487,9 +506,12 @@ the eight dataset × task cells the topology-only variant shows no average advan
 dataset-dependent: a small positive increment on NF-UNSW-NB15-v2 multiclass (+0.027) and
 none on NF-ToN-IoT-v2 multiclass (−0.002). The most distinctive behaviour is instability:
 the topology-only architecture collapses on 25% of runs, concentrated exactly where the
-endpoint graph is richest. On the two datasets where the comparison is complete, strong
-tabular models exceed every graph variant, by +0.17 to +0.24 macro-F1 on UNSW multiclass
-`[PENDING: remaining cells]`.
+endpoint graph is richest, and on NF-BoT-IoT-v2 it is not merely worse but unusable—a 25%
+false-alarm rate. On both datasets where the comparison is complete, a standard
+gradient-boosted tabular model exceeds every graph variant by a wide margin (+0.101 on
+ToN-IoT multiclass, +0.168 on UNSW multiclass) while never observing endpoint identity,
+which implies that the endpoint reliance the graph models exhibit is a liability rather
+than an advantage `[PENDING: remaining cells]`.
 
 Future work, in priority order and all requiring GPU resources: (i) a convergence-first
 re-evaluation with eight passes and validation-only early stopping; (ii) degree-preserving

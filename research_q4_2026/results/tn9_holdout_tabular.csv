@@ -1,0 +1,2 @@
+dataset,task,model,split,seed,config,val_macro_f1,test_macro_f1,test_weighted_f1,test_accuracy,fit_seconds
+NF-ToN-IoT-v2,multiclass,hist_gradient_boosting,endpoint_holdout,11,"{""learning_rate"": 0.1, ""max_iter"": 400, ""max_leaf_nodes"": 63}",0.5056396804322685,0.4723672410116843,0.8934790984527081,0.9022663853535697,309.24277821800206

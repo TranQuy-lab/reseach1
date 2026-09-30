@@ -14,30 +14,30 @@
   "pooled_by_contrast": [
     {
       "contrast": "best_tabular_vs_edge_mlp",
-      "k": 2,
-      "pooled_mean": 0.12586072110882773,
-      "n_positive": 2,
+      "k": 3,
+      "pooled_mean": 0.13795066277836035,
+      "n_positive": 3,
       "n_negative": 0
     },
     {
       "contrast": "best_tabular_vs_topo",
-      "k": 2,
-      "pooled_mean": 0.08687992860618338,
-      "n_positive": 2,
+      "k": 3,
+      "pooled_mean": 0.09022916376101363,
+      "n_positive": 3,
       "n_negative": 0
     },
     {
       "contrast": "capacity_no_topology",
       "k": 6,
-      "pooled_mean": 0.020862835588255132,
+      "pooled_mean": 0.020907369219119343,
       "n_positive": 6,
       "n_negative": 0
     },
     {
       "contrast": "control_vs_archive",
-      "k": 4,
-      "pooled_mean": -0.0006936716313190373,
-      "n_positive": 1,
+      "k": 5,
+      "pooled_mean": -0.0004287703271820901,
+      "n_positive": 2,
       "n_negative": 3
     },
     {
@@ -50,14 +50,14 @@
     {
       "contrast": "topology_at_matched_capacity",
       "k": 6,
-      "pooled_mean": 0.007912310294387392,
+      "pooled_mean": 0.007910371211855687,
       "n_positive": 3,
       "n_negative": 3
     },
     {
       "contrast": "topology_at_matched_capacity_edge",
       "k": 6,
-      "pooled_mean": 0.00906550374869522,
+      "pooled_mean": 0.009029114907203841,
       "n_positive": 4,
       "n_negative": 2
     },
@@ -94,7 +94,7 @@
     },
     "NF-CSE-CIC-IDS2018-v2|binary": {
       "edge_mlp": 0.9837114171988951,
-      "mlp_h128_1l": 0.9843545563277514,
+      "mlp_h128_1l": 0.9840338406116854,
       "mlp_h128_2l": null,
       "mlp_h273_2l": 0.9875953833352907,
       "sage": 0.9849622372787312,
@@ -116,9 +116,9 @@
     },
     "NF-ToN-IoT-v2|binary": {
       "edge_mlp": 0.9707167768867169,
-      "mlp_h128_1l": null,
+      "mlp_h128_1l": 0.9709177875120066,
       "mlp_h128_2l": null,
-      "mlp_h273_2l": 0.9816620491472292,
+      "mlp_h273_2l": 0.9817963016720709,
       "sage": 0.9775049146633259,
       "sage_edge": 0.9802216239215868,
       "hist_gradient_boosting": null,
@@ -132,7 +132,7 @@
       "mlp_h273_2l": 0.7493849348563547,
       "sage": 0.7493819968825661,
       "sage_edge": 0.765810346569587,
-      "hist_gradient_boosting": null,
+      "hist_gradient_boosting": 0.8663595986028284,
       "extra_trees": null,
       "random_forest": null
     },

@@ -102,9 +102,13 @@ def main() -> int:
    Fisher exact `sage` vs `edge_mlp` p = {cr.get('fisher_exact', {}).get('sage_vs_edge_mlp', {}).get('p_holm', float('nan')):.4f} (Holm).
 3. **Phần lớn "lợi thế topology" là capacity.** Contrast ở capacity khớp nhỏ và đổi dấu
    theo dataset (UNSW mc +0,027; ToN mc −0,000).
-4. **Phụ thuộc endpoint là hiện tượng của multiclass, không phải binary.**
-   ToN multiclass mất **0,311** macro-F1 trên split endpoint-holdout; ToN binary mất
-   **0,001**. Cùng kiến trúc, cùng ngân sách, cùng seed.
+4. **Phụ thuộc endpoint: đã đo và thấy KHÔNG đáng kể trên split khóa — và một kết luận
+   cũ đã bị bác bỏ.** Split endpoint-disjoint từng cho thấy ToN multiclass mất 0,311,
+   nhưng đó là **split bị nhiễu**: `HistGradientBoosting` (không hề dùng danh tính
+   endpoint) cũng mất 0,866 → **0,472** trên chính split đó. Đo sạch trên split khóa:
+   chỉ **621/3.385.552 (0,018 %)** flow test có cả hai endpoint chưa thấy, và trên nhóm
+   đó điểm chỉ giảm 0,039. Vậy tỉ lệ chồng lấp endpoint **không** thổi phồng kết quả,
+   nhưng split này cũng **không** dùng được cho claim unseen-host.
 5. **Tóm tắt cấu trúc thô thắng message passing**: `mlp_struct` (chỉ đếm lân cận)
    = {('%.4f' % t5u[1]) if t5u else '—'} (n={t5u[0] if t5u else 0}) so với `sage` 0,4898.
    Nhưng **trung bình đặc trưng lân cận thì thất bại**: `mlp_nbr_mean` =
@@ -380,6 +384,40 @@ def main() -> int:
             worst.columns = ["Ô", "Model", "Lớp", "support", "FPR", "FP/triệu"]
             P.append("\nCác lớp có FPR xấu nhất:\n")
             P.append(md_table(worst))
+
+    # ------------------------------------------------- 8e endpoint isolation
+    ti = RES / "tn10_endpoint_isolation_summary.csv"
+    if ti.exists():
+        d = pd.read_csv(ti)
+        P.append("\n## 8e. Cô lập mức phụ thuộc endpoint trên split khóa (TN-10)\n")
+        P.append("Giữ **nguyên** model, dữ liệu train, preprocessing và toàn bộ tập test; "
+                 "chỉ phân nhóm tập test theo việc endpoint của flow có xuất hiện trong "
+                 "train hay không. Vì mọi thứ khác không đổi, khác biệt giữa các nhóm chỉ "
+                 "có thể do mức quen thuộc endpoint.\n")
+        d["Ô"] = d.dataset.map(SHORT) + " · " + d.task
+        d = d[["Ô", "subset", "n_seeds", "n_flows", "macro_f1", "macro_f1_std",
+               "delta_vs_all_test"]]
+        d.columns = ["Ô", "Nhóm test", "số seed", "số flow", "macro-F1", "SD",
+                     "lệch so với toàn bộ test"]
+        P.append(md_table(d))
+        P.append("\nKèm theo đó: split endpoint-disjoint **không** phải công cụ hợp lệ để "
+                 "đo mức phụ thuộc endpoint. `HistGradientBoosting` — mô hình không dùng "
+                 "danh tính endpoint — cũng giảm từ 0,866 xuống **0,472** trên split đó, "
+                 "nên phần lớn mức giảm là dịch chuyển phân bố do cách dựng split.\n")
+
+    if op is not None:
+        pass
+    ti9 = RES / "tn9_holdout_tabular.csv"
+    if ti9.exists():
+        hb = pd.read_csv(ti9)
+        P.append("\n### 8e.1 Đối chứng bác bỏ split endpoint-disjoint\n")
+        t = hb.groupby(["dataset", "task"]).agg(
+            n=("seed", "size"), test_macro_f1=("test_macro_f1", "mean")).reset_index()
+        t["Ô"] = t.dataset.map(SHORT) + " · " + t.task
+        t = t[["Ô", "n", "test_macro_f1"]]
+        t.columns = ["Ô", "số seed", "HGB trên split endpoint-disjoint"]
+        P.append(md_table(t))
+        P.append("\nSo sánh: HGB trên **split khóa** cùng ô đạt 0,8664 (§8.1).\n")
 
     # ------------------------------------------------------------ 9 remaining
     P.append("""

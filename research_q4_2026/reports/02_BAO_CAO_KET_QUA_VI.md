@@ -18,13 +18,17 @@
    Fisher exact `sage` vs `edge_mlp` p = 0.0031 (Holm).
 3. **Phần lớn "lợi thế topology" là capacity.** Contrast ở capacity khớp nhỏ và đổi dấu
    theo dataset (UNSW mc +0,027; ToN mc −0,000).
-4. **Phụ thuộc endpoint là hiện tượng của multiclass, không phải binary.**
-   ToN multiclass mất **0,311** macro-F1 trên split endpoint-holdout; ToN binary mất
-   **0,001**. Cùng kiến trúc, cùng ngân sách, cùng seed.
+4. **Phụ thuộc endpoint: đã đo và thấy KHÔNG đáng kể trên split khóa — và một kết luận
+   cũ đã bị bác bỏ.** Split endpoint-disjoint từng cho thấy ToN multiclass mất 0,311,
+   nhưng đó là **split bị nhiễu**: `HistGradientBoosting` (không hề dùng danh tính
+   endpoint) cũng mất 0,866 → **0,472** trên chính split đó. Đo sạch trên split khóa:
+   chỉ **621/3.385.552 (0,018 %)** flow test có cả hai endpoint chưa thấy, và trên nhóm
+   đó điểm chỉ giảm 0,039. Vậy tỉ lệ chồng lấp endpoint **không** thổi phồng kết quả,
+   nhưng split này cũng **không** dùng được cho claim unseen-host.
 5. **Tóm tắt cấu trúc thô thắng message passing**: `mlp_struct` (chỉ đếm lân cận)
    = 0.5003 (n=3) so với `sage` 0,4898.
    Nhưng **trung bình đặc trưng lân cận thì thất bại**: `mlp_nbr_mean` =
-   0.4218 (n=2) — *thấp hơn* cả flow-only.
+   0.4266 (n=3) — *thấp hơn* cả flow-only.
 6. **Biến thể sụp đổ không triển khai được**: `sage` trên BoT-IoT có tỉ lệ báo động giả
    **25,02 %** (250.189/triệu flow benign), `edge_mlp` 0,19 %.
 
@@ -33,6 +37,7 @@
 
 | Ô | n | split khóa | endpoint-holdout | mức giảm | KTC 2.5% | KTC 97.5% |
 |---|---|---|---|---|---|---|
+| ToN · binary · mlp_h128_1l | 1 | 0.9709 | 0.9720 | -0.0011 | — | — |
 | ToN · binary · mlp_h273_2l | 3 | 0.9817 | 0.9807 | 0.0010 | 0.0002 | 0.0020 |
 | ToN · multiclass · mlp_h128_1l | 3 | 0.6963 | 0.4088 | 0.2874 | 0.2734 | 0.2975 |
 | ToN · multiclass · mlp_h273_2l | 3 | 0.7504 | 0.4396 | 0.3109 | 0.3060 | 0.3186 |
@@ -194,10 +199,10 @@ Thiết kế `holdout`: endpoint chia 70 % train / 30 % holdout; flow chỉ gi�
 |---|---|---|---|---|---|---|---|---|---|
 | BoT-IoT · binary | 0.9003 | — | — | — | 0.8043 | 0.8818 | — | — | — |
 | BoT-IoT · multiclass | 0.8169 | — | — | — | 0.5512 | 0.8260 | — | — | — |
-| CSE-CIC · binary | 0.9837 | 0.9844 | — | 0.9876 | 0.9850 | 0.9860 | — | — | — |
+| CSE-CIC · binary | 0.9837 | 0.9840 | — | 0.9876 | 0.9850 | 0.9860 | — | — | — |
 | CSE-CIC · multiclass | 0.6686 | 0.6535 | — | 0.6738 | 0.6926 | 0.6894 | — | — | — |
-| ToN · binary | 0.9707 | — | — | 0.9817 | 0.9775 | 0.9802 | — | — | — |
-| ToN · multiclass | 0.7040 | 0.7013 | 0.7296 | 0.7494 | 0.7494 | 0.7658 | — | — | — |
+| ToN · binary | 0.9707 | 0.9709 | — | 0.9818 | 0.9775 | 0.9802 | — | — | — |
+| ToN · multiclass | 0.7040 | 0.7013 | 0.7296 | 0.7494 | 0.7494 | 0.7658 | 0.8664 | — | — |
 | UNSW · binary | 0.9645 | 0.9642 | 0.9662 | 0.9674 | 0.9702 | 0.9699 | 0.9761 | 0.9803 | 0.9828 |
 | UNSW · multiclass | 0.4141 | 0.4215 | 0.4425 | 0.4628 | 0.4898 | 0.4885 | 0.6536 | 0.6698 | 0.6683 |
 
@@ -210,6 +215,7 @@ Các cột `mlp_*`, `HistGB`, `ExtraTrees`, `RandomForest` do công việc này 
 
 | Ô | A | B | n | Δ | SD | KTC 2.5% | KTC 97.5% | KTC không chứa 0 | dz | p Wilcoxon |
 |---|---|---|---|---|---|---|---|---|---|---|
+| CSE-CIC · binary | mlp_h128_1l | edge_mlp | 3 | 0.0006 | 0.0014 | -0.0003 | 0.0022 | False | 0.4618 | 1.0000 |
 | CSE-CIC · multiclass | mlp_h128_1l | edge_mlp | 3 | -0.0072 | 0.0046 | -0.0119 | -0.0028 | True | -1.5698 | 0.2500 |
 | ToN · multiclass | mlp_h128_1l | edge_mlp | 5 | -0.0027 | 0.0087 | -0.0094 | 0.0039 | False | -0.3118 | 0.6250 |
 | UNSW · binary | mlp_h128_1l | edge_mlp | 5 | -0.0003 | 0.0003 | -0.0005 | -0.0001 | True | -1.2134 | 0.1250 |
@@ -221,8 +227,8 @@ Các cột `mlp_*`, `HistGB`, `ExtraTrees`, `RandomForest` do công việc này 
 |---|---|---|---|---|---|---|---|---|---|---|
 | CSE-CIC · binary | mlp_h273_2l | edge_mlp | 3 | 0.0042 | 0.0011 | 0.0030 | 0.0053 | True | 3.6738 | 0.2500 |
 | CSE-CIC · multiclass | mlp_h273_2l | edge_mlp | 3 | 0.0131 | 0.0066 | 0.0073 | 0.0202 | True | 1.9988 | 0.2500 |
-| ToN · binary | mlp_h273_2l | edge_mlp | 4 | 0.0108 | 0.0004 | 0.0105 | 0.0111 | True | 28.2739 | 0.1250 |
-| ToN · multiclass | mlp_h273_2l | edge_mlp | 5 | 0.0454 | 0.0061 | 0.0406 | 0.0497 | True | 7.4547 | 0.0625 |
+| ToN · binary | mlp_h273_2l | edge_mlp | 5 | 0.0111 | 0.0007 | 0.0106 | 0.0116 | True | 16.2188 | 0.0625 |
+| ToN · multiclass | mlp_h273_2l | edge_mlp | 5 | 0.0454 | 0.0061 | 0.0402 | 0.0499 | True | 7.4547 | 0.0625 |
 | UNSW · binary | mlp_h273_2l | edge_mlp | 5 | 0.0029 | 0.0006 | 0.0025 | 0.0034 | True | 4.7858 | 0.0625 |
 | UNSW · multiclass | mlp_h273_2l | edge_mlp | 5 | 0.0488 | 0.0165 | 0.0344 | 0.0594 | True | 2.9563 | 0.0625 |
 
@@ -232,10 +238,10 @@ Các cột `mlp_*`, `HistGB`, `ExtraTrees`, `RandomForest` do công việc này 
 |---|---|---|---|---|---|---|---|---|---|---|
 | CSE-CIC · binary | sage | mlp_h273_2l | 3 | -0.0031 | 0.0014 | -0.0043 | -0.0016 | True | -2.2579 | 0.2500 |
 | CSE-CIC · multiclass | sage | mlp_h273_2l | 3 | 0.0250 | 0.0256 | -0.0007 | 0.0506 | False | 0.9746 | 0.5000 |
-| ToN · binary | sage | mlp_h273_2l | 4 | -0.0043 | 0.0015 | -0.0055 | -0.0028 | True | -2.8119 | 0.1250 |
+| ToN · binary | sage | mlp_h273_2l | 5 | -0.0043 | 0.0013 | -0.0052 | -0.0031 | True | -3.2551 | 0.0625 |
 | ToN · multiclass | sage | mlp_h273_2l | 5 | -0.0000 | 0.0073 | -0.0055 | 0.0054 | False | -0.0004 | 1.0000 |
 | UNSW · binary | sage | mlp_h273_2l | 5 | 0.0029 | 0.0014 | 0.0020 | 0.0041 | True | 2.1093 | 0.0625 |
-| UNSW · multiclass | sage | mlp_h273_2l | 5 | 0.0269 | 0.0163 | 0.0163 | 0.0407 | True | 1.6568 | 0.0625 |
+| UNSW · multiclass | sage | mlp_h273_2l | 5 | 0.0269 | 0.0163 | 0.0163 | 0.0413 | True | 1.6568 | 0.0625 |
 
 **Topology + edge ở head, capacity khớp**  (`sage_edge − mlp_h273_2l`)
 
@@ -243,10 +249,10 @@ Các cột `mlp_*`, `HistGB`, `ExtraTrees`, `RandomForest` do công việc này 
 |---|---|---|---|---|---|---|---|---|---|---|
 | CSE-CIC · binary | sage_edge | mlp_h273_2l | 3 | -0.0022 | 0.0015 | -0.0039 | -0.0009 | True | -1.4460 | 0.2500 |
 | CSE-CIC · multiclass | sage_edge | mlp_h273_2l | 3 | 0.0133 | 0.0086 | 0.0060 | 0.0227 | True | 1.5461 | 0.2500 |
-| ToN · binary | sage_edge | mlp_h273_2l | 4 | -0.0014 | 0.0009 | -0.0020 | -0.0006 | True | -1.5911 | 0.1250 |
+| ToN · binary | sage_edge | mlp_h273_2l | 5 | -0.0016 | 0.0009 | -0.0022 | -0.0009 | True | -1.7791 | 0.0625 |
 | ToN · multiclass | sage_edge | mlp_h273_2l | 5 | 0.0164 | 0.0061 | 0.0117 | 0.0212 | True | 2.6921 | 0.0625 |
-| UNSW · binary | sage_edge | mlp_h273_2l | 5 | 0.0026 | 0.0013 | 0.0015 | 0.0035 | True | 1.9301 | 0.0625 |
-| UNSW · multiclass | sage_edge | mlp_h273_2l | 5 | 0.0257 | 0.0159 | 0.0150 | 0.0386 | True | 1.6166 | 0.0625 |
+| UNSW · binary | sage_edge | mlp_h273_2l | 5 | 0.0026 | 0.0013 | 0.0015 | 0.0036 | True | 1.9301 | 0.0625 |
+| UNSW · multiclass | sage_edge | mlp_h273_2l | 5 | 0.0257 | 0.0159 | 0.0150 | 0.0396 | True | 1.6166 | 0.0625 |
 
 **Topology như archive (nhiễu capacity)**  (`sage − edge_mlp`)
 
@@ -256,9 +262,9 @@ Các cột `mlp_*`, `HistGB`, `ExtraTrees`, `RandomForest` do công việc này 
 | BoT-IoT · multiclass | sage | edge_mlp | 5 | -0.2657 | 0.0539 | -0.3146 | -0.2333 | True | -4.9271 | 0.0625 |
 | CSE-CIC · binary | sage | edge_mlp | 5 | 0.0013 | 0.0019 | -0.0002 | 0.0028 | False | 0.6492 | 0.8125 |
 | CSE-CIC · multiclass | sage | edge_mlp | 5 | 0.0240 | 0.0357 | -0.0067 | 0.0500 | False | 0.6733 | 0.1875 |
-| ToN · binary | sage | edge_mlp | 5 | 0.0068 | 0.0014 | 0.0057 | 0.0078 | True | 4.8478 | 0.0625 |
+| ToN · binary | sage | edge_mlp | 5 | 0.0068 | 0.0014 | 0.0056 | 0.0078 | True | 4.8478 | 0.0625 |
 | ToN · multiclass | sage | edge_mlp | 5 | 0.0454 | 0.0056 | 0.0412 | 0.0499 | True | 8.0776 | 0.0625 |
-| UNSW · binary | sage | edge_mlp | 5 | 0.0058 | 0.0010 | 0.0051 | 0.0067 | True | 5.5768 | 0.0625 |
+| UNSW · binary | sage | edge_mlp | 5 | 0.0058 | 0.0010 | 0.0051 | 0.0066 | True | 5.5768 | 0.0625 |
 | UNSW · multiclass | sage | edge_mlp | 5 | 0.0757 | 0.0049 | 0.0722 | 0.0797 | True | 15.5169 | 0.0625 |
 
 **Đường edge trực tiếp ở head**  (`sage_edge − sage`)
@@ -269,15 +275,16 @@ Các cột `mlp_*`, `HistGB`, `ExtraTrees`, `RandomForest` do công việc này 
 | BoT-IoT · multiclass | sage_edge | sage | 5 | 0.2748 | 0.0627 | 0.2340 | 0.3294 | True | 4.3824 | 0.0625 |
 | CSE-CIC · binary | sage_edge | sage | 5 | 0.0010 | 0.0018 | -0.0003 | 0.0025 | False | 0.5789 | 0.6250 |
 | CSE-CIC · multiclass | sage_edge | sage | 5 | -0.0033 | 0.0270 | -0.0241 | 0.0176 | False | -0.1212 | 1.0000 |
-| ToN · binary | sage_edge | sage | 5 | 0.0027 | 0.0020 | 0.0012 | 0.0044 | True | 1.3298 | 0.0625 |
+| ToN · binary | sage_edge | sage | 5 | 0.0027 | 0.0020 | 0.0012 | 0.0043 | True | 1.3298 | 0.0625 |
 | ToN · multiclass | sage_edge | sage | 5 | 0.0164 | 0.0073 | 0.0110 | 0.0221 | True | 2.2552 | 0.0625 |
 | UNSW · binary | sage_edge | sage | 5 | -0.0003 | 0.0006 | -0.0008 | 0.0001 | False | -0.5773 | 0.3125 |
-| UNSW · multiclass | sage_edge | sage | 5 | -0.0012 | 0.0078 | -0.0075 | 0.0054 | False | -0.1602 | 0.4375 |
+| UNSW · multiclass | sage_edge | sage | 5 | -0.0012 | 0.0078 | -0.0077 | 0.0054 | False | -0.1602 | 0.4375 |
 
 **Bảng mạnh vs `edge_mlp`**  (`hist_gradient_boosting − edge_mlp`)
 
 | Ô | A | B | n | Δ | SD | KTC 2.5% | KTC 97.5% | KTC không chứa 0 | dz | p Wilcoxon |
 |---|---|---|---|---|---|---|---|---|---|---|
+| ToN · multiclass | hist_gradient_boosting | edge_mlp | 3 | 0.1621 | 0.0019 | 0.1599 | 0.1635 | True | 84.4880 | 0.2500 |
 | UNSW · binary | hist_gradient_boosting | edge_mlp | 3 | 0.0117 | 0.0005 | 0.0114 | 0.0122 | True | 24.7091 | 0.2500 |
 | UNSW · multiclass | hist_gradient_boosting | edge_mlp | 3 | 0.2400 | 0.0108 | 0.2336 | 0.2525 | True | 22.3185 | 0.2500 |
 
@@ -285,6 +292,7 @@ Các cột `mlp_*`, `HistGB`, `ExtraTrees`, `RandomForest` do công việc này 
 
 | Ô | A | B | n | Δ | SD | KTC 2.5% | KTC 97.5% | KTC không chứa 0 | dz | p Wilcoxon |
 |---|---|---|---|---|---|---|---|---|---|---|
+| ToN · multiclass | hist_gradient_boosting | sage_edge | 3 | 0.0969 | 0.0056 | 0.0918 | 0.1028 | True | 17.4153 | 0.2500 |
 | UNSW · binary | hist_gradient_boosting | sage_edge | 3 | 0.0061 | 0.0006 | 0.0054 | 0.0064 | True | 10.5758 | 0.2500 |
 | UNSW · multiclass | hist_gradient_boosting | sage_edge | 3 | 0.1677 | 0.0062 | 0.1632 | 0.1748 | True | 26.9978 | 0.2500 |
 
@@ -292,13 +300,13 @@ Các cột `mlp_*`, `HistGB`, `ExtraTrees`, `RandomForest` do công việc này 
 
 | Contrast | số ô | Δ trung bình | ô dương | ô âm |
 |---|---|---|---|---|
-| Bảng mạnh vs `edge_mlp` | 2 | 0.1259 | 2 | 0 |
-| Bảng mạnh vs topology tốt nhất | 2 | 0.0869 | 2 | 0 |
+| Bảng mạnh vs `edge_mlp` | 3 | 0.1380 | 3 | 0 |
+| Bảng mạnh vs topology tốt nhất | 3 | 0.0902 | 3 | 0 |
 | Capacity/độ sâu thuần (KHÔNG topology) | 6 | 0.0209 | 6 | 0 |
-| Đối chứng harness vs archive | 4 | -0.0007 | 1 | 3 |
+| Đối chứng harness vs archive | 5 | -0.0004 | 2 | 3 |
 | Đường edge trực tiếp ở head | 8 | 0.0460 | 5 | 3 |
 | **Topology ở capacity khớp** | 6 | 0.0079 | 3 | 3 |
-| Topology + edge ở head, capacity khớp | 6 | 0.0091 | 4 | 2 |
+| Topology + edge ở head, capacity khớp | 6 | 0.0090 | 4 | 2 |
 | Topology như archive (nhiễu capacity) | 8 | -0.0254 | 6 | 2 |
 
 ## 8b. Đánh giá trên split endpoint-holdout (cùng model, cùng ngân sách)
@@ -307,6 +315,7 @@ So sánh trực tiếp giữa split khóa (`flow_group_id`) và split endpoint-d
 
 | Ô | n | split khóa | endpoint-holdout | mức giảm | KTC 2.5% | KTC 97.5% | giảm tương đối (%) |
 |---|---|---|---|---|---|---|---|
+| ToN · binary · mlp_h128_1l | 1 | 0.9709 | 0.9720 | -0.0011 | — | — | -0.1158 |
 | ToN · binary · mlp_h273_2l | 3 | 0.9817 | 0.9807 | 0.0010 | 0.0002 | 0.0020 | 0.1010 |
 | ToN · multiclass · mlp_h128_1l | 3 | 0.6963 | 0.4088 | 0.2874 | 0.2734 | 0.2975 | 41.2818 |
 | ToN · multiclass · mlp_h273_2l | 3 | 0.7504 | 0.4396 | 0.3109 | 0.3060 | 0.3186 | 41.4237 |
@@ -366,6 +375,29 @@ Các lớp có FPR xấu nhất:
 | CSE-CIC | sage | Benign | 3326441.0000 | 0.0380 | 38036.0269 |
 | ToN | edge_mlp | Attack | 2166556.0000 | 0.0326 | 32560.4022 |
 | CSE-CIC | sage | Benign | 3326441.0000 | 0.0307 | 30693.7579 |
+
+## 8e. Cô lập mức phụ thuộc endpoint trên split khóa (TN-10)
+
+Giữ **nguyên** model, dữ liệu train, preprocessing và toàn bộ tập test; chỉ phân nhóm tập test theo việc endpoint của flow có xuất hiện trong train hay không. Vì mọi thứ khác không đổi, khác biệt giữa các nhóm chỉ có thể do mức quen thuộc endpoint.
+
+| Ô | Nhóm test | số seed | số flow | macro-F1 | SD | lệch so với toàn bộ test |
+|---|---|---|---|---|---|---|
+| ToN · multiclass | all_test | 2 | 3385552 | 0.8659 | 0.0043 | 0.0000 |
+| ToN · multiclass | both_endpoints_seen | 2 | 3319739 | 0.8659 | 0.0043 | -0.0000 |
+| ToN · multiclass | neither_endpoint_seen | 2 | 621 | 0.8220 | 0.0022 | -0.0438 |
+| ToN · multiclass | one_endpoint_seen | 2 | 65192 | 0.8670 | 0.0057 | 0.0011 |
+
+Kèm theo đó: split endpoint-disjoint **không** phải công cụ hợp lệ để đo mức phụ thuộc endpoint. `HistGradientBoosting` — mô hình không dùng danh tính endpoint — cũng giảm từ 0,866 xuống **0,472** trên split đó, nên phần lớn mức giảm là dịch chuyển phân bố do cách dựng split.
+
+
+### 8e.1 Đối chứng bác bỏ split endpoint-disjoint
+
+| Ô | số seed | HGB trên split endpoint-disjoint |
+|---|---|---|
+| ToN · multiclass | 1 | 0.4724 |
+
+So sánh: HGB trên **split khóa** cùng ô đạt 0,8664 (§8.1).
+
 
 ## 9. Kết luận và việc còn lại
 
