@@ -75,11 +75,22 @@ def main() -> int:
              "`research/` bị sửa.\n")
 
     # ------------------------------------------------------------ 0 headline
-    P.append("\n## 0. Bốn kết luận trung tâm\n")
     au = load("audit_inventory.json") or {}
     cs = load("collapse_summary.json") or {}
     cr = load("collapse_robustness.json") or {}
     st = load("stats_summary.json") or {}
+    P.append("\n## 0. Sáu kết luận trung tâm\n")
+    t5 = load("tn5_struct_runs.csv")
+    t8 = load("tn8_nbr_runs.csv")
+    hs = load("holdout_summary.csv")
+    op = load("operational_summary.json")
+    def _mn(df, ds, task, model):
+        if df is None:
+            return None
+        g = df[(df.dataset == ds) & (df.task == task) & (df.model == model)]
+        return None if g.empty else (len(g), float(g.test_macro_f1.mean()))
+    t5u = _mn(t5, "NF-UNSW-NB15-v2", "multiclass", "mlp_struct")
+    t8u = _mn(t8, "NF-UNSW-NB15-v2", "multiclass", "mlp_nbr_mean")
     P.append(f"""1. **Không có bằng chứng `sage` hơn `edge_mlp` về trung bình.**
    Pooled Δ = {st.get('pooled', [{}])[-1].get('pooled_delta_RE', float('nan')):+.4f}
    macro-F1, KTC 95 % [{st.get('pooled', [{}])[-1].get('ci_lo_RE', float('nan')):+.4f};
@@ -89,11 +100,33 @@ def main() -> int:
    `sage` {cr.get('bootstrap_ci', {}).get('sage', {}).get('rate', float('nan')):.0%},
    `sage_edge` {cr.get('bootstrap_ci', {}).get('sage_edge', {}).get('rate', float('nan')):.0%};
    Fisher exact `sage` vs `edge_mlp` p = {cr.get('fisher_exact', {}).get('sage_vs_edge_mlp', {}).get('p_holm', float('nan')):.4f} (Holm).
-3. **Ba seed không đủ.** SD tăng tới {au.get('std_ratio_max', float('nan')):.2f}× khi thêm
-   seed 44/55; {st.get('ci_decision_flips_3_to_5_seed', '—')}/{st.get('n_stability_rows', '—')}
-   quyết định dựa trên KTC bị đảo.
-4. **Ngân sách không đồng nhất.** UNSW chạy 3,67 lượt, ba bộ còn lại đúng 2,0 lượt.
+3. **Phần lớn "lợi thế topology" là capacity.** Contrast ở capacity khớp nhỏ và đổi dấu
+   theo dataset (UNSW mc +0,027; ToN mc −0,000).
+4. **Phụ thuộc endpoint là hiện tượng của multiclass, không phải binary.**
+   ToN multiclass mất **0,311** macro-F1 trên split endpoint-holdout; ToN binary mất
+   **0,001**. Cùng kiến trúc, cùng ngân sách, cùng seed.
+5. **Tóm tắt cấu trúc thô thắng message passing**: `mlp_struct` (chỉ đếm lân cận)
+   = {('%.4f' % t5u[1]) if t5u else '—'} (n={t5u[0] if t5u else 0}) so với `sage` 0,4898.
+   Nhưng **trung bình đặc trưng lân cận thì thất bại**: `mlp_nbr_mean` =
+   {('%.4f' % t8u[1]) if t8u else '—'} (n={t8u[0] if t8u else 0}) — *thấp hơn* cả flow-only.
+6. **Biến thể sụp đổ không triển khai được**: `sage` trên BoT-IoT có tỉ lệ báo động giả
+   **25,02 %** (250.189/triệu flow benign), `edge_mlp` 0,19 %.
 """)
+    if hs is not None:
+        P.append("\n### 0.1 Bảng mức phụ thuộc endpoint (cùng model, cùng ngân sách)\n")
+        h = pd.read_csv(RES / "holdout_summary.csv")
+        h["Ô"] = h.dataset.map(SHORT) + " · " + h.task + " · " + h.model
+        h = h[["Ô", "n", "locked_mean", "holdout_mean", "mean_drop", "ci_lo", "ci_hi"]]
+        h.columns = ["Ô", "n", "split khóa", "endpoint-holdout", "mức giảm", "KTC 2.5%", "KTC 97.5%"]
+        P.append(md_table(h))
+    if op is not None:
+        P.append("\n### 0.2 Tỉ lệ báo động giả của detector binary\n")
+        det = pd.DataFrame(op.get("binary_detector_false_alarm", []))
+        if len(det):
+            det["Ô"] = det.dataset.map(SHORT)
+            det = det[["Ô", "model", "false_alarm_rate", "fp_per_million", "benign_recall"]]
+            det.columns = ["Dataset", "Model", "tỉ lệ báo động giả", "FP/triệu flow", "recall Benign"]
+            P.append(md_table(det))
 
     # ---------------------------------------------------------------- 1 audit
     P.append("\n## 1. Kiểm toán tính toàn vẹn\n")

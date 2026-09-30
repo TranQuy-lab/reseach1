@@ -5,7 +5,7 @@
 **Nguồn gốc:** `TranQuy-lab/reseach1` commit `bb2df1e`, nhánh `research/2026q4-evidence-audit`. Không file nào trong `src/`, `tests/`, `research/` bị sửa.
 
 
-## 0. Bốn kết luận trung tâm
+## 0. Sáu kết luận trung tâm
 
 1. **Không có bằng chứng `sage` hơn `edge_mlp` về trung bình.**
    Pooled Δ = +0.0021
@@ -16,11 +16,47 @@
    `sage` 25%,
    `sage_edge` 5%;
    Fisher exact `sage` vs `edge_mlp` p = 0.0031 (Holm).
-3. **Ba seed không đủ.** SD tăng tới 6.67× khi thêm
-   seed 44/55; 4/24
-   quyết định dựa trên KTC bị đảo.
-4. **Ngân sách không đồng nhất.** UNSW chạy 3,67 lượt, ba bộ còn lại đúng 2,0 lượt.
+3. **Phần lớn "lợi thế topology" là capacity.** Contrast ở capacity khớp nhỏ và đổi dấu
+   theo dataset (UNSW mc +0,027; ToN mc −0,000).
+4. **Phụ thuộc endpoint là hiện tượng của multiclass, không phải binary.**
+   ToN multiclass mất **0,311** macro-F1 trên split endpoint-holdout; ToN binary mất
+   **0,001**. Cùng kiến trúc, cùng ngân sách, cùng seed.
+5. **Tóm tắt cấu trúc thô thắng message passing**: `mlp_struct` (chỉ đếm lân cận)
+   = 0.5003 (n=3) so với `sage` 0,4898.
+   Nhưng **trung bình đặc trưng lân cận thì thất bại**: `mlp_nbr_mean` =
+   0.4218 (n=2) — *thấp hơn* cả flow-only.
+6. **Biến thể sụp đổ không triển khai được**: `sage` trên BoT-IoT có tỉ lệ báo động giả
+   **25,02 %** (250.189/triệu flow benign), `edge_mlp` 0,19 %.
 
+
+### 0.1 Bảng mức phụ thuộc endpoint (cùng model, cùng ngân sách)
+
+| Ô | n | split khóa | endpoint-holdout | mức giảm | KTC 2.5% | KTC 97.5% |
+|---|---|---|---|---|---|---|
+| ToN · binary · mlp_h273_2l | 3 | 0.9817 | 0.9807 | 0.0010 | 0.0002 | 0.0020 |
+| ToN · multiclass · mlp_h128_1l | 3 | 0.6963 | 0.4088 | 0.2874 | 0.2734 | 0.2975 |
+| ToN · multiclass · mlp_h273_2l | 3 | 0.7504 | 0.4396 | 0.3109 | 0.3060 | 0.3186 |
+| UNSW · binary · mlp_h128_1l | 3 | 0.9641 | 0.9802 | -0.0161 | -0.0166 | -0.0153 |
+| UNSW · binary · mlp_h273_2l | 3 | 0.9674 | 0.9834 | -0.0160 | -0.0167 | -0.0153 |
+| UNSW · multiclass · mlp_h128_1l | 3 | 0.4218 | 0.4053 | 0.0165 | -0.0128 | 0.0382 |
+| UNSW · multiclass · mlp_h273_2l | 3 | 0.4697 | 0.4616 | 0.0081 | -0.0234 | 0.0291 |
+
+### 0.2 Tỉ lệ báo động giả của detector binary
+
+| Dataset | Model | tỉ lệ báo động giả | FP/triệu flow | recall Benign |
+|---|---|---|---|---|
+| BoT-IoT | edge_mlp | 0.0019 | 1853.4182 | 0.9981 |
+| BoT-IoT | sage | 0.2502 | 250189.3870 | 0.7498 |
+| BoT-IoT | sage_edge | 0.0032 | 3236.1269 | 0.9968 |
+| CSE-CIC | edge_mlp | 0.0019 | 1876.6604 | 0.9981 |
+| CSE-CIC | sage | 0.0020 | 1957.8883 | 0.9980 |
+| CSE-CIC | sage_edge | 0.0012 | 1235.1339 | 0.9988 |
+| ToN | edge_mlp | 0.0326 | 32560.4022 | 0.9674 |
+| ToN | sage | 0.0155 | 15496.3593 | 0.9845 |
+| ToN | sage_edge | 0.0147 | 14707.8415 | 0.9853 |
+| UNSW | edge_mlp | 0.0060 | 5945.5104 | 0.9940 |
+| UNSW | sage | 0.0050 | 4947.1873 | 0.9950 |
+| UNSW | sage_edge | 0.0050 | 5005.1179 | 0.9950 |
 
 ## 1. Kiểm toán tính toàn vẹn
 
@@ -288,6 +324,7 @@ Mức giảm **dương** nghĩa là split endpoint-holdout làm giảm chất l�
 
 | Ô | Model | n | tham số | test macro-F1 | SD | best val macro-F1 |
 |---|---|---|---|---|---|---|
+| UNSW · binary | mlp_struct | 1 | 87635 | 0.9694 | — | 0.9723 |
 | UNSW · multiclass | mlp_struct | 3 | 89827 | 0.5003 | 0.0038 | 0.5023 |
 | UNSW · multiclass | mlp_struct_lab | 3 | 90373 | 0.4708 | 0.0150 | 0.4670 |
 

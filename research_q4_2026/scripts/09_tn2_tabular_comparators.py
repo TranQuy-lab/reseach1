@@ -25,6 +25,8 @@ import json
 import time
 from pathlib import Path
 
+import resource
+
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import (ExtraTreesClassifier, HistGradientBoostingClassifier,
@@ -142,8 +144,10 @@ def main() -> int:
                     t0 = time.perf_counter()
                     te = score(model, Xte, yte)
                     test_s = time.perf_counter() - t0
+                    peak_rss_gib = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1048576
                     row = {"dataset": dataset, "task": task, "model": name, "seed": seed,
                            "config": json.dumps(cfg), "n_train": int(len(Xtr)),
+                           "peak_rss_gib": peak_rss_gib,
                            "parameters": int(getattr(model, "n_iter_", 0) or 0),
                            "selected_by": "validation_macro_f1",
                            "val_macro_f1": v["macro_f1"], "val_weighted_f1": v["weighted_f1"],
@@ -155,8 +159,8 @@ def main() -> int:
                     pd.DataFrame([row]).to_csv(RUNS, mode="a",
                                                header=not RUNS.exists(), index=False)
                     print(f"[{time.strftime('%H:%M:%S')}] {dataset} {task} {name} s{seed} "
-                          f"TEST macro_f1={te['macro_f1']:.4f} weighted={te['weighted_f1']:.4f}",
-                          flush=True)
+                          f"TEST macro_f1={te['macro_f1']:.4f} weighted={te['weighted_f1']:.4f} "
+                          f"peakRSS={peak_rss_gib:.2f}GiB", flush=True)
                     del model
     return 0
 
