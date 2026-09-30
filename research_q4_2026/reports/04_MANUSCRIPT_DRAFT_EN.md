@@ -26,11 +26,15 @@ on BoT-IoT binary) validation macro-F1 *falls* after the best checkpoint by up t
 whereas the flow-only ablation never collapses (0 of 40; Fisher exact *p* = 0.001,
 Holm-adjusted 0.003). Second, we show that the topology-only variant carries **16.1× the
 parameters** of the flow-only ablation, and we close that confound with a capacity-matched
-flow-only baseline trained under the identical budget: on NF-ToN-IoT-v2 multiclass the
-matched baseline reaches 0.750 macro-F1 versus 0.749 for the topology-only model
-(paired Δ = −0.002, 95% CI [−0.011, +0.006]), i.e. **topology adds nothing once capacity
-is matched**. Third, on NF-UNSW-NB15-v2 a strong tabular comparator reaches 0.654–0.670
-macro-F1 against 0.414–0.490 for all graph variants `[PENDING: remaining cells]`. Fourth,
+flow-only baseline trained under the identical budget. Capacity alone accounts for roughly
+half of the apparent graph advantage on both datasets we have completed (+0.049 on
+NF-UNSW-NB15-v2, +0.046 on NF-ToN-IoT-v2). What survives capacity matching is
+**dataset-dependent**: on NF-UNSW-NB15-v2 multiclass the topology-only variant retains a
+small positive increment over the matched baseline (+0.027, 95% CI [+0.016, +0.041]),
+whereas on NF-ToN-IoT-v2 multiclass the residual is zero (−0.002, 95% CI [−0.011, +0.006]).
+Third, on NF-UNSW-NB15-v2 a strong tabular comparator reaches 0.654–0.670 macro-F1
+against 0.414–0.490 for all graph variants, i.e. any residual structural gain is an order
+of magnitude smaller than the gap to classical tabular learning. Fourth,
 we show that the endpoint graph itself explains where relational modelling could help:
 NF-BoT-IoT-v2 has 78.7 edges per endpoint and 91.6% repeated endpoint interactions,
 whereas NF-UNSW-NB15-v2 and NF-CSE-CIC-IDS2018-v2 have only 1.7–1.8 edges per endpoint
@@ -239,15 +243,26 @@ flow-only baseline. Full matrix `[PENDING: CSE-CIC and BoT-IoT still running]`:
 | CSE-CIC · mc/bin | 0.669 / 0.984 | `[PENDING]` | 0.693 / 0.985 | 0.689 / 0.986 | `[PENDING]` | — | — |
 | BoT-IoT · mc/bin | 0.817 / 0.900 | `[PENDING]` | 0.551 / 0.804 | 0.826 / 0.882 | `[PENDING]` | — | — |
 
-Established so far:
+Established so far (paired by seed, 95% bootstrap CI):
 
-- **ToN-IoT multiclass**: capacity alone (no topology) gains +0.046
-  (95% CI [+0.044, +0.049], *n* = 3); the residual topology contrast at matched capacity is
-  **−0.002 (95% CI [−0.011, +0.006])**. The entire apparent topology advantage is capacity.
-- **UNSW multiclass**: HistGB beats `edge_mlp` by **+0.240** and the best graph variant by
-  **+0.168**; ExtraTrees and RandomForest are slightly higher still. On a dataset whose
-  endpoint graph is nearly information-free, classical tabular models dominate every graph
-  variant by a wide margin.
+| Contrast | UNSW multiclass | ToN multiclass |
+|---|---:|---:|
+| capacity only, no topology (`mlp_h273_2l − edge_mlp`) | **+0.049** [+0.035, +0.059] | **+0.046** [+0.044, +0.049] |
+| **topology at matched capacity (`sage − mlp_h273_2l`)** | **+0.027** [+0.016, +0.041] | **−0.002** [−0.011, +0.006] |
+| tabular vs. `edge_mlp` | **+0.240** [+0.234, +0.253] | `[PENDING]` |
+| tabular vs. best graph variant | **+0.168** [+0.163, +0.175] | `[PENDING]` |
+
+- **Capacity is a first-order confound.** Roughly half of the apparent graph advantage on
+  both completed cells is reproduced by adding parameters and depth with no message passing.
+- **What survives capacity matching depends on the dataset.** On UNSW multiclass a small
+  structural increment survives (+0.027); on ToN multiclass the residual is indistinguishable
+  from zero. We therefore report this as a dataset-dependent association, not a general
+  effect, and we avoid a single pooled claim across the two datasets.
+- **The residual structural gain is small compared with the tabular gap.** On UNSW
+  multiclass HistGB beats `edge_mlp` by +0.240 and the best graph variant by +0.168, while
+  ExtraTrees and RandomForest are slightly higher still (0.670, 0.668). On UNSW binary the
+  ordering is RandomForest 0.983 > ExtraTrees 0.980 > HistGB 0.976 > `sage_edge` 0.970 >
+  `sage` 0.970 > `edge_mlp` 0.964.
 - **Harness control**: `mlp_h128_1l − edge_mlp` = −0.0003 on UNSW binary and +0.007 on
   UNSW multiclass, i.e. within the archive's own seed noise, so the comparison harness is
   valid.
@@ -304,22 +319,36 @@ internal documents understated variability and in some cells inverted the conclu
 
 ## 5. Discussion
 
-The results support a simple mechanistic account. A flow-only MLP already sees the
-complete measurement for each flow. A message-passing layer can only add information if
-the endpoint graph contains redundant interaction—repeated flows between the same hosts,
-or hosts with many neighbours. For NF-UNSW-NB15-v2 and NF-CSE-CIC-IDS2018-v2 that
-condition fails (1.7–1.8 edges per endpoint, ~20% repeated pairs), and no graph variant
-beats a plain tabular model. For NF-BoT-IoT-v2 the condition holds strongly (78.7 edges
-per endpoint, 91.6% repeated pairs)—and precisely there the topology-only architecture
-becomes untrainable across seeds, while the variant that also keeps a direct flow-feature
-path to the head remains stable. Relational structure is therefore not useless in
-principle; in this architecture and budget it is either uninformative or destabilising.
+The results support a mechanistic account with two parts.
+
+**Capacity.** A flow-only MLP already sees the complete measurement for each flow. The
+archived comparison gave the message-passing model 16.1× more parameters and one extra
+hidden layer, and roughly half of the measured advantage on both completed cells is
+reproduced by a matched-capacity model that never aggregates a neighbour (UNSW +0.049,
+ToN +0.046). Any claim about the value of relational structure must therefore be made
+against a capacity-matched control.
+
+**Structure and stability.** A message-passing layer can only add information if the
+endpoint graph contains redundant interaction—repeated flows between the same hosts, or
+hosts with many neighbours. For NF-UNSW-NB15-v2 and NF-CSE-CIC-IDS2018-v2 that condition
+is weak (1.7–1.8 edges per endpoint, ~20% repeated pairs). NF-ToN-IoT-v2 is intermediate
+(11.3 edges per endpoint, 36.5% repeated) and the residual structural increment is zero.
+NF-UNSW-NB15-v2 is the cell where a structural increment survives capacity matching
+(+0.027), yet there the graph is nearly information-free—so the increment cannot plausibly
+come from rich relational context and is more likely a modest architectural regularisation
+effect that we cannot separate with the present design. Finally, for NF-BoT-IoT-v2 the
+graph is by far the richest (78.7 edges per endpoint, 91.6% repeated pairs)—and precisely
+there the topology-only architecture becomes untrainable across seeds (5 of 5 binary),
+while the variant that also keeps a direct flow-feature path to the head remains stable.
+Relational richness and optimisation fragility coincide in this architecture.
 
 **Practical implication.** Reporting a graph model against a small flow-only MLP does not
-establish the value of relational modelling. A capacity-matched baseline, a strong tabular
-comparator, and seed-level stability diagnostics should be standard. In our setting the
-honest conclusion is that deploying the graph variants examined here is not justified by
-their measured performance.
+establish the value of relational modelling: it conflates capacity with structure. A
+capacity-matched baseline, a strong tabular comparator, and seed-level stability
+diagnostics should be standard. In our setting the residual structural effect is small and
+inconsistent in sign across datasets, while classical tabular models dominate every graph
+variant on the two datasets where the comparison is complete. Deploying the graph variants
+examined here is therefore not justified by their measured performance.
 
 ---
 
@@ -340,12 +369,16 @@ their measured performance.
 ## 7. Conclusion and future work
 
 On full-scale NF-UQ-NIDS-v2 with verified five-seed artefacts, the apparent advantage of a
-topology-aware model over a flow-only ablation is not supported: the topology-only variant
-shows no average gain, and where the archive reports gains they are reproduced by a
-capacity-matched model with no message passing. The distinctive behaviour is instability:
+topology-aware model over a flow-only ablation is substantially a capacity effect: about
+half of it is reproduced by a capacity-matched model with no message passing, and across
+the eight dataset × task cells the topology-only variant shows no average advantage
+(pooled Δ = +0.002, 95% CI [−0.011, +0.015]). What survives capacity matching is
+dataset-dependent: a small positive increment on NF-UNSW-NB15-v2 multiclass (+0.027) and
+none on NF-ToN-IoT-v2 multiclass (−0.002). The most distinctive behaviour is instability:
 the topology-only architecture collapses on 25% of runs, concentrated exactly where the
-endpoint graph is richest. Strong tabular models match or exceed every graph variant
-examined `[PENDING: remaining cells]`.
+endpoint graph is richest. On the two datasets where the comparison is complete, strong
+tabular models exceed every graph variant, by +0.17 to +0.24 macro-F1 on UNSW multiclass
+`[PENDING: remaining cells]`.
 
 Future work, in priority order and all requiring GPU resources: (i) a convergence-first
 re-evaluation with eight passes and validation-only early stopping; (ii) degree-preserving

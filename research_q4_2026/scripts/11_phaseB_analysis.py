@@ -199,6 +199,39 @@ def main() -> int:
         fig.savefig(FIG / "fig6_capacity_vs_topology.png", dpi=170)
         plt.close(fig)
 
+    # ---- figure: capacity ladder ------------------------------------------
+    ladder = tab[tab.model.isin(["edge_mlp", "mlp_h128_1l", "mlp_h128_2l",
+                                 "mlp_h273_2l", "sage", "sage_edge"])].copy()
+    ladder = ladder.dropna(subset=["parameters", "test_macro_f1_mean"])
+    fig, axes = plt.subplots(1, 2, figsize=(13, 5))
+    for ax, task in zip(axes, ["multiclass", "binary"]):
+        sub = ladder[ladder.task == task]
+        for ds, g in sub.groupby("dataset"):
+            g = g.sort_values("parameters")
+            flow = g[g.model.isin(["edge_mlp", "mlp_h128_1l", "mlp_h128_2l", "mlp_h273_2l"])]
+            topo = g[g.model.isin(["sage", "sage_edge"])]
+            ax.plot(flow.parameters, flow.test_macro_f1_mean, marker="o",
+                    color="#4C72B0", alpha=0.85, label=f"{SHORT[ds]} flow-only" if task == "multiclass" else None)
+            ax.scatter(topo.parameters, topo.test_macro_f1_mean, marker="*", s=170,
+                       color="#C44E52", zorder=5,
+                       label="topology variants" if task == "multiclass" else None)
+            # vertical guide: the capacity-matching
+            m = g[g.model == "mlp_h273_2l"]
+            if len(m):
+                ax.axvline(float(m.parameters.iloc[0]), color="grey", ls=":", lw=1)
+        ax.set_xscale("log")
+        ax.set_xlabel("parameters (log)")
+        ax.set_ylabel("test macro-F1 (mean over seeds)")
+        ax.set_title(f"Capacity ladder - {task}")
+        ax.grid(alpha=0.25)
+    axes[0].legend(fontsize=8, loc="lower right")
+    fig.suptitle("Performance tracks parameter count; the starred topology variants sit "
+                 "at the same capacity as the matched flow-only point (dotted line)",
+                 fontsize=11)
+    fig.tight_layout()
+    fig.savefig(FIG / "fig9_capacity_ladder.png", dpi=170)
+    plt.close(fig)
+
     summary = {
         "models_present": present,
         "n_cells": int(len(pivot)),

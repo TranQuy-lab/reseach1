@@ -28,9 +28,9 @@
     },
     {
       "contrast": "capacity_no_topology",
-      "k": 1,
-      "pooled_mean": 0.04620682412574199,
-      "n_positive": 1,
+      "k": 3,
+      "pooled_mean": 0.03266140955769115,
+      "n_positive": 3,
       "n_negative": 0
     },
     {
@@ -49,16 +49,16 @@
     },
     {
       "contrast": "topology_at_matched_capacity",
-      "k": 1,
-      "pooled_mean": -0.0017779894848300633,
-      "n_positive": 0,
+      "k": 3,
+      "pooled_mean": 0.00916519331314361,
+      "n_positive": 2,
       "n_negative": 1
     },
     {
       "contrast": "topology_at_matched_capacity_edge",
-      "k": 1,
-      "pooled_mean": 0.018996087921009524,
-      "n_positive": 1,
+      "k": 3,
+      "pooled_mean": 0.015617760978183967,
+      "n_positive": 3,
       "n_negative": 0
     },
     {
@@ -140,7 +140,7 @@
       "edge_mlp": 0.9644750715186332,
       "mlp_h128_1l": 0.9641551367076353,
       "mlp_h128_2l": null,
-      "mlp_h273_2l": null,
+      "mlp_h273_2l": 0.9674996367205428,
       "sage": 0.9702453950314227,
       "sage_edge": 0.9699112540542479,
       "hist_gradient_boosting": 0.9761201621201977,
@@ -150,8 +150,8 @@
     "NF-UNSW-NB15-v2|multiclass": {
       "edge_mlp": 0.4140653194828297,
       "mlp_h128_1l": 0.42150433444845187,
-      "mlp_h128_2l": null,
-      "mlp_h273_2l": 0.4734863744959448,
+      "mlp_h128_2l": 0.44250189554112496,
+      "mlp_h273_2l": 0.462824385748067,
       "sage": 0.4897698759899759,
       "sage_edge": 0.4885246784102887,
       "hist_gradient_boosting": 0.6535982945778533,

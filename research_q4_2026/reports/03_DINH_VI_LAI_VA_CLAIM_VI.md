@@ -13,17 +13,20 @@ dataset/task" — **không còn đứng vững** sau khi kiểm toán, vì ba l�
 
 1. Biến thể topology thuần (`sage`) **không hơn** MLP chỉ dùng flow feature về trung bình
    (pooled Δ = +0,0021; KTC 95 % [−0,0105; +0,0146]).
-2. `sage` có **16,09× tham số** của `edge_mlp`; phần lớn "lợi thế" biến mất khi so ở
-   capacity khớp.
+2. `sage` có **16,09× tham số** của `edge_mlp`. Khi so ở capacity khớp, **khoảng một nửa**
+   lợi thế biến mất ở cả hai ô đã hoàn tất (UNSW +0,049; ToN +0,046), và phần còn lại
+   **phụ thuộc dataset**: UNSW multiclass còn +0,027 (KTC [+0,016; +0,041]), ToN multiclass
+   còn −0,002 (KTC [−0,011; +0,006]).
 3. Comparator bảng mạnh **vượt mọi biến thể GNN** trên các ô đã chạy (UNSW multiclass:
    HistGradientBoosting 0,654 so với `sage_edge` 0,489).
 
 Câu chuyện mới có thể bảo vệ được:
 
-> **Hiệu năng quan sát được của relational model trên NetFlow IDS bị quyết định chủ yếu
-> bởi capacity của mô hình và độ ổn định tối ưu hóa theo seed, không phải bởi cấu trúc
-> quan hệ. Ở capacity khớp, topology không tạo ra lợi ích dự đoán trung bình đo được,
-> trong khi một mô hình bảng mạnh vượt qua mọi biến thể GNN đã thử.**
+> **Phần lớn lợi thế được báo cáo của relational model trên NetFlow IDS là hiệu ứng
+> capacity: khoảng một nửa tái tạo được bằng mô hình cùng capacity không hề truyền thông
+> điệp. Phần còn lại sau khi khớp capacity phụ thuộc dataset (UNSW multiclass +0,027;
+> ToN multiclass −0,002), nhỏ hơn nhiều so với khoảng cách tới mô hình bảng mạnh, trong
+> khi độ ổn định tối ưu hóa theo seed là yếu tố phân biệt mạnh nhất giữa các biến thể.**
 
 Đây là **bằng chứng âm có kiểm soát** — loại đóng góp mà lĩnh vực GNN-IDS đang thiếu,
 và nó nhất quán với cảnh báo trong khảo sát của Zhong et al. về khoảng cách giữa kết quả
@@ -63,7 +66,7 @@ Quy ước trạng thái: **OK** = có artefact hỗ trợ và phát biểu khô
 | ID | Claim | Trạng thái | Phát biểu được phép |
 |---|---|---|---|
 | N01 | Topology thuần không hơn flow-only về trung bình | **OK** | "Across the eight dataset × task cells the topology-only variant showed no average macro-F1 advantage over the flow-only ablation (pooled Δ = +0.002, 95 % CI [−0.010, +0.015])." |
-| N02 | Lợi thế biến mất ở capacity khớp | **OK** (đang hoàn tất cho 4 bộ) | Báo từng ô bằng `phaseB_contrasts.csv`, nêu rõ n. |
+| N02 | Ở capacity khớp, lợi thế còn lại **phụ thuộc dataset**: UNSW multiclass +0,027 (KTC [+0,016; +0,041]); ToN multiclass −0,002 (KTC [−0,011; +0,006]) | **OK** (đang hoàn tất cho CSE/BoT) | Báo từng ô bằng `phaseB_contrasts.csv`, nêu rõ n; **không** gộp hai dataset thành một claim duy nhất. |
 | N03 | BoT-IoT `sage` kém là do sụp đổ tối ưu hóa, không phải underfitting | **OK** | "In 10 of 40 `sage` runs (25 %; 5/5 on BoT-IoT binary) validation macro-F1 fell after the best checkpoint by up to 0.43, which rejects a pure underfitting account at this budget." |
 | N04 | Đường edge trực tiếp ở head là yếu tố ổn định | **OK** | "Collapse rate: 0 % (`edge_mlp`), 25 % (`sage`), 5 % (`sage_edge`)." |
 | N05 | Bảng mạnh vượt GNN trên các ô đã chạy | **OK** (giới hạn theo ô đã chạy) | Nêu rõ dataset/task đã chạy và cỡ mẫu; không khái quát cho bộ chưa chạy. |

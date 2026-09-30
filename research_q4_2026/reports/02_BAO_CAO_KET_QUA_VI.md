@@ -162,8 +162,8 @@ Thiết kế `holdout`: endpoint chia 70 % train / 30 % holdout; flow chỉ gi�
 | CSE-CIC · multiclass | 0.6686 | — | — | — | 0.6926 | 0.6894 | — | — | — |
 | ToN · binary | 0.9707 | — | — | — | 0.9775 | 0.9802 | — | — | — |
 | ToN · multiclass | 0.7040 | — | 0.7296 | 0.7504 | 0.7494 | 0.7658 | — | — | — |
-| UNSW · binary | 0.9645 | 0.9642 | — | — | 0.9702 | 0.9699 | 0.9761 | 0.9803 | 0.9828 |
-| UNSW · multiclass | 0.4141 | 0.4215 | — | 0.4735 | 0.4898 | 0.4885 | 0.6536 | 0.6698 | 0.6683 |
+| UNSW · binary | 0.9645 | 0.9642 | — | 0.9675 | 0.9702 | 0.9699 | 0.9761 | 0.9803 | 0.9828 |
+| UNSW · multiclass | 0.4141 | 0.4215 | 0.4425 | 0.4628 | 0.4898 | 0.4885 | 0.6536 | 0.6698 | 0.6683 |
 
 Các cột `mlp_*`, `HistGB`, `ExtraTrees`, `RandomForest` do công việc này chạy trên **đúng split**; `edge_mlp`/`sage`/`sage_edge` lấy từ 120 run lưu trữ. Scaler đọc từ chính `preprocessor.json` của run GNN, **không** fit lại.
 
@@ -182,18 +182,24 @@ Các cột `mlp_*`, `HistGB`, `ExtraTrees`, `RandomForest` do công việc này 
 | Ô | A | B | n | Δ | SD | KTC 2.5% | KTC 97.5% | KTC không chứa 0 | dz | p Wilcoxon |
 |---|---|---|---|---|---|---|---|---|---|---|
 | ToN · multiclass | mlp_h273_2l | edge_mlp | 3 | 0.0462 | 0.0024 | 0.0440 | 0.0488 | True | 19.2718 | 0.2500 |
+| UNSW · binary | mlp_h273_2l | edge_mlp | 4 | 0.0030 | 0.0006 | 0.0025 | 0.0035 | True | 4.9927 | 0.1250 |
+| UNSW · multiclass | mlp_h273_2l | edge_mlp | 5 | 0.0488 | 0.0165 | 0.0344 | 0.0594 | True | 2.9563 | 0.0625 |
 
 ****Topology ở capacity khớp****  (`sage − mlp_h273_2l`)
 
 | Ô | A | B | n | Δ | SD | KTC 2.5% | KTC 97.5% | KTC không chứa 0 | dz | p Wilcoxon |
 |---|---|---|---|---|---|---|---|---|---|---|
 | ToN · multiclass | sage | mlp_h273_2l | 3 | -0.0018 | 0.0084 | -0.0105 | 0.0063 | False | -0.2111 | 0.7500 |
+| UNSW · binary | sage | mlp_h273_2l | 4 | 0.0023 | 0.0007 | 0.0018 | 0.0028 | True | 3.5779 | 0.1250 |
+| UNSW · multiclass | sage | mlp_h273_2l | 5 | 0.0269 | 0.0163 | 0.0163 | 0.0407 | True | 1.6568 | 0.0625 |
 
 **Topology + edge ở head, capacity khớp**  (`sage_edge − mlp_h273_2l`)
 
 | Ô | A | B | n | Δ | SD | KTC 2.5% | KTC 97.5% | KTC không chứa 0 | dz | p Wilcoxon |
 |---|---|---|---|---|---|---|---|---|---|---|
 | ToN · multiclass | sage_edge | mlp_h273_2l | 3 | 0.0190 | 0.0068 | 0.0113 | 0.0242 | True | 2.8007 | 0.2500 |
+| UNSW · binary | sage_edge | mlp_h273_2l | 4 | 0.0022 | 0.0011 | 0.0012 | 0.0031 | True | 1.8975 | 0.1250 |
+| UNSW · multiclass | sage_edge | mlp_h273_2l | 5 | 0.0257 | 0.0159 | 0.0150 | 0.0396 | True | 1.6166 | 0.0625 |
 
 **Topology như archive (nhiễu capacity)**  (`sage − edge_mlp`)
 
@@ -219,7 +225,7 @@ Các cột `mlp_*`, `HistGB`, `ExtraTrees`, `RandomForest` do công việc này 
 | ToN · binary | sage_edge | sage | 5 | 0.0027 | 0.0020 | 0.0012 | 0.0044 | True | 1.3298 | 0.0625 |
 | ToN · multiclass | sage_edge | sage | 5 | 0.0164 | 0.0073 | 0.0110 | 0.0221 | True | 2.2552 | 0.0625 |
 | UNSW · binary | sage_edge | sage | 5 | -0.0003 | 0.0006 | -0.0008 | 0.0001 | False | -0.5773 | 0.3125 |
-| UNSW · multiclass | sage_edge | sage | 5 | -0.0012 | 0.0078 | -0.0075 | 0.0054 | False | -0.1602 | 0.4375 |
+| UNSW · multiclass | sage_edge | sage | 5 | -0.0012 | 0.0078 | -0.0077 | 0.0054 | False | -0.1602 | 0.4375 |
 
 **Bảng mạnh vs `edge_mlp`**  (`hist_gradient_boosting − edge_mlp`)
 
@@ -241,11 +247,11 @@ Các cột `mlp_*`, `HistGB`, `ExtraTrees`, `RandomForest` do công việc này 
 |---|---|---|---|---|
 | Bảng mạnh vs `edge_mlp` | 2 | 0.1259 | 2 | 0 |
 | Bảng mạnh vs topology tốt nhất | 2 | 0.0869 | 2 | 0 |
-| Capacity/độ sâu thuần (KHÔNG topology) | 1 | 0.0462 | 1 | 0 |
+| Capacity/độ sâu thuần (KHÔNG topology) | 3 | 0.0327 | 3 | 0 |
 | Đối chứng harness vs archive | 2 | 0.0036 | 1 | 1 |
 | Đường edge trực tiếp ở head | 8 | 0.0460 | 5 | 3 |
-| **Topology ở capacity khớp** | 1 | -0.0018 | 0 | 1 |
-| Topology + edge ở head, capacity khớp | 1 | 0.0190 | 1 | 0 |
+| **Topology ở capacity khớp** | 3 | 0.0092 | 2 | 1 |
+| Topology + edge ở head, capacity khớp | 3 | 0.0156 | 3 | 0 |
 | Topology như archive (nhiễu capacity) | 8 | -0.0254 | 6 | 2 |
 
 ## 9. Kết luận và việc còn lại
