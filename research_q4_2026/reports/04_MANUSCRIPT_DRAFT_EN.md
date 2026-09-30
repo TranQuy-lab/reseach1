@@ -11,43 +11,59 @@
 ## Abstract
 
 Graph neural networks are widely reported to improve network intrusion detection by
-exploiting relational structure between hosts. Most such reports compare a graph model
-against a much smaller flow-only multilayer perceptron, so relational structure is
-confounded with model capacity, depth and optimisation behaviour. We re-examine this
-question on the four constituent datasets of NF-UQ-NIDS-v2 (75,987,976 NetFlow records;
-NF-UNSW-NB15-v2, NF-BoT-IoT-v2, NF-ToN-IoT-v2, NF-CSE-CIC-IDS2018-v2) using a
-reproducible five-seed full-scale protocol whose 120 archived runs we re-audit and whose
-independently verified checkpoints we reuse.
+exploiting relational structure between hosts. In the studies we re-examine, the graph model
+is compared against a far smaller flow-only multilayer perceptron, so relational structure is
+confounded with model capacity, depth and optimisation behaviour. We re-examine this question
+on the four constituent datasets of NF-UQ-NIDS-v2 (75,987,976 NetFlow records;
+NF-UNSW-NB15-v2, NF-BoT-IoT-v2, NF-ToN-IoT-v2, NF-CSE-CIC-IDS2018-v2) using a five-seed
+full-scale protocol whose 120 archived runs we audit and whose independently verified
+checkpoints we reuse. We then run the controls the protocol itself required but which had
+never been executed, entirely on CPU.
 
-We make four contributions. First, we recover the validation learning curves of all 120
-runs and show that the central negative result—the collapse of the topology-only variant
-on NF-BoT-IoT-v2—is **not underfitting**: in 10 of 40 topology-only runs (25%; 5 of 5 seeds
-on BoT-IoT binary) validation macro-F1 *falls* after the best checkpoint by up to 0.43,
-whereas the flow-only ablation never collapses (0 of 40; Fisher exact *p* = 0.001,
-Holm-adjusted 0.003). Second, we show that the topology-only variant carries **16.1× the
-parameters** of the flow-only ablation, and we close that confound with a capacity-matched
-flow-only baseline trained under the identical budget. Capacity alone accounts for roughly
-half of the apparent graph advantage on both datasets we have completed (+0.049 on
-NF-UNSW-NB15-v2, +0.046 on NF-ToN-IoT-v2). What survives capacity matching is
-**dataset-dependent**: on NF-UNSW-NB15-v2 multiclass the topology-only variant retains a
-small positive increment over the matched baseline (+0.027, 95% CI [+0.016, +0.041]),
-whereas on NF-ToN-IoT-v2 multiclass the residual is zero (−0.002, 95% CI [−0.011, +0.006]).
-Third, on NF-UNSW-NB15-v2 a strong tabular comparator reaches 0.654–0.670 macro-F1
-against 0.414–0.490 for all graph variants, and on NF-ToN-IoT-v2 multiclass it reaches
-0.866 against 0.766—so any residual structural gain is an order of magnitude smaller than
-the gap to classical tabular learning. A flow-only model
-augmented with five neighbourhood counts reaches 0.5003, exceeding both message-passing
-variants, while the same model given hand-computed neighbour feature averages drops to
-0.4218—so the graph helps only through coarse endpoint summaries, not through neighbour
-content. Fourth,
-we show that the endpoint graph itself explains where relational modelling could help:
-NF-BoT-IoT-v2 has 78.7 edges per endpoint and 91.6% repeated endpoint interactions,
-whereas NF-UNSW-NB15-v2 and NF-CSE-CIC-IDS2018-v2 have only 1.7–1.8 edges per endpoint
-and ~20% repeated interactions.
+Our results are negative and mechanistic rather than architectural.
 
-We report these as controlled negative and mechanistic evidence, not as a new
-architecture, and we release the endpoint-disjoint splits, the learning curves and the
-capacity-matched baselines.
+**The reported negative result is a training failure, not underfitting.** Recovering the
+validation trajectory of every archived run shows that in 10 of 40 topology-only runs (25%;
+5 of 5 seeds on NF-BoT-IoT-v2 binary) validation macro-F1 *falls* after the best checkpoint,
+by up to 0.43, whereas the flow-only ablation never collapses (0 of 40; Fisher exact
+p = 0.001, Holm-adjusted 0.003). On NF-BoT-IoT-v2 binary the collapsed variant also raises
+its false-alarm rate to **25.02%** (250,189 false alarms per million benign flows, benign
+recall 0.75) against 0.19% for the flow-only ablation and 0.32% for the variant that keeps a
+direct flow-feature path.
+
+**Capacity, not structure, explains most of the apparent advantage.** The topology-only
+variant carries 16.1× the parameters of the flow-only ablation. Adding a capacity-matched
+flow-only baseline under the identical budget yields a significant capacity effect in all six
+completed dataset × task cells (+0.003 to +0.049 macro-F1). What survives capacity matching
+is small and changes sign with the task: +0.027 [+0.016, +0.041] on NF-UNSW-NB15-v2
+multiclass, +0.019 on NF-CSE-CIC-IDS2018-v2 multiclass, −0.000 on NF-ToN-IoT-v2 multiclass,
+and −0.003 to −0.004 on both binary tasks. No residual structural effect approaches the
+capacity effect or the tabular gap.
+
+**A standard tabular model dominates every graph variant.** HistGradientBoosting reaches
+0.866 on NF-ToN-IoT-v2 multiclass (n = 3) against 0.766 for the best graph variant and 0.704
+for the flow-only ablation, and 0.654–0.670 on NF-UNSW-NB15-v2 multiclass against 0.414–0.490
+—gains of +0.10 to +0.24 while never observing endpoint identity.
+
+**The graph helps only through coarse endpoint summaries.** A flow-only MLP augmented with
+five neighbourhood count features reaches 0.5003 on NF-UNSW-NB15-v2 multiclass, exceeding both
+message-passing variants (0.4898, 0.4885). The natural stronger hypothesis fails: giving the
+same model the hand-computed mean of neighbour edge features (matched capacity) yields 0.4218,
+*worse* than using no graph at all, so the learned aggregation weights are doing real work.
+
+**Endpoint familiarity is measurable and immaterial here.** Holding model, training data,
+preprocessing and test population fixed, only 0.018% of NF-ToN-IoT-v2 and 2.0% of
+NF-UNSW-NB15-v2 multiclass test flows have no endpoint in common with training; on those flows
+the score moves by −0.044 and −0.009. Consequently we also show that an endpoint-disjoint split
+is *not* a valid instrument for unseen-host claims: HistGradientBoosting, which cannot use
+endpoint identity, still loses 45% of its score on such a split.
+
+We conclude that in this setting the measurable value of relational modelling is at most a
+small, task-dependent increment that is dominated both by parameter count and by what a
+standard tabular learner extracts from the same flow features, and that the most visible
+graph-model failure is an optimisation instability concentrated exactly where the endpoint
+graph is richest. We release the learning curves, the capacity-matched baselines, the
+structural-feature controls and the endpoint isolation flags.
 
 ---
 
