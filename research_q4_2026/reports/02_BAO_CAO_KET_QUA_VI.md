@@ -382,10 +382,10 @@ Giữ **nguyên** model, dữ liệu train, preprocessing và toàn bộ tập t
 
 | Ô | Nhóm test | số seed | số flow | macro-F1 | SD | lệch so với toàn bộ test |
 |---|---|---|---|---|---|---|
-| ToN · multiclass | all_test | 2 | 3385552 | 0.8659 | 0.0043 | 0.0000 |
-| ToN · multiclass | both_endpoints_seen | 2 | 3319739 | 0.8659 | 0.0043 | -0.0000 |
-| ToN · multiclass | neither_endpoint_seen | 2 | 621 | 0.8220 | 0.0022 | -0.0438 |
-| ToN · multiclass | one_endpoint_seen | 2 | 65192 | 0.8670 | 0.0057 | 0.0011 |
+| UNSW · multiclass | all_test | 1 | 478007 | 0.6522 | — | 0.0000 |
+| UNSW · multiclass | both_endpoints_seen | 1 | 362724 | 0.6554 | — | 0.0033 |
+| UNSW · multiclass | neither_endpoint_seen | 1 | 9533 | 0.6435 | — | -0.0087 |
+| UNSW · multiclass | one_endpoint_seen | 1 | 105750 | 0.6410 | — | -0.0112 |
 
 Kèm theo đó: split endpoint-disjoint **không** phải công cụ hợp lệ để đo mức phụ thuộc endpoint. `HistGradientBoosting` — mô hình không dùng danh tính endpoint — cũng giảm từ 0,866 xuống **0,472** trên split đó, nên phần lớn mức giảm là dịch chuyển phân bố do cách dựng split.
 

@@ -332,18 +332,30 @@ attribute anything to endpoint familiarity.**
 preprocessing and the test population completely fixed, and merely partitioned the locked
 test split by whether each flow's endpoints occur in train:
 
-| Test subset | Flows | Share | HGB macro-F1 |
-|---|---:|---:|---:|
-| all test flows | 3,385,552 | 100% | 0.8628 |
-| both endpoints seen in train | 3,319,739 | 98.1% | 0.8628 |
-| exactly one endpoint seen | 65,192 | 1.9% | 0.8629 |
-| **neither endpoint seen** | **621** | **0.018%** | **0.8236** |
+| Test subset | NF-ToN-IoT-v2 mc (n=2) | share | NF-UNSW-NB15-v2 mc (n=1) | share |
+|---|---:|---:|---:|---:|
+| all test flows | 3,385,552 | 100% | 478,007 | 100% |
+| both endpoints seen in train | 3,319,739 | 98.1% | 362,724 | 75.9% |
+| exactly one endpoint seen | 65,192 | 1.9% | 105,750 | 22.1% |
+| **neither endpoint seen** | **621** | **0.018%** | **9,533** | **2.0%** |
 
-Two conclusions. First, the documented overlap figure is confirmed at endpoint
-(pair) granularity: **only 0.018% of test flows have no endpoint in common with the
-training data**, so there is almost nothing for endpoint familiarity to act on. Second, on
-those few flows the score is 0.039 lower—a difference far too small, and too poorly
-supported at n = 621, to explain any model ranking.
+HGB macro-F1 by subset:
+
+| Test subset | ToN-IoT mc | Δ | UNSW mc | Δ |
+|---|---:|---:|---:|---:|
+| all test flows | 0.8659 | — | 0.6522 | — |
+| both endpoints seen | 0.8659 | −0.000 | 0.6554 | +0.003 |
+| exactly one endpoint seen | 0.8670 | +0.001 | 0.6410 | −0.011 |
+| **neither endpoint seen** | **0.8220** | **−0.044** | **0.6435** | **−0.009** |
+
+Three conclusions. First, the documented overlap figure is confirmed at endpoint-pair
+granularity: only 0.018% of NF-ToN-IoT-v2 test flows have no endpoint in common with the
+training data. NF-UNSW-NB15-v2 is the harder case with 2.0% such flows—its graph is sparse
+enough that many endpoints appear only in test—and there the score moves by −0.009.
+Second, neither dataset shows an effect large enough to explain any model ranking: the
+largest subset difference anywhere is −0.044, on 621 flows. Third, the two datasets differ
+by two orders of magnitude in exposure yet agree on the conclusion, which is what one
+would expect if endpoint familiarity genuinely plays no role here.
 
 **What this changes.** The endpoint-overlap limitation is real as a statement about
 population coverage but empirically immaterial for the comparisons reported here: the
