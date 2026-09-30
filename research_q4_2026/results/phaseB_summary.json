@@ -29,7 +29,7 @@
     {
       "contrast": "capacity_no_topology",
       "k": 6,
-      "pooled_mean": 0.020874278663566656,
+      "pooled_mean": 0.020862835588255132,
       "n_positive": 6,
       "n_negative": 0
     },
@@ -50,14 +50,14 @@
     {
       "contrast": "topology_at_matched_capacity",
       "k": 6,
-      "pooled_mean": 0.007899415257248589,
+      "pooled_mean": 0.007912310294387392,
       "n_positive": 3,
       "n_negative": 3
     },
     {
       "contrast": "topology_at_matched_capacity_edge",
       "k": 6,
-      "pooled_mean": 0.00900379744180418,
+      "pooled_mean": 0.00906550374869522,
       "n_positive": 4,
       "n_negative": 2
     },
@@ -96,7 +96,7 @@
       "edge_mlp": 0.9837114171988951,
       "mlp_h128_1l": null,
       "mlp_h128_2l": null,
-      "mlp_h273_2l": 0.9876101873430405,
+      "mlp_h273_2l": 0.9875953833352907,
       "sage": 0.9849622372787312,
       "sage_edge": 0.9859801747289941,
       "hist_gradient_boosting": null,
@@ -118,7 +118,7 @@
       "edge_mlp": 0.9707167768867169,
       "mlp_h128_1l": null,
       "mlp_h128_2l": null,
-      "mlp_h273_2l": 0.9817413592907037,
+      "mlp_h273_2l": 0.9816620491472292,
       "sage": 0.9775049146633259,
       "sage_edge": 0.9802216239215868,
       "hist_gradient_boosting": null,
