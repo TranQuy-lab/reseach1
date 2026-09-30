@@ -2,7 +2,7 @@ contrast,k,pooled_mean,n_positive,n_negative
 best_tabular_vs_edge_mlp,3,0.13795066277836035,3,0
 best_tabular_vs_topo,3,0.09022916376101363,3,0
 capacity_no_topology,6,0.020907369219119343,6,0
-control_vs_archive,6,-0.0002963998888292203,3,3
+control_vs_archive,6,-0.00028171292575127375,3,3
 direct_edge_path,8,0.04595449460180096,5,3
 topology_at_matched_capacity,6,0.007910371211855687,3,3
 topology_at_matched_capacity_edge,6,0.009029114907203841,4,2

@@ -198,7 +198,7 @@ Thiết kế `holdout`: endpoint chia 70 % train / 30 % holdout; flow chỉ gi�
 | cell | `edge_mlp` (5.4k) | `mlp_h128_1l` control (5.4k) | `mlp_h128_2l` (23k) | `mlp_h273_2l` capacity-matched (88k) | `sage` (87k) | `sage_edge` (87k) | HistGB | ExtraTrees | RandomForest |
 |---|---|---|---|---|---|---|---|---|---|
 | BoT-IoT · binary | 0.9003 | — | — | — | 0.8043 | 0.8818 | — | — | — |
-| BoT-IoT · multiclass | 0.8169 | — | — | — | 0.5512 | 0.8260 | — | — | — |
+| BoT-IoT · multiclass | 0.8169 | — | — | 0.8258 | 0.5512 | 0.8260 | — | — | — |
 | CSE-CIC · binary | 0.9837 | 0.9840 | — | 0.9876 | 0.9850 | 0.9860 | — | — | — |
 | CSE-CIC · multiclass | 0.6686 | 0.6535 | — | 0.6738 | 0.6926 | 0.6894 | — | — | — |
 | ToN · binary | 0.9707 | 0.9712 | — | 0.9818 | 0.9775 | 0.9802 | — | — | — |
@@ -217,7 +217,7 @@ Các cột `mlp_*`, `HistGB`, `ExtraTrees`, `RandomForest` do công việc này 
 |---|---|---|---|---|---|---|---|---|---|---|
 | CSE-CIC · binary | mlp_h128_1l | edge_mlp | 3 | 0.0006 | 0.0014 | -0.0003 | 0.0022 | False | 0.4618 | 1.0000 |
 | CSE-CIC · multiclass | mlp_h128_1l | edge_mlp | 3 | -0.0072 | 0.0046 | -0.0119 | -0.0028 | True | -1.5698 | 0.2500 |
-| ToN · binary | mlp_h128_1l | edge_mlp | 3 | 0.0004 | 0.0006 | -0.0003 | 0.0010 | False | 0.5839 | 0.5000 |
+| ToN · binary | mlp_h128_1l | edge_mlp | 5 | 0.0005 | 0.0005 | 0.0001 | 0.0008 | True | 0.9648 | 0.1250 |
 | ToN · multiclass | mlp_h128_1l | edge_mlp | 5 | -0.0027 | 0.0087 | -0.0094 | 0.0039 | False | -0.3118 | 0.6250 |
 | UNSW · binary | mlp_h128_1l | edge_mlp | 5 | -0.0003 | 0.0003 | -0.0005 | -0.0001 | True | -1.2134 | 0.1250 |
 | UNSW · multiclass | mlp_h128_1l | edge_mlp | 5 | 0.0074 | 0.0112 | -0.0012 | 0.0161 | False | 0.6669 | 0.3125 |
@@ -231,7 +231,7 @@ Các cột `mlp_*`, `HistGB`, `ExtraTrees`, `RandomForest` do công việc này 
 | ToN · binary | mlp_h273_2l | edge_mlp | 5 | 0.0111 | 0.0007 | 0.0106 | 0.0116 | True | 16.2188 | 0.0625 |
 | ToN · multiclass | mlp_h273_2l | edge_mlp | 5 | 0.0454 | 0.0061 | 0.0402 | 0.0497 | True | 7.4547 | 0.0625 |
 | UNSW · binary | mlp_h273_2l | edge_mlp | 5 | 0.0029 | 0.0006 | 0.0025 | 0.0034 | True | 4.7858 | 0.0625 |
-| UNSW · multiclass | mlp_h273_2l | edge_mlp | 5 | 0.0488 | 0.0165 | 0.0344 | 0.0594 | True | 2.9563 | 0.0625 |
+| UNSW · multiclass | mlp_h273_2l | edge_mlp | 5 | 0.0488 | 0.0165 | 0.0344 | 0.0595 | True | 2.9563 | 0.0625 |
 
 ****Topology ở capacity khớp****  (`sage − mlp_h273_2l`)
 

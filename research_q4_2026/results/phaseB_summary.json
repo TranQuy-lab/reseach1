@@ -36,7 +36,7 @@
     {
       "contrast": "control_vs_archive",
       "k": 6,
-      "pooled_mean": -0.0002963998888292203,
+      "pooled_mean": -0.00028171292575127375,
       "n_positive": 3,
       "n_negative": 3
     },
@@ -85,7 +85,7 @@
       "edge_mlp": 0.8169013170624708,
       "mlp_h128_1l": null,
       "mlp_h128_2l": null,
-      "mlp_h273_2l": null,
+      "mlp_h273_2l": 0.8258330813234913,
       "sage": 0.5511532113672154,
       "sage_edge": 0.8259787817819397,
       "hist_gradient_boosting": null,
@@ -116,7 +116,7 @@
     },
     "NF-ToN-IoT-v2|binary": {
       "edge_mlp": 0.9707167768867169,
-      "mlp_h128_1l": 0.9711759873972373,
+      "mlp_h128_1l": 0.9711703509681197,
       "mlp_h128_2l": null,
       "mlp_h273_2l": 0.9817963016720709,
       "sage": 0.9775049146633259,
