@@ -35,9 +35,9 @@
     },
     {
       "contrast": "control_vs_archive",
-      "k": 5,
-      "pooled_mean": -0.0004287703271820901,
-      "n_positive": 2,
+      "k": 6,
+      "pooled_mean": -0.0002963998888292203,
+      "n_positive": 3,
       "n_negative": 3
     },
     {
@@ -116,7 +116,7 @@
     },
     "NF-ToN-IoT-v2|binary": {
       "edge_mlp": 0.9707167768867169,
-      "mlp_h128_1l": 0.9709177875120066,
+      "mlp_h128_1l": 0.9711759873972373,
       "mlp_h128_2l": null,
       "mlp_h273_2l": 0.9817963016720709,
       "sage": 0.9775049146633259,
