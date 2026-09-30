@@ -34,7 +34,11 @@ small positive increment over the matched baseline (+0.027, 95% CI [+0.016, +0.0
 whereas on NF-ToN-IoT-v2 multiclass the residual is zero (−0.002, 95% CI [−0.011, +0.006]).
 Third, on NF-UNSW-NB15-v2 a strong tabular comparator reaches 0.654–0.670 macro-F1
 against 0.414–0.490 for all graph variants, i.e. any residual structural gain is an order
-of magnitude smaller than the gap to classical tabular learning. Fourth,
+of magnitude smaller than the gap to classical tabular learning. A flow-only model
+augmented with five neighbourhood counts reaches 0.5003, exceeding both message-passing
+variants, while the same model given hand-computed neighbour feature averages drops to
+0.4218—so the graph helps only through coarse endpoint summaries, not through neighbour
+content. Fourth,
 we show that the endpoint graph itself explains where relational modelling could help:
 NF-BoT-IoT-v2 has 78.7 edges per endpoint and 91.6% repeated endpoint interactions,
 whereas NF-UNSW-NB15-v2 and NF-CSE-CIC-IDS2018-v2 have only 1.7–1.8 edges per endpoint
@@ -316,18 +320,20 @@ contrast, it collapses:
 | UNSW · binary · `mlp_h128_1l` | 0.9641 | 0.9802 | **+0.016** |
 | UNSW · multiclass · `mlp_h128_1l` | 0.4218 | 0.4053 | −0.017 (CI [−0.038, +0.013]) |
 | UNSW · multiclass · `mlp_h273_2l` | 0.4697 | 0.4616 | −0.008 (CI [−0.029, +0.023]) |
-| ToN · multiclass · `mlp_h273_2l` | 0.7508 | 0.4385 | **−0.312** (41.6%) |
-| **ToN · multiclass · `mlp_h128_1l`** | **0.6963** | **0.4088** | **−0.287** (41.3%, CI [0.273, 0.298]) |
+| ToN · multiclass · `mlp_h273_2l` | 0.7504 | 0.4396 | **−0.311** (41.4%, CI [0.306, 0.319]) |
+| ToN · multiclass · `mlp_h128_1l` | 0.6963 | 0.4088 | **−0.287** (41.3%, CI [0.273, 0.298]) |
+| **ToN · binary · `mlp_h273_2l`** | **0.9817** | **0.9807** | **−0.001 (CI [0.0002, 0.002]) — no effect** |
 
-This is the clearest evidence for the mechanism. On the dataset whose endpoint graph is
-nearly information-free, unseen endpoints cost nothing: there is no host identity to rely
-on. On NF-ToN-IoT-v2, where endpoints recur 11.3 times on average and 36.5% of flows
-repeat an endpoint pair, a flow-only model loses **0.29–0.31 macro-F1**—about 41% of its
-score—when those endpoints are held out, and the drop is far outside the seed noise
-(paired 95% CI [0.273, 0.298]). Published within-environment scores on such datasets
-therefore substantially measure endpoint familiarity rather than transferable flow
-structure. `[PENDING: ToN binary and `mlp_h273_2l` cells; CSE-CIC and BoT-IoT fail the
-feasibility gate.]`
+This is the clearest evidence for the mechanism, and the binary/multiclass contrast
+sharpens it. On the dataset whose endpoint graph is nearly information-free, unseen
+endpoints cost nothing. On NF-ToN-IoT-v2, where endpoints recur 11.3 times on average and
+36.5% of flows repeat an endpoint pair, the *same architecture under the same budget*
+loses **0.31 macro-F1 on multiclass** (about 41% of its score, paired 95% CI
+[0.306, 0.319]) while losing **0.001 on binary**. Endpoint familiarity therefore does not
+help separate benign from attack traffic at all; it substitutes for **fine-grained
+attack-type discrimination**. Any published multiclass score on a dataset with recurrent
+endpoint interaction therefore substantially measures host identity rather than
+transferable flow structure. `[PENDING: CSE-CIC and BoT-IoT fail the feasibility gate.]`
 
 ### 4.6c Cheap structural statistics beat message passing
 
@@ -350,9 +356,25 @@ UNSW multiclass, test macro-F1:
 | `mlp_struct_lab` (flow + counts + train-label rates) | `[PENDING]` | `[PENDING]` |
 
 A flow-only MLP with five cheap neighbourhood summaries **exceeds both message-passing
-variants** at essentially the same parameter count. On this dataset, "relational
-structure" reduces to local summary statistics; two layers of mean aggregation buy
-nothing beyond them.
+variants** at essentially the same parameter count. The measurable benefit attributed to
+"topology" on this dataset is therefore reproducible by counting both endpoints'
+neighbourhoods.
+
+**But the effect is not the aggregation content.** We tested the natural stronger
+hypothesis—that two mean-aggregation layers with constant node initialisation reduce to a
+hand-computable neighbour average—by giving the model, for each flow, the mean of the 39
+edge features over the training flows arriving at each endpoint (78 extra features,
+87,356 parameters, matched to `sage`). This **fails**: 0.4218 versus 0.4628 for the
+flow-only capacity-matched baseline and 0.4898 for `sage`. Raw neighbour averaging is
+worse than not using the graph at all, because the learned aggregation weights that
+`sage` supplies are doing real work.
+
+The defensible statement is therefore narrower: what helps is *any* informative summary of
+both endpoints' neighbourhoods—even a handful of counts—and not the neighbour-feature
+content itself. Two further negative controls agree: adding train-label attack rates per
+endpoint (`mlp_struct_lab`, 0.4708 at n = 3) is *worse* than the counts alone (0.5003),
+consistent with overfitting endpoint identity rather than learning transferable
+structure.
 
 ### 4.6d The collapsed variant is also operationally unusable
 
@@ -419,13 +441,21 @@ there the topology-only architecture becomes untrainable across seeds (5 of 5 bi
 while the variant that also keeps a direct flow-feature path to the head remains stable.
 Relational richness and optimisation fragility coincide in this architecture.
 
+**Endpoint familiarity is a multiclass artefact.** The 0.31 macro-F1 lost on
+NF-ToN-IoT-v2 multiclass and the 0.001 lost on its binary task settle where the
+within-environment advantage comes from: not from a better benign/attack boundary but from
+attack-type discrimination that endpoint identity supplies. Reporting only multiclass
+scores on datasets with recurrent endpoint interaction therefore overstates what a
+deployable detector would achieve.
+
 **Practical implication.** Reporting a graph model against a small flow-only MLP does not
 establish the value of relational modelling: it conflates capacity with structure. A
 capacity-matched baseline, a strong tabular comparator, and seed-level stability
 diagnostics should be standard. In our setting the residual structural effect is small and
 inconsistent in sign across datasets, while classical tabular models dominate every graph
 variant on the two datasets where the comparison is complete. Deploying the graph variants
-examined here is therefore not justified by their measured performance.
+examined here is therefore not justified by their measured performance—and the variant
+that looks most attractive on F1 alone is, on NF-BoT-IoT-v2, a 25% false-alarm detector.
 
 ---
 

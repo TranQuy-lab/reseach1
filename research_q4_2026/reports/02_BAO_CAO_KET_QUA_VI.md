@@ -158,7 +158,7 @@ Thiết kế `holdout`: endpoint chia 70 % train / 30 % holdout; flow chỉ gi�
 |---|---|---|---|---|---|---|---|---|---|
 | BoT-IoT · binary | 0.9003 | — | — | — | 0.8043 | 0.8818 | — | — | — |
 | BoT-IoT · multiclass | 0.8169 | — | — | — | 0.5512 | 0.8260 | — | — | — |
-| CSE-CIC · binary | 0.9837 | — | — | 0.9876 | 0.9850 | 0.9860 | — | — | — |
+| CSE-CIC · binary | 0.9837 | 0.9844 | — | 0.9876 | 0.9850 | 0.9860 | — | — | — |
 | CSE-CIC · multiclass | 0.6686 | 0.6535 | — | 0.6738 | 0.6926 | 0.6894 | — | — | — |
 | ToN · binary | 0.9707 | — | — | 0.9817 | 0.9775 | 0.9802 | — | — | — |
 | ToN · multiclass | 0.7040 | 0.7013 | 0.7296 | 0.7494 | 0.7494 | 0.7658 | — | — | — |
@@ -271,7 +271,7 @@ So sánh trực tiếp giữa split khóa (`flow_group_id`) và split endpoint-d
 
 | Ô | n | split khóa | endpoint-holdout | mức giảm | KTC 2.5% | KTC 97.5% | giảm tương đối (%) |
 |---|---|---|---|---|---|---|---|
-| ToN · binary · mlp_h273_2l | 2 | 0.9813 | 0.9808 | 0.0005 | 0.0002 | 0.0008 | 0.0515 |
+| ToN · binary · mlp_h273_2l | 3 | 0.9817 | 0.9807 | 0.0010 | 0.0002 | 0.0020 | 0.1010 |
 | ToN · multiclass · mlp_h128_1l | 3 | 0.6963 | 0.4088 | 0.2874 | 0.2734 | 0.2975 | 41.2818 |
 | ToN · multiclass · mlp_h273_2l | 3 | 0.7504 | 0.4396 | 0.3109 | 0.3060 | 0.3186 | 41.4237 |
 | UNSW · binary · mlp_h128_1l | 3 | 0.9641 | 0.9802 | -0.0161 | -0.0166 | -0.0153 | -1.6695 |
@@ -289,7 +289,7 @@ Mức giảm **dương** nghĩa là split endpoint-holdout làm giảm chất l�
 | Ô | Model | n | tham số | test macro-F1 | SD | best val macro-F1 |
 |---|---|---|---|---|---|---|
 | UNSW · multiclass | mlp_struct | 3 | 89827 | 0.5003 | 0.0038 | 0.5023 |
-| UNSW · multiclass | mlp_struct_lab | 1 | 90373 | 0.4881 | — | 0.4868 |
+| UNSW · multiclass | mlp_struct_lab | 3 | 90373 | 0.4708 | 0.0150 | 0.4670 |
 
 Đối chiếu: trên cùng ô, `mlp_h273_2l` (chỉ flow, capacity khớp) và `sage`/`sage_edge` nằm ở §8.1.
 
