@@ -1,5 +1,5 @@
 {
-  "n_pairs": 17,
+  "n_pairs": 18,
   "cells": [
     {
       "dataset": "NF-ToN-IoT-v2",
@@ -17,13 +17,13 @@
       "dataset": "NF-ToN-IoT-v2",
       "task": "multiclass",
       "model": "mlp_h273_2l",
-      "n": 2,
-      "locked_mean": 0.7508337671992438,
-      "holdout_mean": 0.4385286231369345,
-      "mean_drop": 0.31230514406230925,
+      "n": 3,
+      "locked_mean": 0.7504358766111446,
+      "holdout_mean": 0.4395776240282377,
+      "mean_drop": 0.31085825258290695,
       "ci_lo": 0.3059687484836806,
       "ci_hi": 0.31864153964093794,
-      "relative_drop_percent": 41.59444576224485
+      "relative_drop_percent": 41.423692852572024
     },
     {
       "dataset": "NF-UNSW-NB15-v2",
@@ -74,6 +74,6 @@
       "relative_drop_percent": 1.7242688134141617
     }
   ],
-  "overall_mean_drop": 0.08613555659332277,
-  "overall_relative_drop_percent": 12.14254855824771
+  "overall_mean_drop": 0.09845938509503276,
+  "overall_relative_drop_percent": 13.836204082367763
 }

@@ -28,9 +28,9 @@
     },
     {
       "contrast": "capacity_no_topology",
-      "k": 4,
-      "pooled_mean": 0.027543078229097816,
-      "n_positive": 4,
+      "k": 5,
+      "pooled_mean": 0.02419178123174735,
+      "n_positive": 5,
       "n_negative": 0
     },
     {
@@ -49,17 +49,17 @@
     },
     {
       "contrast": "topology_at_matched_capacity",
-      "k": 4,
-      "pooled_mean": 0.01370353445438698,
+      "k": 5,
+      "pooled_mean": 0.009908811589905146,
       "n_positive": 3,
-      "n_negative": 1
+      "n_negative": 2
     },
     {
       "contrast": "topology_at_matched_capacity_edge",
-      "k": 4,
-      "pooled_mean": 0.014485239123046743,
+      "k": 5,
+      "pooled_mean": 0.011445364518259277,
       "n_positive": 4,
-      "n_negative": 0
+      "n_negative": 1
     },
     {
       "contrast": "topology_confounded_archive",
@@ -96,7 +96,7 @@
       "edge_mlp": 0.9837114171988951,
       "mlp_h128_1l": null,
       "mlp_h128_2l": null,
-      "mlp_h273_2l": null,
+      "mlp_h273_2l": 0.9874086050032742,
       "sage": 0.9849622372787312,
       "sage_edge": 0.9859801747289941,
       "hist_gradient_boosting": null,
@@ -118,7 +118,7 @@
       "edge_mlp": 0.9707167768867169,
       "mlp_h128_1l": null,
       "mlp_h128_2l": null,
-      "mlp_h273_2l": 0.9810002032046372,
+      "mlp_h273_2l": 0.9812565588585365,
       "sage": 0.9775049146633259,
       "sage_edge": 0.9802216239215868,
       "hist_gradient_boosting": null,
