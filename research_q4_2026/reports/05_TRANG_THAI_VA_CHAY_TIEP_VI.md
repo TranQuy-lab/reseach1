@@ -24,7 +24,7 @@ một dòng mã nguồn nào.
 | UNSW · bin | 0,9645 | 0,9642 | 0,9662 | **0,9674** | 0,9702 | 0,9699 | 0,9761 | 0,9803 | **0,9828** |
 | ToN · mc | 0,7040 | 0,7013 | 0,7296 | **0,7494** | 0,7494 | 0,7658 | **0,8664** | — | — |
 | ToN · bin | 0,9707 | 0,9712 | — | **0,9818** | 0,9775 | 0,9802 | **0,9928** | — | — |
-| CSE-CIC · mc | 0,6686 | 0,6535 | — | **0,6738** | **0,6926** | **0,6894** | 0,6712 | — | — |
+| CSE-CIC · mc | 0,6686 | 0,6585 | — | **0,6828** | **0,6926** | **0,6894** | 0,6712 | — | — |
 | CSE-CIC · bin | 0,9837 | 0,9840 | — | 0,9876 | 0,9850 | 0,9860 | **0,9894** | — | — |
 | BoT-IoT · mc | 0,8169 | 0,8288 | — | **0,8364** | **0,5512** | 0,8260 | không khả thi | — | — |
 | BoT-IoT · bin | 0,9003 | 0,9113 | — | **0,9354** | **0,8043** | 0,8818 | không khả thi | — | — |
@@ -41,9 +41,9 @@ Khoảng **+0,0029 → +0,0488**; mọi KTC 95 % không chứa 0.
 | BoT · mc | **−0,2666** | [−0,280; −0,259] | kém hơn mạnh |
 | BoT · bin | **−0,1317** | [−0,146; −0,106] | kém hơn mạnh |
 | ToN · bin | −0,0043 | [−0,005; −0,003] | kém hơn |
-| CSE-CIC · bin | −0,0031 | [−0,004; −0,002] | kém hơn |
+| CSE-CIC · bin | −0,0026 | [−0,004; −0,001] | kém hơn (n=5) |
 | ToN · mc | −0,0000 | [−0,006; +0,005] | không phân biệt được |
-| CSE-CIC · mc | +0,0250 | [−0,001; +0,051] | không phân biệt được |
+| CSE-CIC · mc | +0,0098 | [−0,024; +0,037] | không phân biệt được (n=5) |
 | UNSW · mc | +0,0269 | [+0,016; +0,041] | hơn nhẹ |
 | UNSW · bin | +0,0029 | [+0,002; +0,004] | hơn nhẹ |
 
@@ -86,6 +86,7 @@ Khoảng **+0,0029 → +0,0488**; mọi KTC 95 % không chứa 0.
 | 4 | TN-5 nốt: UNSW binary (2 seed), ToN binary | `scripts/18_tn5_structural_features.py --datasets NF-UNSW-NB15-v2 NF-ToN-IoT-v2 --tasks binary ...` | ~2 h |
 | 5 | TN-9 nốt seed 22/33 (cần tái tạo `work/holdout_features`) | `scripts/16_holdout_cpu_evaluation.py` rồi `scripts/22_tn9_holdout_tabular.py` | ~1,5 h |
 | 6 | TN-2 thêm ExtraTrees/RandomForest cho **ToN** | `scripts/09_tn2_tabular_comparators.py --datasets NF-ToN-IoT-v2 --models extra_trees random_forest` | ~2 h, cần RAM |
+| 6b | ~~CSE-CIC lên 5 seed~~ | — | ✅ **đã xong**: contrast topology co từ +0,025 xuống +0,010 |
 | 7 | **BoT-IoT tabular** | — | ❌ Không khả thi ở 13 GiB (cần ~14 GiB) |
 | 8 | Convergence-first 8 lượt · rewiring RR/RW/WW/WR · GNN trên endpoint-holdout | — | ⛔ **Cần GPU ≥ 24 GiB VRAM** |
 

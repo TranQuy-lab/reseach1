@@ -103,9 +103,10 @@ def main() -> int:
 3. **Capacity giải thích một phần có ý nghĩa ở CẢ 8 ô; topology còn lại thì không tự
    biện minh.** Hiệu ứng capacity dương và KTC không chứa 0 ở cả 8 ô (+0,003 → +0,049).
    Sau khi khớp capacity, `sage` **kém hơn** có ý nghĩa ở 4 ô — BoT mc **−0,267**,
-   BoT bin **−0,132**, CSE bin −0,003, ToN bin −0,004 — không phân biệt được ở 2 ô
-   (ToN mc −0,000; CSE mc +0,025 với KTC chứa 0), và chỉ hơn nhẹ ở 2 ô (UNSW mc +0,027;
-   UNSW bin +0,003). **Không ô nào topology dương mạnh.**
+   BoT bin **−0,132**, ToN bin −0,004, CSE bin −0,003 — không phân biệt được ở 2 ô
+   (ToN mc −0,000; CSE mc **+0,010** với KTC chứa 0), và chỉ hơn nhẹ ở 2 ô (UNSW mc
+   +0,027; UNSW bin +0,003). **Không ô nào topology dương mạnh.** Lưu ý: CSE mc co từ
+   +0,025 (3 seed) xuống +0,010 (5 seed) — thêm một ví dụ 3 seed phóng đại hiệu ứng.
 4. **Phụ thuộc endpoint: đã đo và thấy KHÔNG đáng kể trên split khóa — và một kết luận
    cũ đã bị bác bỏ.** Split endpoint-disjoint từng cho thấy ToN multiclass mất 0,311,
    nhưng đó là **split bị nhiễu**: `HistGradientBoosting` (không hề dùng danh tính

@@ -277,7 +277,7 @@ Established so far (paired by seed, 95% bootstrap CI):
 | Contrast | UNSW mc | UNSW bin | ToN mc | CSE-CIC mc |
 |---|---:|---:|---:|---:|
 | capacity only, no topology (`mlp_h273_2l − edge_mlp`) | **+0.049** [+0.034, +0.060] | **+0.003** [+0.0025, +0.0034] | **+0.045** [+0.041, +0.050] | **+0.013** [+0.007, +0.020] |
-| **topology at matched capacity (`sage − mlp_h273_2l`)** | **+0.027** [+0.016, +0.041] | **+0.003** [+0.002, +0.004] | **−0.000** [−0.006, +0.005] | +0.025 [−0.001, +0.051] |
+| **topology at matched capacity (`sage − mlp_h273_2l`)** | **+0.027** [+0.016, +0.041] | **+0.003** [+0.002, +0.004] | **−0.000** [−0.006, +0.005] | +0.010 [−0.024, +0.037] |
 | topology at matched capacity, NF-BoT-IoT-v2 mc | **−0.267** [−0.280, −0.259] | | | |
 | tabular mean vs. `edge_mlp` | **+0.240** [+0.234, +0.253] | **+0.012** [+0.011, +0.012] | **+0.162** [+0.160, +0.164] | **−0.016** [−0.022, −0.007] |
 | tabular mean vs. best graph variant | **+0.168** [+0.163, +0.175] | **+0.006** [+0.005, +0.006] | **+0.097** [+0.092, +0.103] | **−0.016** [−0.022, −0.007] |
@@ -599,9 +599,10 @@ excluding zero). Across the same cells the topology-only variant shows no averag
 
 What remains after capacity matching does not support the graph model. The topology-only
 variant is **significantly worse in four cells**—by −0.267 and −0.132 on NF-BoT-IoT-v2
-multiclass and binary, and by −0.003 to −0.004 on the two binary tasks where the graph is
-sparse—indistinguishable in two (NF-ToN-IoT-v2 multiclass, NF-CSE-CIC-IDS2018-v2
-multiclass), and only marginally better in the two NF-UNSW-NB15-v2 cells (+0.027 and
+multiclass and binary, and by −0.003 on the two binary tasks where the graph is
+sparse—indistinguishable in two (NF-ToN-IoT-v2 multiclass −0.000, NF-CSE-CIC-IDS2018-v2
+multiclass +0.010, the latter shrinking from +0.025 when CSE-CIC was extended from three
+to five seeds), and only marginally better in the two NF-UNSW-NB15-v2 cells (+0.027 and
 +0.003). No cell shows a strong positive structural effect.
 
 The most distinctive behaviour is instability. The topology-only architecture collapses on
