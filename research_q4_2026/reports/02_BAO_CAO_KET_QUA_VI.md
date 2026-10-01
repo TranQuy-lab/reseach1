@@ -37,7 +37,7 @@
 
 | Ô | n | split khóa | endpoint-holdout | mức giảm | KTC 2.5% | KTC 97.5% |
 |---|---|---|---|---|---|---|
-| ToN · binary · mlp_h128_1l | 1 | 0.9709 | 0.9720 | -0.0011 | — | — |
+| ToN · binary · mlp_h128_1l | 3 | 0.9712 | 0.9708 | 0.0004 | -0.0011 | 0.0018 |
 | ToN · binary · mlp_h273_2l | 3 | 0.9817 | 0.9807 | 0.0010 | 0.0002 | 0.0020 |
 | ToN · multiclass · mlp_h128_1l | 3 | 0.6963 | 0.4088 | 0.2874 | 0.2734 | 0.2975 |
 | ToN · multiclass · mlp_h273_2l | 3 | 0.7504 | 0.4396 | 0.3109 | 0.3060 | 0.3186 |
@@ -198,7 +198,7 @@ Thiết kế `holdout`: endpoint chia 70 % train / 30 % holdout; flow chỉ gi�
 | cell | `edge_mlp` (5.4k) | `mlp_h128_1l` control (5.4k) | `mlp_h128_2l` (23k) | `mlp_h273_2l` capacity-matched (88k) | `sage` (87k) | `sage_edge` (87k) | HistGB | ExtraTrees | RandomForest |
 |---|---|---|---|---|---|---|---|---|---|
 | BoT-IoT · binary | 0.9003 | — | — | — | 0.8043 | 0.8818 | — | — | — |
-| BoT-IoT · multiclass | 0.8169 | — | — | 0.8364 | 0.5512 | 0.8260 | — | — | — |
+| BoT-IoT · multiclass | 0.8169 | 0.8205 | — | 0.8364 | 0.5512 | 0.8260 | — | — | — |
 | CSE-CIC · binary | 0.9837 | 0.9840 | — | 0.9876 | 0.9850 | 0.9860 | — | — | — |
 | CSE-CIC · multiclass | 0.6686 | 0.6535 | — | 0.6738 | 0.6926 | 0.6894 | — | — | — |
 | ToN · binary | 0.9707 | 0.9712 | — | 0.9818 | 0.9775 | 0.9802 | — | — | — |
@@ -319,7 +319,7 @@ So sánh trực tiếp giữa split khóa (`flow_group_id`) và split endpoint-d
 
 | Ô | n | split khóa | endpoint-holdout | mức giảm | KTC 2.5% | KTC 97.5% | giảm tương đối (%) |
 |---|---|---|---|---|---|---|---|
-| ToN · binary · mlp_h128_1l | 1 | 0.9709 | 0.9720 | -0.0011 | — | — | -0.1158 |
+| ToN · binary · mlp_h128_1l | 3 | 0.9712 | 0.9708 | 0.0004 | -0.0011 | 0.0018 | 0.0373 |
 | ToN · binary · mlp_h273_2l | 3 | 0.9817 | 0.9807 | 0.0010 | 0.0002 | 0.0020 | 0.1010 |
 | ToN · multiclass · mlp_h128_1l | 3 | 0.6963 | 0.4088 | 0.2874 | 0.2734 | 0.2975 | 41.2818 |
 | ToN · multiclass · mlp_h273_2l | 3 | 0.7504 | 0.4396 | 0.3109 | 0.3060 | 0.3186 | 41.4237 |
