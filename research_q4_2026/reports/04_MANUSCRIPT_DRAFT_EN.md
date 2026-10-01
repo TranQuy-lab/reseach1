@@ -366,26 +366,19 @@ attribute anything to endpoint familiarity.**
 
 **Test 3 (clean isolation).** Finally we held the model, the training data, the
 preprocessing and the test population completely fixed, and merely partitioned the locked
-test split by whether each flow's endpoints occur in train:
+test split by whether each flow's endpoints occur in train. Run with two model families on
+three datasets (HistGradientBoosting where RAM allowed, the capacity-matched flow-only MLP
+elsewhere; 3 seeds each except UNSW-TN-10 which has 1):
 
-| Test subset | NF-ToN-IoT-v2 mc (n=3) | share | NF-UNSW-NB15-v2 mc (n=1) | share |
-|---|---:|---:|---:|---:|
-| all test flows | 3,385,552 | 100% | 478,007 | 100% |
-| both endpoints seen in train | 3,319,739 | 98.1% | 362,724 | 75.9% |
-| exactly one endpoint seen | 65,192 | 1.9% | 105,750 | 22.1% |
-| **neither endpoint seen** | **621** | **0.018%** | **9,533** | **2.0%** |
+| Dataset · task · model | all test | both endpoints seen | exactly one seen | **neither seen** | Δ |
+|---|---:|---:|---:|---:|---:|
+| ToN-IoT mc · HistGB | 0.8664 | 0.8663 | 0.8678 | 0.8219 | −0.045 |
+| CSE-CIC mc · MLP-matched | 0.6738 | 0.6730 | 0.6752 | **0.7071** | **+0.033** |
+| UNSW mc · MLP-matched | 0.4697 | 0.4694 | 0.4702 | 0.4656 | −0.004 |
+| UNSW bin · MLP-matched | 0.9674 | 0.9669 | 0.9682 | **0.9767** | **+0.009** |
 
-HGB macro-F1 by subset:
-
-| Test subset | ToN-IoT mc | Δ | UNSW mc | Δ |
-|---|---:|---:|---:|---:|
-| all test flows | 0.8664 | — | 0.6522 | — |
-| both endpoints seen | 0.8663 | −0.000 | 0.6554 | +0.003 |
-| exactly one endpoint seen | 0.8678 | +0.001 | 0.6410 | −0.011 |
-| **neither endpoint seen** | **0.8219** | **−0.045** | **0.6435** | **−0.009** |
-
-Exposure to unseen endpoints, measured on every dataset (share of test flows whose
-endpoints occur in train):
+Exposure to unseen endpoints, measured everywhere (share of test flows whose endpoints
+occur in train):
 
 | Dataset | both endpoints seen | exactly one seen | **neither seen** |
 |---|---:|---:|---:|
@@ -394,23 +387,23 @@ endpoints occur in train):
 | NF-CSE-CIC-IDS2018-v2 | 62.4% | 37.5% | **0.136%** |
 | NF-UNSW-NB15-v2 | 75.9% | 22.1% | **2.0%** |
 
-Three conclusions. First, the documented overlap figure is confirmed at endpoint-pair
-granularity, and the exposure is set by graph richness: NF-BoT-IoT-v2, with 78.7 edges per
+Four conclusions. First, the documented overlap figure is confirmed at endpoint-pair
+granularity and exposure is set by graph richness: NF-BoT-IoT-v2, with 78.7 edges per
 endpoint, has **no** test flow without a training endpoint at all, while NF-UNSW-NB15-v2,
-with 1.78 edges per endpoint, has 2.0%. Second, in the two datasets where the effect is
-measurable it is negligible: −0.045 on NF-ToN-IoT-v2 (621 flows, n = 3, SD 0.002) and
-−0.009 on NF-UNSW-NB15-v2 (9,533 flows).
-Second, neither dataset shows an effect large enough to explain any model ranking: the
-largest subset difference anywhere is −0.044, on 621 flows. Third, the datasets differ by more than two orders
-of magnitude in exposure yet agree, which is what one would expect if endpoint familiarity
-genuinely plays no role here.
+with 1.78, has 2.0%. Second, everywhere the effect is measurable it is negligible and not
+even consistently signed: the largest magnitude anywhere is −0.045 on 621 flows, and two
+of the four cells score *higher* on unseen endpoints. Third, the datasets differ by more
+than two orders of magnitude in exposure and still agree, which is what one expects if
+endpoint familiarity plays no role. Fourth, the "exactly one endpoint seen" group is large
+on NF-CSE-CIC-IDS2018-v2 (1.42 million flows) and shows no penalty either (+0.001), so
+partial exposure does not matter at a well-powered sample size.
 
 **What this changes.** The endpoint-overlap limitation is real as a statement about
 population coverage but empirically immaterial for the comparisons reported here: the
 within-environment scores are not inflated by host memorisation. The corollary is that an
 honest "unseen host" experiment cannot be built by discarding mixed-endpoint flows; it
-requires a temporal or cross-network holdout. `[PENDING: the same three tests for the
-remaining datasets.]`
+requires a temporal or cross-network holdout—and we provide one in §4.6e, where the same
+models fall to or below a constant predictor on other networks.
 
 ### 4.6c Cheap structural statistics beat message passing
 
@@ -422,27 +415,32 @@ partners, and the repetition count of the exact endpoint pair—and added them t
 capacity-matched MLP. A second variant adds the training-label attack rate of each
 endpoint (a transductive statistic).
 
-UNSW multiclass, test macro-F1:
+Test macro-F1, both datasets where the control was run (n = 3 for the count model):
 
-| Model | Parameters | Test macro-F1 |
-|---|---:|---:|
-| `mlp_h273_2l` (flow only, capacity-matched) | 88,462 | 0.4628 |
-| `sage` (message passing) | 87,301 | 0.4898 |
-| `sage_edge` (message passing + direct edge) | 87,379 | 0.4885 |
-| **`mlp_struct` (flow + 5 structural counts)** | **89,827** | **0.5045 / 0.4970** (seeds 11, 22) |
-| `mlp_struct_lab` (flow + counts + train-label rates) | `[PENDING]` | `[PENDING]` |
+| Model | Parameters | UNSW mc | UNSW bin | ToN-IoT mc |
+|---|---:|---:|---:|---:|
+| `mlp_h273_2l` (flow only, capacity-matched) | 88,462 | 0.4628 | 0.9674 | 0.7494 |
+| `sage` (message passing) | 87,301 | 0.4898 | 0.9702 | 0.7494 |
+| `sage_edge` (message passing + direct edge) | 87,379 | 0.4885 | 0.9699 | 0.7658 |
+| **`mlp_struct` (flow + 5 structural counts)** | **89,827** | **0.5003** | **0.9697** | **0.8188** |
+| `mlp_struct_lab` (+ train-label rates) | 90,373 | 0.4708 | 0.8367 | 0.8262 |
 
 A flow-only MLP with five cheap neighbourhood summaries **exceeds both message-passing
-variants** at essentially the same parameter count. The measurable benefit attributed to
-"topology" on this dataset is therefore reproducible by counting both endpoints'
-neighbourhoods.
+variants** at essentially the same parameter count on both multiclass cells (+0.011 on
+UNSW, +0.053 on ToN-IoT) and reaches exact parity on UNSW binary (0.9697 against 0.9699).
+The measurable benefit attributed to "topology" is therefore reproducible by counting both
+endpoints' neighbourhoods. Adding train-label attack rates helps only where the graph is
+dense enough for those rates to be meaningful (ToN-IoT +0.007) and is actively harmful
+where it is sparse (UNSW multiclass −0.030, UNSW binary −0.133)—a further sign that the
+label-rate features encode endpoint identity rather than transferable structure.
 
 **But the effect is not the aggregation content.** We tested the natural stronger
 hypothesis—that two mean-aggregation layers with constant node initialisation reduce to a
 hand-computable neighbour average—by giving the model, for each flow, the mean of the 39
 edge features over the training flows arriving at each endpoint (78 extra features,
-87,356 parameters, matched to `sage`). This **fails**: 0.4218 versus 0.4628 for the
-flow-only capacity-matched baseline and 0.4898 for `sage`. Raw neighbour averaging is
+87,356 parameters, matched to `sage`). This **fails on both datasets tried**: 0.4218 versus 0.4628 for the
+flow-only capacity-matched baseline and 0.4898 for `sage` on UNSW multiclass, and 0.7176
+versus 0.7494 for the flow-only baseline and 0.7658 for `sage_edge` on ToN-IoT multiclass. Raw neighbour averaging is
 worse than not using the graph at all, because the learned aggregation weights that
 `sage` supplies are doing real work.
 

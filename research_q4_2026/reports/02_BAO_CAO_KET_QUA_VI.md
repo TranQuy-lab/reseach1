@@ -357,7 +357,8 @@ Mức giảm **dương** nghĩa là split endpoint-holdout làm giảm chất l�
 |---|---|---|---|---|---|---|
 | ToN · multiclass | mlp_struct | 3 | 89827 | 0.8188 | 0.0042 | 0.8191 |
 | ToN · multiclass | mlp_struct_lab | 3 | 90373 | 0.8262 | 0.0079 | 0.8263 |
-| UNSW · binary | mlp_struct | 1 | 87635 | 0.9694 | — | 0.9723 |
+| UNSW · binary | mlp_struct | 3 | 87635 | 0.9697 | 0.0005 | 0.9725 |
+| UNSW · binary | mlp_struct_lab | 3 | 88181 | 0.8367 | 0.0234 | 0.8419 |
 | UNSW · multiclass | mlp_struct | 3 | 89827 | 0.5003 | 0.0038 | 0.5023 |
 | UNSW · multiclass | mlp_struct_lab | 3 | 90373 | 0.4708 | 0.0150 | 0.4670 |
 
