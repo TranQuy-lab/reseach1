@@ -79,7 +79,7 @@ def main() -> int:
     cs = load("collapse_summary.json") or {}
     cr = load("collapse_robustness.json") or {}
     st = load("stats_summary.json") or {}
-    P.append("\n## 0. Sáu kết luận trung tâm\n")
+    P.append("\n## 0. Tám kết luận trung tâm\n")
     t5 = load("tn5_struct_runs.csv")
     t8 = load("tn8_nbr_runs.csv")
     hs = load("holdout_summary.csv")
@@ -100,8 +100,12 @@ def main() -> int:
    `sage` {cr.get('bootstrap_ci', {}).get('sage', {}).get('rate', float('nan')):.0%},
    `sage_edge` {cr.get('bootstrap_ci', {}).get('sage_edge', {}).get('rate', float('nan')):.0%};
    Fisher exact `sage` vs `edge_mlp` p = {cr.get('fisher_exact', {}).get('sage_vs_edge_mlp', {}).get('p_holm', float('nan')):.4f} (Holm).
-3. **Phần lớn "lợi thế topology" là capacity.** Contrast ở capacity khớp nhỏ và đổi dấu
-   theo dataset (UNSW mc +0,027; ToN mc −0,000).
+3. **Capacity giải thích một phần có ý nghĩa ở CẢ 8 ô; topology còn lại thì không tự
+   biện minh.** Hiệu ứng capacity dương và KTC không chứa 0 ở cả 8 ô (+0,003 → +0,049).
+   Sau khi khớp capacity, `sage` **kém hơn** có ý nghĩa ở 4 ô — BoT mc **−0,267**,
+   BoT bin **−0,132**, CSE bin −0,003, ToN bin −0,004 — không phân biệt được ở 2 ô
+   (ToN mc −0,000; CSE mc +0,025 với KTC chứa 0), và chỉ hơn nhẹ ở 2 ô (UNSW mc +0,027;
+   UNSW bin +0,003). **Không ô nào topology dương mạnh.**
 4. **Phụ thuộc endpoint: đã đo và thấy KHÔNG đáng kể trên split khóa — và một kết luận
    cũ đã bị bác bỏ.** Split endpoint-disjoint từng cho thấy ToN multiclass mất 0,311,
    nhưng đó là **split bị nhiễu**: `HistGradientBoosting` (không hề dùng danh tính
@@ -109,12 +113,21 @@ def main() -> int:
    chỉ **621/3.385.552 (0,018 %)** flow test có cả hai endpoint chưa thấy, và trên nhóm
    đó điểm chỉ giảm 0,039. Vậy tỉ lệ chồng lấp endpoint **không** thổi phồng kết quả,
    nhưng split này cũng **không** dùng được cho claim unseen-host.
-5. **Tóm tắt cấu trúc thô thắng message passing**: `mlp_struct` (chỉ đếm lân cận)
-   = {('%.4f' % t5u[1]) if t5u else '—'} (n={t5u[0] if t5u else 0}) so với `sage` 0,4898.
-   Nhưng **trung bình đặc trưng lân cận thì thất bại**: `mlp_nbr_mean` =
+5. **Tóm tắt cấu trúc thô thắng message passing — lặp lại trên hai bộ.**
+   `mlp_struct` (chỉ đếm lân cận, tính từ train) đạt {('%.4f' % t5u[1]) if t5u else '—'}
+   trên UNSW mc (vs `sage` 0,4898) và 0,8188 trên ToN mc (vs `sage_edge` 0,7658). Thêm
+   tỉ lệ nhãn train (`mlp_struct_lab`) giúp trên ToN (0,8262) nhưng hại trên UNSW (0,4708).
+   Ngược lại, **trung bình đặc trưng lân cận thì thất bại**: `mlp_nbr_mean` =
    {('%.4f' % t8u[1]) if t8u else '—'} (n={t8u[0] if t8u else 0}) — *thấp hơn* cả flow-only.
-6. **Biến thể sụp đổ không triển khai được**: `sage` trên BoT-IoT có tỉ lệ báo động giả
-   **25,02 %** (250.189/triệu flow benign), `edge_mlp` 0,19 %.
+6. **Bảng mạnh thắng 5/6 ô, thua 1 ô.** +0,168 (UNSW mc), +0,097 (ToN mc), +0,012
+   (ToN bin), +0,006 (UNSW bin), +0,004 (CSE bin); **−0,016 trên CSE mc** (HGB 0,6712
+   < `sage` 0,6926). Không gộp thành một claim duy nhất.
+7. **Biến thể sụp đổ không triển khai được**: `sage` trên BoT-IoT có tỉ lệ báo động giả
+   **25,02 %** (250.189/triệu flow benign, recall benign 0,75), `edge_mlp` 0,19 % và
+   `sage_edge` 0,32 %.
+8. **Model flow-only không chuyển giao xuyên mạng**: nội bộ 5/5 lần vượt bộ dự đoán hằng
+   số, **xuyên mạng chỉ 4/15**; ToN→BoT 0,035 và ToN→UNSW 0,199 so với baseline 0,499
+   và 0,490.
 """)
     if hs is not None:
         P.append("\n### 0.1 Bảng mức phụ thuộc endpoint (cùng model, cùng ngân sách)\n")

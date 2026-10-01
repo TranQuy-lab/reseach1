@@ -23,11 +23,11 @@
 | Thống kê 5 seed + meta-analysis | `sage − edge_mlp` = +0,0021 [−0,0105; +0,0146] — chứa 0; 0/24 sống sót Holm | ✅ |
 | 3 seed vs 5 seed | SD tăng tới 6,67×; 4/24 quyết định KTC bị đảo | ✅ |
 | Thống kê đồ thị | BoT 78,65 cạnh/node & 91,6 % lặp vs UNSW/CSE 1,7–1,8 & ~20 % | ✅ |
-| **Gate B** tabular (UNSW 2 task, ToN mc+bin) | UNSW mc: HGB 0,654 vs `sage_edge` 0,489; ToN mc: **0,8664** vs 0,7658; ToN bin: **0,9928** vs 0,9802 | 🟡 CSE chưa |
+| **Gate B** tabular | **Xong 3/4 bộ**: UNSW (2 task), ToN (2 task), CSE-CIC (2 task). Thắng 5/6 ô (+0,004 → +0,168); **thua ô CSE mc −0,016**. BoT-IoT không khả thi ở 13 GiB | ✅ (trừ BoT) |
 | **Gate C** endpoint | **Đo sạch**: 0,018 % (ToN) và 2,0 % (UNSW) flow chưa thấy endpoint, hiệu ứng ≤ 0,044. **Bác bỏ** split endpoint-disjoint (HGB 0,866 → 0,472) | ✅ |
 | **Gate D** thống kê | Xong | ✅ |
-| TN-1 baseline cùng capacity | 7/8 ô; BoT mc 0,8364 **thắng mọi biến thể GNN** | 🟡 BoT binary |
-| TN-5 đặc trưng cấu trúc | `mlp_struct` 0,5003 > `sage` 0,4898 (UNSW mc) | ✅ |
+| TN-1 baseline cùng capacity | **Đủ cả 8 ô × 2 biến thể.** BoT mc 0,8364 và BoT bin 0,9354 — **thắng mọi biến thể GNN ở cả hai task** | ✅ |
+| TN-5 đặc trưng cấu trúc | **Lặp lại trên 2 bộ**: UNSW mc 0,5003 > `sage` 0,4898; ToN mc 0,8188 > `sage_edge` 0,7658 | ✅ |
 | TN-6 báo động giả | `sage` BoT 25,02 % (250.189 FP/triệu) vs `edge_mlp` 0,19 % | ✅ |
 | TN-7 chuyển giao xuyên mạng | nội bộ 5/5 vượt baseline hằng số; **xuyên mạng 4/15** | ✅ |
 | TN-8 trung bình đặc trưng lân cận | **Kết quả âm**: 0,4266 < flow-only 0,4628 | ✅ |
@@ -37,11 +37,10 @@
 
 | # | Việc | Lệnh | Ước tính |
 |---|---|---|---|
-| 1 | **TN-1 BoT-IoT binary** (ô cuối ma trận) | §4.1 | ~1,5–2 h |
-| 2 | **Gate B: CSE-CIC** (HGB cả 2 task) | §4.2 | ~1,5–2 h, **cần ~11,5 GiB RAM, phải chạy một mình** |
-| 3 | TN-5 phần còn lại (ToN; UNSW binary) | §4.3 | ~2 h |
-| 4 | TN-8 phần còn lại (ToN) | §4.4 | ~2 h |
-| 5 | TN-10 cho CSE/ToN binary (tùy chọn) | §4.5 | ~30 min |
+| 1 | TN-5: `mlp_struct` trên UNSW binary (1 seed) và ToN binary | §4.3 | ~1 h |
+| 2 | TN-8 (trung bình đặc trưng lân cận) trên ToN — mở rộng kết quả âm sang bộ thứ hai | §4.4 | ~2 h |
+| 3 | TN-10 cô lập endpoint cho CSE-CIC và BoT-IoT | §4.5 | ~1,5 h (cần HGB một mình) |
+| 4 | TN-9 HGB trên split endpoint-disjoint (cần tái tạo `work/holdout_features` trước) | §4.2 | ~1 h |
 | 6 | ~~BoT-IoT tabular~~ | — | ❌ **Không khả thi ở 13 GiB** (HGB cần ~14 GiB) |
 | 7 | Convergence-first 8 lượt, rewiring RR/RW/WW/WR, GNN trên endpoint-holdout | — | ⛔ **Cần GPU ≥ 24 GiB VRAM** |
 

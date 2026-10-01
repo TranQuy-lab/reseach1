@@ -14,31 +14,31 @@
   "pooled_by_contrast": [
     {
       "contrast": "best_tabular_vs_edge_mlp",
-      "k": 4,
-      "pooled_mean": 0.10904267089411117,
-      "n_positive": 4,
+      "k": 6,
+      "pooled_mean": 0.07543385714355531,
+      "n_positive": 6,
       "n_negative": 0
     },
     {
       "contrast": "best_tabular_vs_topo",
-      "k": 4,
-      "pooled_mean": 0.07073343179573739,
-      "n_positive": 4,
-      "n_negative": 0
+      "k": 6,
+      "pooled_mean": 0.04516238354172624,
+      "n_positive": 5,
+      "n_negative": 1
     },
     {
       "contrast": "capacity_no_topology",
       "k": 8,
-      "pooled_mean": 0.02201473152971311,
+      "pooled_mean": 0.021393515414250983,
       "n_positive": 8,
       "n_negative": 0
     },
     {
       "contrast": "control_vs_archive",
-      "k": 7,
-      "pooled_mean": 0.0017836819130037467,
+      "k": 8,
+      "pooled_mean": 0.0015423072500001154,
       "n_positive": 4,
-      "n_negative": 3
+      "n_negative": 4
     },
     {
       "contrast": "direct_edge_path",
@@ -50,14 +50,14 @@
     {
       "contrast": "topology_at_matched_capacity",
       "k": 8,
-      "pooled_mean": -0.04549320126535202,
+      "pooled_mean": -0.04385961052122773,
       "n_positive": 3,
       "n_negative": 5
     },
     {
       "contrast": "topology_at_matched_capacity_edge",
       "k": 8,
-      "pooled_mean": -0.0013383836617420187,
+      "pooled_mean": -0.0019775369709108307,
       "n_positive": 4,
       "n_negative": 4
     },
@@ -72,9 +72,9 @@
   "matrix": {
     "NF-BoT-IoT-v2|binary": {
       "edge_mlp": 0.9003060806872512,
-      "mlp_h128_1l": null,
+      "mlp_h128_1l": 0.9113418073033056,
       "mlp_h128_2l": null,
-      "mlp_h273_2l": 0.9424938143316228,
+      "mlp_h273_2l": 0.9353761211119019,
       "sage": 0.8042945730472674,
       "sage_edge": 0.8817967549855735,
       "hist_gradient_boosting": null,
@@ -83,7 +83,7 @@
     },
     "NF-BoT-IoT-v2|multiclass": {
       "edge_mlp": 0.8169013170624708,
-      "mlp_h128_1l": 0.8299249642702415,
+      "mlp_h128_1l": 0.8287845446387743,
       "mlp_h128_2l": null,
       "mlp_h273_2l": 0.8364254032749613,
       "sage": 0.5511532113672154,
@@ -99,7 +99,7 @@
       "mlp_h273_2l": 0.9875953833352907,
       "sage": 0.9849622372787312,
       "sage_edge": 0.9859801747289941,
-      "hist_gradient_boosting": null,
+      "hist_gradient_boosting": 0.9893509944911189,
       "extra_trees": null,
       "random_forest": null
     },
@@ -110,7 +110,7 @@
       "mlp_h273_2l": 0.6738119224851086,
       "sage": 0.692632206357677,
       "sage_edge": 0.6893567529803717,
-      "hist_gradient_boosting": null,
+      "hist_gradient_boosting": 0.6711691195405244,
       "extra_trees": null,
       "random_forest": null
     },

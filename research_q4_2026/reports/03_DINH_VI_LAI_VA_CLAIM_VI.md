@@ -69,7 +69,7 @@ Quy ước trạng thái: **OK** = có artefact hỗ trợ và phát biểu khô
 | N02 | Ở capacity khớp, lợi thế còn lại **phụ thuộc dataset**: UNSW multiclass +0,027 (KTC [+0,016; +0,041]); ToN multiclass −0,002 (KTC [−0,011; +0,006]) | **OK** (đang hoàn tất cho CSE/BoT) | Báo từng ô bằng `phaseB_contrasts.csv`, nêu rõ n; **không** gộp hai dataset thành một claim duy nhất. |
 | N03 | BoT-IoT `sage` kém là do sụp đổ tối ưu hóa, không phải underfitting | **OK** | "In 10 of 40 `sage` runs (25 %; 5/5 on BoT-IoT binary) validation macro-F1 fell after the best checkpoint by up to 0.43, which rejects a pure underfitting account at this budget." |
 | N04 | Đường edge trực tiếp ở head là yếu tố ổn định | **OK** | "Collapse rate: 0 % (`edge_mlp`), 25 % (`sage`), 5 % (`sage_edge`)." |
-| N05 | Bảng mạnh vượt GNN trên các ô đã chạy | **OK** (giới hạn theo ô đã chạy) | Nêu rõ dataset/task đã chạy và cỡ mẫu; không khái quát cho bộ chưa chạy. |
+| N05 | Bảng mạnh vượt GNN **trên hai bộ, nhưng không phải bộ thứ ba** | **SỬA — phạm vi hẹp hơn** | UNSW mc +0,168; ToN mc +0,101; UNSW bin +0,006 so với topology tốt nhất. **CSE-CIC mc thì ngược lại**: HGB 0,6712 < `sage` 0,6926 và `sage_edge` 0,6894 (−0,018…−0,021). Phải báo cả hai chiều, không gộp thành một claim. |
 | N06 | Bất ổn định dự báo điểm cuối | **OK** | Spearman ρ = −0,539 (n = 120, p = 2,2 × 10⁻¹⁰). |
 | N07 | 3 seed không đủ | **OK** | "SD increased by up to 6.67× when two further seeds were added; 4 of 24 bootstrap-CI decisions changed." |
 | N08 | UNSW chạy 3,67 lượt, ba bộ còn lại 2,0 | **OK** | Bắt buộc nêu như threat to validity. |
