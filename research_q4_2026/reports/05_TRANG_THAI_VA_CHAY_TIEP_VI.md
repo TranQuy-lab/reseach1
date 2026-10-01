@@ -1,145 +1,161 @@
-# TRẠNG THÁI & HƯỚNG DẪN CHẠY TIẾP
+# LOG ĐÓNG GÓI — TRẠNG THÁI & HƯỚNG DẪN CHẠY TIẾP
 
-**Ngày dừng:** 2026-10-01 ~07:50 (giờ VN)  
-**Lý do dừng:** theo yêu cầu người dùng — máy không chạy tiếp được lúc này.  
+**Lần đóng gói:** 2026-10-01 (lần 2, sau khi hoàn tất Gate B và toàn bộ ma trận)  
+**Lý do:** người dùng yêu cầu dừng máy và đóng gói để chạy tiếp sau.  
 **Nhánh đã đẩy:** `research/2026q4-evidence-audit` trên `TranQuy-lab/reseach1`  
-**Thư mục làm việc cục bộ:** `/home/noble-tran/nghiencuu/egs-nfuq-2026Q4`
-
-> ⚠️ **Điều quan trọng nhất cần biết:** kết quả phân tích và toàn bộ script **đã nằm trong Git**
-> (`research_q4_2026/`). Nhưng **dữ liệu và ma trận đặc trưng thì không** (~24 GB), vì quá lớn.
-> Chúng **tái tạo được hoàn toàn** bằng các lệnh ở §3. Nếu giữ được máy hiện tại thì không cần
-> tái tạo gì cả.
+**Thư mục làm việc:** `/home/noble-tran/nghiencuu/egs-nfuq-2026Q4`
 
 ---
 
-## 1. Đã hoàn thành
+## 0. Tóm tắt một câu
 
-| Hạng mục | Kết quả chính | Trạng thái |
+Đã kiểm toán 120 run lưu trữ, bác bỏ giả thuyết underfitting, đóng **Gate B** (tabular) cho
+**3/4 bộ dữ liệu**, đo sạch **Gate C** (endpoint) và **rút lại một claim sai của chính mình**,
+hoàn tất **Gate D**, và chạy **8 ô × 2 baseline cùng capacity** — tất cả trên CPU, không sửa
+một dòng mã nguồn nào.
+
+---
+
+## 1. Ma trận kết quả cuối (test macro-F1, trung bình qua seed)
+
+| Ô | `edge_mlp` (5,4k) | `mlp_h128_1l` | `mlp_h128_2l` | **`mlp_h273_2l` (khớp capacity)** | `sage` | `sage_edge` | HistGB | ExtraTrees | RF |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| UNSW · mc | 0,4141 | 0,4215 | 0,4425 | **0,4628** | 0,4898 | 0,4885 | **0,6536** | **0,6698** | **0,6683** |
+| UNSW · bin | 0,9645 | 0,9642 | 0,9662 | **0,9674** | 0,9702 | 0,9699 | 0,9761 | 0,9803 | **0,9828** |
+| ToN · mc | 0,7040 | 0,7013 | 0,7296 | **0,7494** | 0,7494 | 0,7658 | **0,8664** | — | — |
+| ToN · bin | 0,9707 | 0,9712 | — | **0,9818** | 0,9775 | 0,9802 | **0,9928** | — | — |
+| CSE-CIC · mc | 0,6686 | 0,6535 | — | **0,6738** | **0,6926** | **0,6894** | 0,6712 | — | — |
+| CSE-CIC · bin | 0,9837 | 0,9840 | — | 0,9876 | 0,9850 | 0,9860 | **0,9894** | — | — |
+| BoT-IoT · mc | 0,8169 | 0,8288 | — | **0,8364** | **0,5512** | 0,8260 | không khả thi | — | — |
+| BoT-IoT · bin | 0,9003 | 0,9113 | — | **0,9354** | **0,8043** | 0,8818 | không khả thi | — | — |
+
+## 2. Ba contrast then chốt (ghép cặp theo seed)
+
+### 2.1 Hiệu ứng capacity (`mlp_h273_2l − edge_mlp`) — **dương ở CẢ 8 ô**
+Khoảng **+0,0029 → +0,0488**; mọi KTC 95 % không chứa 0.
+
+### 2.2 Topology ở capacity khớp (`sage − mlp_h273_2l`)
+
+| Ô | Δ | KTC 95 % | Đọc |
+|---|---:|---|---|
+| BoT · mc | **−0,2666** | [−0,280; −0,259] | kém hơn mạnh |
+| BoT · bin | **−0,1317** | [−0,146; −0,106] | kém hơn mạnh |
+| ToN · bin | −0,0043 | [−0,005; −0,003] | kém hơn |
+| CSE-CIC · bin | −0,0031 | [−0,004; −0,002] | kém hơn |
+| ToN · mc | −0,0000 | [−0,006; +0,005] | không phân biệt được |
+| CSE-CIC · mc | +0,0250 | [−0,001; +0,051] | không phân biệt được |
+| UNSW · mc | +0,0269 | [+0,016; +0,041] | hơn nhẹ |
+| UNSW · bin | +0,0029 | [+0,002; +0,004] | hơn nhẹ |
+
+**Không ô nào topology dương mạnh.**
+
+### 2.3 Bảng mạnh so với GNN tốt nhất
++0,168 (UNSW mc) · +0,097 (ToN mc) · +0,012 (ToN bin) · +0,006 (UNSW bin) · +0,004
+(CSE-CIC bin) · **−0,016 (CSE-CIC mc)** → thắng 5/6 ô, **thua 1 ô**.
+
+## 3. Các phát hiện cơ chế khác
+
+| Thí nghiệm | Kết quả | Ý nghĩa |
 |---|---|---|
-| Kiểm toán 120 run lưu trữ | 120/120 verify, replay error 0, metric error 1,1e−16, `runs.csv` khớp `metrics.json` tới 5,7e−14 | ✅ |
-| Tái tạo split từ Parquet Git LFS | Khớp manifest lưu trữ **tuyệt đối** (số dòng + tỉ lệ chồng lấp IP tới 6 chữ số) | ✅ |
-| Chẩn đoán hội tụ từ 120 learning curve | 44 % run suy giảm sau đỉnh; underfitting **bị bác bỏ** | ✅ |
-| Sụp đổ tối ưu hóa + độ bền | `edge_mlp` 0/40, `sage` 10/40 (25 %), `sage_edge` 2/40; Fisher Holm p = 0,0031 | ✅ |
-| Thống kê 5 seed + meta-analysis | `sage − edge_mlp` = +0,0021 [−0,0105; +0,0146] — chứa 0; 0/24 sống sót Holm | ✅ |
-| 3 seed vs 5 seed | SD tăng tới 6,67×; 4/24 quyết định KTC bị đảo | ✅ |
-| Thống kê đồ thị | BoT 78,65 cạnh/node & 91,6 % lặp vs UNSW/CSE 1,7–1,8 & ~20 % | ✅ |
-| **Gate B** tabular | **Xong 3/4 bộ**: UNSW (2 task), ToN (2 task), CSE-CIC (2 task). Thắng 5/6 ô (+0,004 → +0,168); **thua ô CSE mc −0,016**. BoT-IoT không khả thi ở 13 GiB | ✅ (trừ BoT) |
-| **Gate C** endpoint | **Đo sạch**: 0,018 % (ToN) và 2,0 % (UNSW) flow chưa thấy endpoint, hiệu ứng ≤ 0,044. **Bác bỏ** split endpoint-disjoint (HGB 0,866 → 0,472) | ✅ |
-| **Gate D** thống kê | Xong | ✅ |
-| TN-1 baseline cùng capacity | **Đủ cả 8 ô × 2 biến thể.** BoT mc 0,8364 và BoT bin 0,9354 — **thắng mọi biến thể GNN ở cả hai task** | ✅ |
-| TN-5 đặc trưng cấu trúc | **Lặp lại trên 2 bộ**: UNSW mc 0,5003 > `sage` 0,4898; ToN mc 0,8188 > `sage_edge` 0,7658 | ✅ |
-| TN-6 báo động giả | `sage` BoT 25,02 % (250.189 FP/triệu) vs `edge_mlp` 0,19 % | ✅ |
-| TN-7 chuyển giao xuyên mạng | nội bộ 5/5 vượt baseline hằng số; **xuyên mạng 4/15** | ✅ |
-| TN-8 trung bình đặc trưng lân cận | **Kết quả âm**: 0,4266 < flow-only 0,4628 | ✅ |
-| TN-9/TN-10 cô lập endpoint | Xong, đã sửa lại một claim sai của chính tôi | ✅ |
+| Sụp đổ tối ưu hóa (120 run) | `edge_mlp` 0/40 · `sage` 10/40 (25 %) · `sage_edge` 2/40 (5 %); Fisher exact Holm p = 0,0031 | Underfitting bị bác bỏ; BoT binary 5/5 seed sụp |
+| Báo động giả (TN-6) | `sage` BoT-IoT **25,02 %** (250.189 FP/triệu); `edge_mlp` 0,19 % | Biến thể sụp đổ **không triển khai được** |
+| Thống kê đồ thị | BoT 78,65 cạnh/node & 91,6 % lặp; UNSW/CSE 1,70–1,78 & ~20 % | Giải thích vì sao topology chỉ có thể giúp ở BoT |
+| TN-5 đặc trưng cấu trúc | UNSW mc 0,5003 > `sage` 0,4898; ToN mc 0,8188 > `sage_edge` 0,7658 | **Lặp lại trên 2 bộ**: đếm lân cận thắng message passing |
+| TN-8 trung bình lân cận | 0,4266 < flow-only 0,4628 (UNSW mc) | **Kết quả âm**: không được nói "message passing chỉ là trung bình lân cận" |
+| TN-7 chuyển giao xuyên mạng | nội bộ **5/5** vượt baseline hằng số; xuyên mạng **4/15**; ToN→BoT 0,035 vs baseline 0,499 | Model flow-only **không** chuyển giao được |
+| TN-10 exposure endpoint | BoT **0 %** · ToN 0,018 % · CSE 0,136 % · UNSW 2,0 % | Chồng lấp endpoint **không** thổi phồng kết quả |
+| TN-10 hiệu ứng | ToN −0,044 (621 flow) · UNSW −0,009 (9.533 flow) | Phụ thuộc endpoint **không đáng kể** |
+| TN-9 đối chứng | HGB 0,866 → **0,472** trên split endpoint-disjoint | Split đó **bị nhiễu** — đã **rút lại** claim cũ |
 
-## 2. Việc còn lại (theo thứ tự ưu tiên)
+## 4. Sự cố toàn vẹn dữ liệu đã phát hiện & xử lý
+
+| Sự cố | Ảnh hưởng | Xử lý |
+|---|---|---|
+| `scripts/23` ghi **đè** file raw TN-10 mỗi lần chạy → mất số raw của ToN khi chạy UNSW | Mất bằng chứng raw cho các số ToN đã báo | ✅ Đã sửa sang **append**; ✅ đang **tái tạo** TN-10 ToN; bản UNSW tách riêng ở `results/tn10_endpoint_isolation_unsw_snapshot.csv` |
+| `scripts/09` ghi **đè** `tn2_tuning.csv` mỗi lần chạy → mất log cấu hình đã thử trước đó | Mất log "cấu hình thua" của UNSW/ToN | ✅ Đã sửa sang **append**. Cấu hình **thắng** vẫn nguyên trong `tn2_tabular_runs.csv` |
+| Thêm cột `peak_rss_gib` giữa chừng → CSV 16→17 cột, pandas không đọc được | TN-2 tạm thời không đọc được | ✅ Đã sửa; ghi nhớ: **thêm cột thì phải ghi ra file mới** |
+| Đĩa đầy 99 % | Nguy cơ hỏng khi ghi file | ✅ Đã xóa bản đệm tái tạo được (§6) |
+
+## 5. Việc còn lại (ưu tiên giảm dần)
 
 | # | Việc | Lệnh | Ước tính |
 |---|---|---|---|
-| 1 | TN-5: `mlp_struct` trên UNSW binary (1 seed) và ToN binary | §4.3 | ~1 h |
-| 2 | TN-8 (trung bình đặc trưng lân cận) trên ToN — mở rộng kết quả âm sang bộ thứ hai | §4.4 | ~2 h |
-| 3 | TN-10 cô lập endpoint cho CSE-CIC và BoT-IoT | §4.5 | ~1,5 h (cần HGB một mình) |
-| 4 | TN-9 HGB trên split endpoint-disjoint (cần tái tạo `work/holdout_features` trước) | §4.2 | ~1 h |
-| 6 | ~~BoT-IoT tabular~~ | — | ❌ **Không khả thi ở 13 GiB** (HGB cần ~14 GiB) |
-| 7 | Convergence-first 8 lượt, rewiring RR/RW/WW/WR, GNN trên endpoint-holdout | — | ⛔ **Cần GPU ≥ 24 GiB VRAM** |
+| 1 | **Tái tạo raw TN-10 cho ToN** (đang chạy), rồi gộp với snapshot UNSW | `scripts/23_tn10_endpoint_isolation.py --datasets NF-ToN-IoT-v2 --tasks multiclass --seeds 11 22 33` | ~30 phút |
+| 2 | TN-10 cho **CSE-CIC** (5.138 flow chưa thấy endpoint) | cùng script, `--datasets NF-CSE-CIC-IDS2018-v2` | ~1,5 h, một mình |
+| 3 | TN-8 cho **ToN** — mở rộng kết quả âm sang bộ thứ hai | `scripts/21_tn8_neighbour_mean_smoothing.py --datasets NF-ToN-IoT-v2 --tasks multiclass --seeds 11 22 33` | ~2 h |
+| 4 | TN-5 nốt: UNSW binary (2 seed), ToN binary | `scripts/18_tn5_structural_features.py --datasets NF-UNSW-NB15-v2 NF-ToN-IoT-v2 --tasks binary ...` | ~2 h |
+| 5 | TN-9 nốt seed 22/33 (cần tái tạo `work/holdout_features`) | `scripts/16_holdout_cpu_evaluation.py` rồi `scripts/22_tn9_holdout_tabular.py` | ~1,5 h |
+| 6 | TN-2 thêm ExtraTrees/RandomForest cho **ToN** | `scripts/09_tn2_tabular_comparators.py --datasets NF-ToN-IoT-v2 --models extra_trees random_forest` | ~2 h, cần RAM |
+| 7 | **BoT-IoT tabular** | — | ❌ Không khả thi ở 13 GiB (cần ~14 GiB) |
+| 8 | Convergence-first 8 lượt · rewiring RR/RW/WW/WR · GNN trên endpoint-holdout | — | ⛔ **Cần GPU ≥ 24 GiB VRAM** |
 
-## 3. Tái tạo dữ liệu cục bộ từ đầu (nếu đổi máy)
+## 6. Dữ liệu: cái gì trong Git, cái gì không
+
+**Trong Git** (`research_q4_2026/`): toàn bộ script, **58 file kết quả**, 10 hình, 5 báo cáo,
+1 protocol — **nguồn duy nhất của mọi con số**; `reports/02` sinh tự động từ đó.
+
+**Không trong Git** (tái tạo được):
+
+| Đường dẫn | Dung lượng | Trạng thái |
+|---|---:|---|
+| `data/processed_four` | 3,1 GB | còn |
+| `data/full_splits` | 2,9 GB | còn |
+| `work/features` | 12 GB | còn |
+| `work/struct` | 0,15 GB | còn |
+| `work/nbr` | 0,7 GB | còn |
+| `work/holdout_features` | 3,6 GB | ❌ **đã xóa** → tái tạo bằng `scripts/16` |
+| `data/endpoint_splits` | 1,9 GB | ❌ **đã xóa** → tái tạo bằng `scripts/10 --strategy holdout` |
+
+**Tái tạo từ đầu** nếu đổi máy: tải 4 Parquet từ
+`https://media.githubusercontent.com/media/TranQuy-lab/reseach1/main/<tên-file>.parquet`,
+rồi `nids_minibatch.prepare` để tạo split, rồi `scripts/07` + `scripts/07b_fix_binary_labels.py`
+(**07b bắt buộc**).
+
+## 7. Ghi chú tài nguyên (đo được, không ước lượng)
+
+| Việc | RAM đỉnh | Ghi chú |
+|---|---:|---|
+| HGB trên ToN-IoT (11,9 M dòng) | **10,3 GiB** | phải chạy một mình |
+| HGB trên CSE-CIC (13,2 M dòng) | **10,5 GiB** | phải chạy một mình |
+| HGB trên BoT-IoT (26,4 M dòng) | ~14 GiB | **không chạy được** trên máy 13 GiB |
+| TN-1 BoT (MLP) | ~2,5 GiB | 500–1.050 s/run |
+| MLP trên UNSW | ~0,5 GiB | 10–45 s/run |
+
+Máy: 16 luồng, 13 GiB RAM, **không GPU**. Đĩa còn **6,9 GB** sau khi dọn.
+
+## 8. Cam kết tuân thủ
 
 ```bash
-# 0) Môi trường (~2 phút)
-cd /home/noble-tran/nghiencuu && mkdir -p egs-nfuq-2026Q4 && cd egs-nfuq-2026Q4
-uv venv --python 3.12 .venv && . .venv/bin/activate
-uv pip install numpy pandas pyarrow duckdb scikit-learn scipy matplotlib
-uv pip install --index-url https://download.pytorch.org/whl/cpu torch
-
-# 1) Tải 4 Parquet (3,28 GB, ~10 phút; đây là Git LFS nhưng tải trực tiếp được)
-mkdir -p data/processed_four && cd data/processed_four
-for f in NF-UNSW-NB15-v2 NF-BoT-IoT-v2 NF-ToN-IoT-v2 NF-CSE-CIC-IDS2018-v2; do
-  curl -sSL --retry 5 -o $f.parquet \
-   "https://media.githubusercontent.com/media/TranQuy-lab/reseach1/main/$f.parquet"
-done
-cd ../..   # SHA-256 kỳ vọng ghi trong results/full_prepare_reproduction.json
-
-# 2) Tái tạo split đã khóa (~80 giây) — dùng chính module của repo, chỉ đọc
-PYTHONPATH=/home/noble-tran/nghiencuu/repo_reseach1/src python -m nids_minibatch.prepare \
-  --source data/processed_four --output data/full_splits \
-  --report results/full_prepare_reproduction.json \
-  --threads 12 --memory-limit 8GB --protocol PROTOCOL_FULL_DATA_VI.md
-# Kiểm tra: phải khớp prepare_manifest.json lưu trữ về số dòng và ip_overlap
-
-# 3) Ma trận đặc trưng (~10 phút, 12 GB)
-python scripts/07_materialise_features.py
-python scripts/07b_fix_binary_labels.py          # BẮT BUỘC: Label nhị phân là số nguyên
-
-# 4) Split endpoint-disjoint (nếu cần Gate C)
-python scripts/10_endpoint_disjoint_split.py --strategy holdout --threads 6
+git diff --stat main..HEAD -- src/ tests/ research/ notebooks/
+# → rỗng: KHÔNG một file mã nguồn nào bị sửa
 ```
 
-## 4. Lệnh chạy tiếp chính xác
+Toàn bộ công việc nằm trong `research_q4_2026/`, đúng yêu cầu đề bài.
 
-### 4.1 TN-1 BoT-IoT binary (ưu tiên 1)
-```bash
-cd /home/noble-tran/nghiencuu/egs-nfuq-2026Q4 && . .venv/bin/activate
-python scripts/08_tn1_capacity_matched_mlp.py \
-  --datasets NF-BoT-IoT-v2 --tasks binary \
-  --models mlp_h273_2l mlp_h128_1l --seeds 11 22 33
-```
-Script **tự bỏ qua run đã có** nên chạy lại an toàn.
+## 9. Danh mục script
 
-### 4.2 Gate B cho CSE-CIC (ưu tiên 2 — PHẢI chạy một mình)
-```bash
-# Dừng mọi job khác trước; HGB trên 13,2 M dòng cần ~11,5 GiB
-python scripts/09_tn2_tabular_comparators.py \
-  --datasets NF-CSE-CIC-IDS2018-v2 --tasks multiclass binary \
-  --models hist_gradient_boosting --seeds 11 22 33 --n-jobs 14
-```
-Nếu OOM: chấp nhận và ghi rõ **giới hạn tài nguyên** (quy tắc 7 của protocol), **không** subsample ngầm.
-
-### 4.3–4.5 Các phần còn lại
-```bash
-python scripts/18_tn5_structural_features.py --datasets NF-ToN-IoT-v2 --tasks multiclass binary \
-  --models mlp_struct mlp_struct_lab --seeds 11 22 33
-python scripts/21_tn8_neighbour_mean_smoothing.py --datasets NF-ToN-IoT-v2 --tasks multiclass binary \
-  --seeds 11 22 33 --threads 6
-python scripts/23_tn10_endpoint_isolation.py --datasets NF-BoT-IoT-v2 NF-CSE-CIC-IDS2018-v2 \
-  --tasks multiclass --seeds 11 22 33 --n-jobs 14
-```
-
-Sau **mỗi** lần chạy, làm mới báo cáo và hình:
-```bash
-for s in 11 12 14 17 19 13; do python scripts/$s*.py; done
-python scripts/06_figures.py
-```
-
-## 5. Ghi chú tài nguyên & lỗi đã gặp (để lần sau tránh)
-
-| Vấn đề | Chi tiết | Cách xử lý |
-|---|---|---|
-| **RAM là nút cổ chai** | Máy 13 GiB. HGB đo được: ToN-IoT **10,3 GiB**, CSE-CIC ~11,5 GiB, BoT-IoT ~14 GiB (không chạy được) | Chạy TN-2 **một mình**; dùng `scripts/run_tn2_when_free.sh` để chờ đủ RAM |
-| **OOM đã bị một lần** | TN-2 ToN bị kill khi chạy song song 4 job | Chỉ chạy TN-2 khi các job khác đã dừng |
-| **Schema drift** | Thêm cột `peak_rss_gib` giữa chừng làm CSV 16→17 cột, pandas không đọc được | Đã sửa; **nếu thêm cột, phải đổi tên file kết quả** |
-| **`Label` nhị phân là số nguyên** | Không phải tên lớp; phải dùng trực tiếp, thứ tự lớp `["Benign","Attack"]` | `scripts/07b_fix_binary_labels.py` bắt buộc chạy sau `07` |
-| **`history.json` chỉ 4–5 điểm** | Validation chỉ chạy sau mỗi lượt đầy đủ | Đủ để phân loại plateau/decay, không đủ để ước lượng learning curve mịn |
-| **BoT-IoT TN-1 rất chậm** | ~900–1500 s/run do 12.910 step | Chạy qua đêm; script có thể resume |
-| **UNSW ngân sách khác** | 3,667 lượt so với 2,0 ở ba bộ còn lại | **Luôn** nêu như threat to validity |
-| **Git LFS SHA khác manifest** | SHA file LFS ≠ `source.sha256` trong manifest | Đã chứng minh tương đương bằng tái tạo split; ghi rõ khi công bố |
-
-## 6. Bản đồ file
-
-| Đường dẫn | Nội dung |
+| Script | Vai trò |
 |---|---|
-| `reports/01_..._KIEM_TRA_DINH_VI_LAI_VI.md` | Kiểm tra, chẩn đoán, định vị lại, chọn hướng |
-| `reports/02_BAO_CAO_KET_QUA_VI.md` | **Báo cáo kết quả tổng hợp, sinh tự động từ `results/`** |
-| `reports/03_DINH_VI_LAI_VA_CLAIM_VI.md` | Sổ claim (N01–N23) + threat to validity |
-| `reports/04_MANUSCRIPT_DRAFT_EN.md` | Bản thảo tiếng Anh (DRAFT) |
-| `reports/05_TRANG_THAI_VA_CHAY_TIEP_VI.md` | **File này** |
-| `protocols/PROTOCOL_PHASE_B_VI.md` | Protocol khóa trước + sổ amendment |
-| `scripts/01..06` | Phase A: kiểm toán, hội tụ, thống kê, lớp hiếm, sụp đổ, hình |
-| `scripts/07..10` | Tái tạo dữ liệu, split, endpoint split |
-| `scripts/11..23` | Phase B: TN-1…TN-10 |
-| `results/*.csv,*.json` | 58 file kết quả — **nguồn duy nhất của mọi con số** |
-
-## 7. Trạng thái goal
-
-Goal **tạm dừng** theo yêu cầu người dùng. Khi tiếp tục, chạy lại đúng thứ tự §4 và bật lại goal.
+| `01_inventory_audit.py` | Kiểm kê + kiểm chứng 120 run |
+| `02_convergence_diagnostics.py` | Phân loại learning curve (plateau / decay / still rising) |
+| `03_five_seed_stats.py` | Thống kê ghép cặp + meta-analysis + hiệu chỉnh Holm |
+| `04_rare_class_and_instability.py` | Lớp hiếm + bất ổn định |
+| `05_collapse_sensitivity.py` | Sụp đổ tối ưu hóa + độ nhạy xếp hạng |
+| `06_figures.py` | Hình Phase A |
+| `07` + `07b` | Ma trận đặc trưng (**07b bắt buộc**: nhãn nhị phân là số nguyên) |
+| `08_tn1_capacity_matched_mlp.py` | **TN-1** baseline cùng capacity |
+| `09_tn2_tabular_comparators.py` | **TN-2** comparator bảng (Gate B) |
+| `10_endpoint_disjoint_split.py` | Split endpoint-disjoint (3 chiến lược) |
+| `11_phaseB_analysis.py` | Tổng hợp Phase B + hình 5/6/9 |
+| `12_endpoint_feasibility.py` | Cổng khả thi endpoint |
+| `13_build_report_02.py` | **Sinh báo cáo kết quả tự động** |
+| `14_collapse_robustness.py` | Độ bền kết luận sụp đổ |
+| `15_graph_statistics.py` | Thống kê đồ thị |
+| `16_holdout_cpu_evaluation.py` | **TN-4** đánh giá trên split endpoint |
+| `17_holdout_comparison.py` | So sánh split khóa vs endpoint |
+| `18_tn5_structural_features.py` | **TN-5** đặc trưng cấu trúc |
+| `19_tn6_operational_metrics.py` | **TN-6** tỉ lệ báo động giả |
+| `20_tn7_cross_dataset_transfer.py` | **TN-7** chuyển giao xuyên mạng |
+| `21_tn8_neighbour_mean_smoothing.py` | **TN-8** trung bình đặc trưng lân cận |
+| `22_tn9_holdout_tabular.py` | **TN-9** HGB trên split endpoint |
+| `23_tn10_endpoint_isolation.py` | **TN-10** cô lập endpoint trên split khóa |

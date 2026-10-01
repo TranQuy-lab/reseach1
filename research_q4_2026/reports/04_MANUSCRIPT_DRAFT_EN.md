@@ -368,7 +368,7 @@ attribute anything to endpoint familiarity.**
 preprocessing and the test population completely fixed, and merely partitioned the locked
 test split by whether each flow's endpoints occur in train:
 
-| Test subset | NF-ToN-IoT-v2 mc (n=2) | share | NF-UNSW-NB15-v2 mc (n=1) | share |
+| Test subset | NF-ToN-IoT-v2 mc (n=3) | share | NF-UNSW-NB15-v2 mc (n=1) | share |
 |---|---:|---:|---:|---:|
 | all test flows | 3,385,552 | 100% | 478,007 | 100% |
 | both endpoints seen in train | 3,319,739 | 98.1% | 362,724 | 75.9% |
@@ -379,19 +379,31 @@ HGB macro-F1 by subset:
 
 | Test subset | ToN-IoT mc | Δ | UNSW mc | Δ |
 |---|---:|---:|---:|---:|
-| all test flows | 0.8659 | — | 0.6522 | — |
-| both endpoints seen | 0.8659 | −0.000 | 0.6554 | +0.003 |
-| exactly one endpoint seen | 0.8670 | +0.001 | 0.6410 | −0.011 |
-| **neither endpoint seen** | **0.8220** | **−0.044** | **0.6435** | **−0.009** |
+| all test flows | 0.8664 | — | 0.6522 | — |
+| both endpoints seen | 0.8663 | −0.000 | 0.6554 | +0.003 |
+| exactly one endpoint seen | 0.8678 | +0.001 | 0.6410 | −0.011 |
+| **neither endpoint seen** | **0.8219** | **−0.045** | **0.6435** | **−0.009** |
+
+Exposure to unseen endpoints, measured on every dataset (share of test flows whose
+endpoints occur in train):
+
+| Dataset | both endpoints seen | exactly one seen | **neither seen** |
+|---|---:|---:|---:|
+| NF-BoT-IoT-v2 | 99.988% | 0.012% | **0.000% (zero flows)** |
+| NF-ToN-IoT-v2 | 98.1% | 1.9% | **0.018%** |
+| NF-CSE-CIC-IDS2018-v2 | 62.4% | 37.5% | **0.136%** |
+| NF-UNSW-NB15-v2 | 75.9% | 22.1% | **2.0%** |
 
 Three conclusions. First, the documented overlap figure is confirmed at endpoint-pair
-granularity: only 0.018% of NF-ToN-IoT-v2 test flows have no endpoint in common with the
-training data. NF-UNSW-NB15-v2 is the harder case with 2.0% such flows—its graph is sparse
-enough that many endpoints appear only in test—and there the score moves by −0.009.
+granularity, and the exposure is set by graph richness: NF-BoT-IoT-v2, with 78.7 edges per
+endpoint, has **no** test flow without a training endpoint at all, while NF-UNSW-NB15-v2,
+with 1.78 edges per endpoint, has 2.0%. Second, in the two datasets where the effect is
+measurable it is negligible: −0.045 on NF-ToN-IoT-v2 (621 flows, n = 3, SD 0.002) and
+−0.009 on NF-UNSW-NB15-v2 (9,533 flows).
 Second, neither dataset shows an effect large enough to explain any model ranking: the
-largest subset difference anywhere is −0.044, on 621 flows. Third, the two datasets differ
-by two orders of magnitude in exposure yet agree on the conclusion, which is what one
-would expect if endpoint familiarity genuinely plays no role here.
+largest subset difference anywhere is −0.044, on 621 flows. Third, the datasets differ by more than two orders
+of magnitude in exposure yet agree, which is what one would expect if endpoint familiarity
+genuinely plays no role here.
 
 **What this changes.** The endpoint-overlap limitation is real as a statement about
 population coverage but empirically immaterial for the comparisons reported here: the

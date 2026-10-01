@@ -1,0 +1,49 @@
+{
+  "by_subset": [
+    {
+      "dataset": "NF-ToN-IoT-v2",
+      "task": "multiclass",
+      "subset": "all_test",
+      "n_seeds": 3,
+      "n_flows": 3385552,
+      "macro_f1": 0.8664,
+      "macro_f1_std": 0.0032,
+      "weighted_f1": 0.9702,
+      "delta_vs_all_test": 0.0
+    },
+    {
+      "dataset": "NF-ToN-IoT-v2",
+      "task": "multiclass",
+      "subset": "both_endpoints_seen",
+      "n_seeds": 3,
+      "n_flows": 3319739,
+      "macro_f1": 0.8663,
+      "macro_f1_std": 0.0031,
+      "weighted_f1": 0.9702,
+      "delta_vs_all_test": -0.0
+    },
+    {
+      "dataset": "NF-ToN-IoT-v2",
+      "task": "multiclass",
+      "subset": "neither_endpoint_seen",
+      "n_seeds": 3,
+      "n_flows": 621,
+      "macro_f1": 0.8219,
+      "macro_f1_std": 0.0016,
+      "weighted_f1": 0.9688,
+      "delta_vs_all_test": -0.0445
+    },
+    {
+      "dataset": "NF-ToN-IoT-v2",
+      "task": "multiclass",
+      "subset": "one_endpoint_seen",
+      "n_seeds": 3,
+      "n_flows": 65192,
+      "macro_f1": 0.8678,
+      "macro_f1_std": 0.0043,
+      "weighted_f1": 0.9705,
+      "delta_vs_all_test": 0.0014
+    }
+  ],
+  "interpretation": "Model, training data, preprocessing and test population are identical across subsets; only endpoint familiarity varies."
+}

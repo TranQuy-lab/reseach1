@@ -406,6 +406,10 @@ Giữ **nguyên** model, dữ liệu train, preprocessing và toàn bộ tập t
 
 | Ô | Nhóm test | số seed | số flow | macro-F1 | SD | lệch so với toàn bộ test |
 |---|---|---|---|---|---|---|
+| ToN · multiclass | all_test | 3 | 3385552 | 0.8664 | 0.0032 | 0.0000 |
+| ToN · multiclass | both_endpoints_seen | 3 | 3319739 | 0.8663 | 0.0031 | -0.0000 |
+| ToN · multiclass | neither_endpoint_seen | 3 | 621 | 0.8219 | 0.0016 | -0.0445 |
+| ToN · multiclass | one_endpoint_seen | 3 | 65192 | 0.8678 | 0.0043 | 0.0014 |
 | UNSW · multiclass | all_test | 1 | 478007 | 0.6522 | — | 0.0000 |
 | UNSW · multiclass | both_endpoints_seen | 1 | 362724 | 0.6554 | — | 0.0033 |
 | UNSW · multiclass | neither_endpoint_seen | 1 | 9533 | 0.6435 | — | -0.0087 |

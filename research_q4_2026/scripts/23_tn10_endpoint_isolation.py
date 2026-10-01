@@ -182,7 +182,13 @@ def main() -> int:
                                                       average="weighted", zero_division=0)),
                         "accuracy": float((yte[mask] == pred[mask]).mean()),
                     })
-                pd.DataFrame(rows).to_csv(OUT / "tn10_endpoint_isolation.csv", index=False)
+                # APPEND, never overwrite: an earlier version rebuilt the whole file
+                # from the in-memory list on each invocation, which silently destroyed
+                # the rows of any dataset processed in a previous invocation.
+                pd.DataFrame(rows[-4:]).to_csv(
+                    OUT / "tn10_endpoint_isolation.csv", mode="a",
+                    header=not (OUT / "tn10_endpoint_isolation.csv").exists(),
+                    index=False)
                 _write_summary()
                 print(f"[{time.strftime('%H:%M:%S')}] {ds} {task} s{seed} done", flush=True)
                 del m

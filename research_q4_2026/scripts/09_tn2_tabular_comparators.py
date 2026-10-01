@@ -127,7 +127,10 @@ def main() -> int:
                                       "val_macro_f1": v["macro_f1"],
                                       "val_weighted_f1": v["weighted_f1"],
                                       "val_accuracy": v["accuracy"]})
-                    pd.DataFrame(tune_rows).to_csv(TUNE, index=False)
+                    # append so the tuning history survives across invocations;
+                    # an earlier version overwrote this file each run.
+                    pd.DataFrame(tune_rows[-1:]).to_csv(
+                        TUNE, mode="a", header=not TUNE.exists(), index=False)
                     print(f"  tune {name:24s} s{args.tune_seed} {cfg} -> val_macro_f1="
                           f"{v['macro_f1']:.4f} ({fit_s:.0f}s)", flush=True)
                     if v["macro_f1"] > best_val:

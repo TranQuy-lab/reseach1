@@ -1,0 +1,34 @@
+{
+  "note": "Share of test flows by whether their endpoints occur in the locked train split. Endpoint = (IP, port). Computed with the same code path as TN-10, without training any model. Exposure is set by graph richness.",
+  "datasets": {
+    "NF-BoT-IoT-v2": {
+      "total": 7548368,
+      "both_seen": 7547460,
+      "one_seen": 908,
+      "neither_seen": 0,
+      "neither_pct": 0.0
+    },
+    "NF-ToN-IoT-v2": {
+      "total": 3385552,
+      "both_seen": 3319739,
+      "one_seen": 65192,
+      "neither_seen": 621,
+      "neither_pct": 0.0183
+    },
+    "NF-CSE-CIC-IDS2018-v2": {
+      "total": 3779380,
+      "both_seen": 2358386,
+      "one_seen": 1415856,
+      "neither_seen": 5138,
+      "neither_pct": 0.1359
+    },
+    "NF-UNSW-NB15-v2": {
+      "total": 478007,
+      "both_seen": 362724,
+      "one_seen": 105750,
+      "neither_seen": 9533,
+      "neither_pct": 1.9943
+    }
+  },
+  "implication": "TN-10 cannot be run on NF-BoT-IoT-v2 (zero exposure, nothing to compare). NF-CSE-CIC-IDS2018-v2 has 5,138 such flows and is runnable but noisy."
+}
