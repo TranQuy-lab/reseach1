@@ -1,0 +1,439 @@
+{
+  "manifest_schema_version": 2,
+  "protocol": "PROTOCOL_FULL_DATA_VI.md",
+  "split_seed": 20260920,
+  "sample_seed": 20260921,
+  "split_rule": "DuckDB hash(flow_group_id, seed) % 10: 0-6 train, 7 val, 8-9 test",
+  "sample_caps_per_attack": {
+    "train": 20000,
+    "val": 5000,
+    "test": 10000
+  },
+  "source": {
+    "NF-UNSW-NB15-v2": {
+      "path": "processed_four/NF-UNSW-NB15-v2.parquet",
+      "rows": 2390275,
+      "sha256": "ec59445b8995025fb3a1a442e7d761e7b81ac507bd49051200dd7f60b93665b3"
+    },
+    "NF-BoT-IoT-v2": {
+      "path": "processed_four/NF-BoT-IoT-v2.parquet",
+      "rows": 37763497,
+      "sha256": "3181bc41c8cf956a6d177e0f37fb2442a096dc490bfe1927d6a49e8216c06bfc"
+    },
+    "NF-ToN-IoT-v2": {
+      "path": "processed_four/NF-ToN-IoT-v2.parquet",
+      "rows": 16940496,
+      "sha256": "71b1c9294edfda7c3a4c75b30d7605d9688f65d9cea09d813e81348f5b2ed7b3"
+    },
+    "NF-CSE-CIC-IDS2018-v2": {
+      "path": "processed_four/NF-CSE-CIC-IDS2018-v2.parquet",
+      "rows": 18893708,
+      "sha256": "63d4275606c609787ba4c501c0060238dc7049bf66276f3417901cccac72cc3c"
+    }
+  },
+  "datasets": {
+    "NF-UNSW-NB15-v2": {
+      "source_rows": 2390275,
+      "split_rows": {
+        "test": {
+          "rows": 478007,
+          "classes": {
+            "Analysis": 448,
+            "Backdoor": 432,
+            "Benign": 459170,
+            "DoS": 1143,
+            "Exploits": 6251,
+            "Fuzzers": 4409,
+            "Generic": 3264,
+            "Reconnaissance": 2557,
+            "Shellcode": 296,
+            "Worms": 37
+          },
+          "pilot_rows": 28837,
+          "pilot_classes": {
+            "Analysis": 448,
+            "Backdoor": 432,
+            "Benign": 10000,
+            "DoS": 1143,
+            "Exploits": 6251,
+            "Fuzzers": 4409,
+            "Generic": 3264,
+            "Reconnaissance": 2557,
+            "Shellcode": 296,
+            "Worms": 37
+          },
+          "pilot_sha256": "9b7560035535a8ceb1618c7416d4bd55c6d1412990f12796631bc77ccadf39d5",
+          "conflicting_label_groups": 476,
+          "rows_in_conflicting_label_groups": 2807
+        },
+        "train": {
+          "rows": 1673104,
+          "classes": {
+            "Analysis": 1613,
+            "Backdoor": 1514,
+            "Benign": 1606514,
+            "DoS": 4058,
+            "Exploits": 22148,
+            "Fuzzers": 15590,
+            "Generic": 11633,
+            "Reconnaissance": 8939,
+            "Shellcode": 983,
+            "Worms": 112
+          },
+          "pilot_rows": 84442,
+          "pilot_classes": {
+            "Analysis": 1613,
+            "Backdoor": 1514,
+            "Benign": 20000,
+            "DoS": 4058,
+            "Exploits": 20000,
+            "Fuzzers": 15590,
+            "Generic": 11633,
+            "Reconnaissance": 8939,
+            "Shellcode": 983,
+            "Worms": 112
+          },
+          "pilot_sha256": "36e1d0bf61cd655cb05525b9c11249ef5c4b0ca0872b0120ab8b3027a2991185",
+          "conflicting_label_groups": 1721,
+          "rows_in_conflicting_label_groups": 10175
+        },
+        "val": {
+          "rows": 239164,
+          "classes": {
+            "Analysis": 238,
+            "Backdoor": 223,
+            "Benign": 229538,
+            "DoS": 593,
+            "Exploits": 3152,
+            "Fuzzers": 2311,
+            "Generic": 1663,
+            "Reconnaissance": 1283,
+            "Shellcode": 148,
+            "Worms": 15
+          },
+          "pilot_rows": 14626,
+          "pilot_classes": {
+            "Analysis": 238,
+            "Backdoor": 223,
+            "Benign": 5000,
+            "DoS": 593,
+            "Exploits": 3152,
+            "Fuzzers": 2311,
+            "Generic": 1663,
+            "Reconnaissance": 1283,
+            "Shellcode": 148,
+            "Worms": 15
+          },
+          "pilot_sha256": "284ce511e92abd234ad4f62ef13d2c17af9271e7d1d371cc7596f544c47d0acb",
+          "conflicting_label_groups": 253,
+          "rows_in_conflicting_label_groups": 1506
+        }
+      },
+      "cross_split_groups": 0,
+      "ip_overlap_with_train": {
+        "val": {
+          "unique_holdout_ips": 41,
+          "ips_also_in_train": 41,
+          "fraction_also_in_train": 1.0
+        },
+        "test": {
+          "unique_holdout_ips": 43,
+          "ips_also_in_train": 41,
+          "fraction_also_in_train": 0.9534883720930233
+        }
+      }
+    },
+    "NF-BoT-IoT-v2": {
+      "source_rows": 37763497,
+      "split_rows": {
+        "test": {
+          "rows": 7548368,
+          "classes": {
+            "Benign": 27193,
+            "DDoS": 3664129,
+            "DoS": 3333638,
+            "Reconnaissance": 522928,
+            "Theft": 480
+          },
+          "pilot_rows": 40480,
+          "pilot_classes": {
+            "Benign": 10000,
+            "DDoS": 10000,
+            "DoS": 10000,
+            "Reconnaissance": 10000,
+            "Theft": 480
+          },
+          "pilot_sha256": "a8f9575a36208f4efa608fd6c752188010c9039b69d8c9cf826c29e012e4c47a",
+          "conflicting_label_groups": 0,
+          "rows_in_conflicting_label_groups": 0
+        },
+        "train": {
+          "rows": 26438303,
+          "classes": {
+            "Benign": 94373,
+            "DDoS": 12833692,
+            "DoS": 11672248,
+            "Reconnaissance": 1836302,
+            "Theft": 1688
+          },
+          "pilot_rows": 81688,
+          "pilot_classes": {
+            "Benign": 20000,
+            "DDoS": 20000,
+            "DoS": 20000,
+            "Reconnaissance": 20000,
+            "Theft": 1688
+          },
+          "pilot_sha256": "f0decbf4bd76f752232bf7fa3a2d2df68ce00727408c83f62a1a0e107ff58878",
+          "conflicting_label_groups": 0,
+          "rows_in_conflicting_label_groups": 0
+        },
+        "val": {
+          "rows": 3776826,
+          "classes": {
+            "Benign": 13471,
+            "DDoS": 1834026,
+            "DoS": 1667297,
+            "Reconnaissance": 261769,
+            "Theft": 263
+          },
+          "pilot_rows": 20263,
+          "pilot_classes": {
+            "Benign": 5000,
+            "DDoS": 5000,
+            "DoS": 5000,
+            "Reconnaissance": 5000,
+            "Theft": 263
+          },
+          "pilot_sha256": "0265b53697c5248b511945d86abd9fd6fe8a3d643d2e427995c4e4be273fac46",
+          "conflicting_label_groups": 0,
+          "rows_in_conflicting_label_groups": 0
+        }
+      },
+      "cross_split_groups": 0,
+      "ip_overlap_with_train": {
+        "val": {
+          "unique_holdout_ips": 123,
+          "ips_also_in_train": 114,
+          "fraction_also_in_train": 0.926829268292683
+        },
+        "test": {
+          "unique_holdout_ips": 170,
+          "ips_also_in_train": 155,
+          "fraction_also_in_train": 0.9117647058823529
+        }
+      }
+    },
+    "NF-ToN-IoT-v2": {
+      "source_rows": 16940496,
+      "split_rows": {
+        "test": {
+          "rows": 3385552,
+          "classes": {
+            "Backdoor": 3339,
+            "Benign": 1218996,
+            "DDoS": 405142,
+            "DoS": 142527,
+            "injection": 137245,
+            "mitm": 1588,
+            "password": 230557,
+            "ransomware": 674,
+            "scanning": 754468,
+            "xss": 491016
+          },
+          "pilot_rows": 75601,
+          "pilot_classes": {
+            "Backdoor": 3339,
+            "Benign": 10000,
+            "DDoS": 10000,
+            "DoS": 10000,
+            "injection": 10000,
+            "mitm": 1588,
+            "password": 10000,
+            "ransomware": 674,
+            "scanning": 10000,
+            "xss": 10000
+          },
+          "pilot_sha256": "f53eb10b347edce007f12e239c91dd585808fafd3dbde01f8932d975a485c23d",
+          "conflicting_label_groups": 0,
+          "rows_in_conflicting_label_groups": 0
+        },
+        "train": {
+          "rows": 11861039,
+          "classes": {
+            "Backdoor": 11787,
+            "Benign": 4271066,
+            "DDoS": 1418482,
+            "DoS": 498447,
+            "injection": 478631,
+            "mitm": 5387,
+            "password": 807607,
+            "ransomware": 2401,
+            "scanning": 2648961,
+            "xss": 1718270
+          },
+          "pilot_rows": 159575,
+          "pilot_classes": {
+            "Backdoor": 11787,
+            "Benign": 20000,
+            "DDoS": 20000,
+            "DoS": 20000,
+            "injection": 20000,
+            "mitm": 5387,
+            "password": 20000,
+            "ransomware": 2401,
+            "scanning": 20000,
+            "xss": 20000
+          },
+          "pilot_sha256": "01f135fd33836b51c4d9eb6558c1045d439ca1d691664190feeb8977c7e8f23a",
+          "conflicting_label_groups": 0,
+          "rows_in_conflicting_label_groups": 0
+        },
+        "val": {
+          "rows": 1693905,
+          "classes": {
+            "Backdoor": 1683,
+            "Benign": 609407,
+            "DDoS": 202610,
+            "DoS": 71635,
+            "injection": 68589,
+            "mitm": 748,
+            "password": 115159,
+            "ransomware": 350,
+            "scanning": 377990,
+            "xss": 245734
+          },
+          "pilot_rows": 37781,
+          "pilot_classes": {
+            "Backdoor": 1683,
+            "Benign": 5000,
+            "DDoS": 5000,
+            "DoS": 5000,
+            "injection": 5000,
+            "mitm": 748,
+            "password": 5000,
+            "ransomware": 350,
+            "scanning": 5000,
+            "xss": 5000
+          },
+          "pilot_sha256": "41b033c1c2fa5464f9881f783e3fe5f28838567280bce11aadf1e31674e58bb9",
+          "conflicting_label_groups": 0,
+          "rows_in_conflicting_label_groups": 0
+        }
+      },
+      "cross_split_groups": 0,
+      "ip_overlap_with_train": {
+        "val": {
+          "unique_holdout_ips": 5109,
+          "ips_also_in_train": 2618,
+          "fraction_also_in_train": 0.5124290467801919
+        },
+        "test": {
+          "unique_holdout_ips": 8511,
+          "ips_also_in_train": 3516,
+          "fraction_also_in_train": 0.41311244272118436
+        }
+      }
+    },
+    "NF-CSE-CIC-IDS2018-v2": {
+      "source_rows": 18893708,
+      "split_rows": {
+        "test": {
+          "rows": 3779380,
+          "classes": {
+            "Benign": 3326441,
+            "Bot": 28719,
+            "Brute Force": 24662,
+            "DDoS": 278547,
+            "DoS": 97461,
+            "Infilteration": 23465,
+            "injection": 85
+          },
+          "pilot_rows": 60085,
+          "pilot_classes": {
+            "Benign": 10000,
+            "Bot": 10000,
+            "Brute Force": 10000,
+            "DDoS": 10000,
+            "DoS": 10000,
+            "Infilteration": 10000,
+            "injection": 85
+          },
+          "pilot_sha256": "d2ddf372479739d8ae3117ab2cd751dbdfb2fddda370e62016b7088c6813a41c",
+          "conflicting_label_groups": 601,
+          "rows_in_conflicting_label_groups": 1207
+        },
+        "train": {
+          "rows": 13227184,
+          "classes": {
+            "Benign": 11647005,
+            "Bot": 99994,
+            "Brute Force": 86760,
+            "DDoS": 973374,
+            "DoS": 338291,
+            "Infilteration": 81453,
+            "injection": 307
+          },
+          "pilot_rows": 120307,
+          "pilot_classes": {
+            "Benign": 20000,
+            "Bot": 20000,
+            "Brute Force": 20000,
+            "DDoS": 20000,
+            "DoS": 20000,
+            "Infilteration": 20000,
+            "injection": 307
+          },
+          "pilot_sha256": "41eff84b2a36ea3f1baf4f1bbc408d017062c4751470031bbb249c48af790fd9",
+          "conflicting_label_groups": 2015,
+          "rows_in_conflicting_label_groups": 4075
+        },
+        "val": {
+          "rows": 1887144,
+          "classes": {
+            "Benign": 1662121,
+            "Bot": 14384,
+            "Brute Force": 12560,
+            "DDoS": 138349,
+            "DoS": 48247,
+            "Infilteration": 11443,
+            "injection": 40
+          },
+          "pilot_rows": 30040,
+          "pilot_classes": {
+            "Benign": 5000,
+            "Bot": 5000,
+            "Brute Force": 5000,
+            "DDoS": 5000,
+            "DoS": 5000,
+            "Infilteration": 5000,
+            "injection": 40
+          },
+          "pilot_sha256": "a577bf13e43dde3f9e8ca489962287de0b964cabc1b0b0e5cc7729a7f59ef97a",
+          "conflicting_label_groups": 266,
+          "rows_in_conflicting_label_groups": 536
+        }
+      },
+      "cross_split_groups": 0,
+      "ip_overlap_with_train": {
+        "val": {
+          "unique_holdout_ips": 78695,
+          "ips_also_in_train": 64469,
+          "fraction_also_in_train": 0.8192261261833662
+        },
+        "test": {
+          "unique_holdout_ips": 114553,
+          "ips_also_in_train": 86904,
+          "fraction_also_in_train": 0.7586357406615278
+        }
+      }
+    }
+  },
+  "software": {
+    "python": "3.12.3",
+    "duckdb": "1.5.6",
+    "pandas": "3.0.6"
+  },
+  "elapsed_seconds": 77.27057790600156,
+  "complete": true
+}

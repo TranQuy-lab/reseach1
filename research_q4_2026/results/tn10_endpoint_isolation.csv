@@ -1,0 +1,5 @@
+dataset,task,model,seed,subset,n_flows,macro_f1,weighted_f1,accuracy
+NF-UNSW-NB15-v2,multiclass,hist_gradient_boosting,11,all_test,478007,0.6521763959745458,0.9892257381912,0.987230312526804
+NF-UNSW-NB15-v2,multiclass,hist_gradient_boosting,11,both_endpoints_seen,362724,0.6554327528549283,0.9891168271648395,0.9870728156945777
+NF-UNSW-NB15-v2,multiclass,hist_gradient_boosting,11,one_endpoint_seen,105750,0.6409568050971262,0.9894747836564229,0.9876217494089835
+NF-UNSW-NB15-v2,multiclass,hist_gradient_boosting,11,neither_endpoint_seen,9533,0.6435040732426776,0.9905982199041587,0.9888807300954578

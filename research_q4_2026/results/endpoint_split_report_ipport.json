@@ -1,0 +1,30 @@
+{
+  "split_seed": 20260920,
+  "endpoint_mode": "ipport",
+  "split_rule": "hash(component_id, seed) % 10: 0-6 train, 7 val, 8-9 test",
+  "datasets": {
+    "NF-UNSW-NB15-v2": {
+      "source_rows": 2390275,
+      "split_rows": {
+        "val": 107821,
+        "train": 2276786,
+        "test": 5668
+      },
+      "n_endpoints": 1090451,
+      "n_components": 22750,
+      "endpoints_in_multiple_splits": 0,
+      "row_conservation_ok": true,
+      "classes_in_train_not_in_split": {
+        "train": [],
+        "val": [],
+        "test": [
+          "Analysis",
+          "Fuzzers",
+          "Reconnaissance"
+        ]
+      },
+      "classes_total": 10,
+      "elapsed_seconds": 8.5
+    }
+  }
+}

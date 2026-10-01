@@ -1,0 +1,4 @@
+dataset,task,model,seed,config,fit_seconds,val_macro_f1,val_weighted_f1,val_accuracy
+NF-CSE-CIC-IDS2018-v2,binary,hist_gradient_boosting,11,"{""learning_rate"": 0.1, ""max_iter"": 300, ""max_leaf_nodes"": 31}",143.08824223199917,0.9892517638178292,0.9955143617654484,0.9955440602306979
+NF-CSE-CIC-IDS2018-v2,binary,hist_gradient_boosting,11,"{""learning_rate"": 0.05, ""max_iter"": 600, ""max_leaf_nodes"": 31}",336.0232493020012,0.9894914454833802,0.9956145170438326,0.9956436816692313
+NF-CSE-CIC-IDS2018-v2,binary,hist_gradient_boosting,11,"{""learning_rate"": 0.1, ""max_iter"": 400, ""max_leaf_nodes"": 63}",116.77337835600338,0.9892747725540807,0.9955237001605127,0.9955530685522673

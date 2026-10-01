@@ -1,0 +1,94 @@
+{
+  "n_gnn_runs": 120,
+  "n_tabular_runs": 20,
+  "design_cells": 24,
+  "seeds_per_cell_complete": true,
+  "cell_sizes": {
+    "NF-BoT-IoT-v2|binary|edge_mlp": 5,
+    "NF-BoT-IoT-v2|binary|sage": 5,
+    "NF-BoT-IoT-v2|binary|sage_edge": 5,
+    "NF-BoT-IoT-v2|multiclass|edge_mlp": 5,
+    "NF-BoT-IoT-v2|multiclass|sage": 5,
+    "NF-BoT-IoT-v2|multiclass|sage_edge": 5,
+    "NF-CSE-CIC-IDS2018-v2|binary|edge_mlp": 5,
+    "NF-CSE-CIC-IDS2018-v2|binary|sage": 5,
+    "NF-CSE-CIC-IDS2018-v2|binary|sage_edge": 5,
+    "NF-CSE-CIC-IDS2018-v2|multiclass|edge_mlp": 5,
+    "NF-CSE-CIC-IDS2018-v2|multiclass|sage": 5,
+    "NF-CSE-CIC-IDS2018-v2|multiclass|sage_edge": 5,
+    "NF-ToN-IoT-v2|binary|edge_mlp": 5,
+    "NF-ToN-IoT-v2|binary|sage": 5,
+    "NF-ToN-IoT-v2|binary|sage_edge": 5,
+    "NF-ToN-IoT-v2|multiclass|edge_mlp": 5,
+    "NF-ToN-IoT-v2|multiclass|sage": 5,
+    "NF-ToN-IoT-v2|multiclass|sage_edge": 5,
+    "NF-UNSW-NB15-v2|binary|edge_mlp": 5,
+    "NF-UNSW-NB15-v2|binary|sage": 5,
+    "NF-UNSW-NB15-v2|binary|sage_edge": 5,
+    "NF-UNSW-NB15-v2|multiclass|edge_mlp": 5,
+    "NF-UNSW-NB15-v2|multiclass|sage": 5,
+    "NF-UNSW-NB15-v2|multiclass|sage_edge": 5
+  },
+  "published_runs_rows": 120,
+  "published_vs_artifact_merge": {
+    "both": 120,
+    "left_only": 0,
+    "right_only": 0
+  },
+  "published_vs_artifact_max_abs_diff": {
+    "test_macro_f1": {
+      "max_abs_diff": 1.1102230246251565e-16,
+      "n": 120
+    },
+    "test_weighted_f1": {
+      "max_abs_diff": 1.1102230246251565e-16,
+      "n": 120
+    },
+    "test_accuracy": {
+      "max_abs_diff": 1.1102230246251565e-16,
+      "n": 120
+    },
+    "val_macro_f1": {
+      "max_abs_diff": 1.1102230246251565e-16,
+      "n": 120
+    },
+    "seconds_fit_and_evaluate": {
+      "max_abs_diff": 5.684341886080802e-14,
+      "n": 120
+    },
+    "best_step": {
+      "max_abs_diff": 0.0,
+      "n": 120
+    },
+    "steps_ran": {
+      "max_abs_diff": 0.0,
+      "n": 120
+    }
+  },
+  "summary_mean_recompute_max_abs_diff": 1.1102230246251565e-16,
+  "summary_std_recompute_max_abs_diff": 1.1449174941446927e-16,
+  "std_ratio_median": 0.9863227581373151,
+  "std_ratio_max": 6.670245194962744,
+  "cells_where_std_grew_over_1p5x": 9,
+  "verification": {
+    "passed": true,
+    "runs_checked": 120,
+    "largest_probability_replay_error": 0.0,
+    "largest_metric_recomputation_error": 1.1102230246251565e-16,
+    "protocol_sha256": "a4446ea24d6334e803de21664f0d9656b67f0802b85172825dfa7bf16611aa7d",
+    "evaluation_mode": "float32_gnn_deterministic_v2",
+    "probability_tolerance": 1e-05
+  },
+  "verification_artifact_sha256_count": 120,
+  "checkpoint_parameter_max_abs_error_all_zero": true,
+  "budget_binding_by_cell": {
+    "NF-BoT-IoT-v2|binary": "dataset_passes",
+    "NF-BoT-IoT-v2|multiclass": "dataset_passes",
+    "NF-CSE-CIC-IDS2018-v2|binary": "dataset_passes",
+    "NF-CSE-CIC-IDS2018-v2|multiclass": "dataset_passes",
+    "NF-ToN-IoT-v2|binary": "dataset_passes",
+    "NF-ToN-IoT-v2|multiclass": "dataset_passes",
+    "NF-UNSW-NB15-v2|binary": "min_train_steps",
+    "NF-UNSW-NB15-v2|multiclass": "min_train_steps"
+  }
+}

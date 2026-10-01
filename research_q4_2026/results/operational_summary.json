@@ -1,0 +1,430 @@
+{
+  "n_per_class_records": 1260,
+  "macro_false_alarm_by_cell": [
+    {
+      "dataset": "NF-BoT-IoT-v2",
+      "task": "binary",
+      "model": "edge_mlp",
+      "macro_fpr": 0.00183,
+      "macro_fnr": 0.00183,
+      "worst_class_fpr": 0.00397
+    },
+    {
+      "dataset": "NF-BoT-IoT-v2",
+      "task": "binary",
+      "model": "sage",
+      "macro_fpr": 0.12636,
+      "macro_fnr": 0.12636,
+      "worst_class_fpr": 0.39845
+    },
+    {
+      "dataset": "NF-BoT-IoT-v2",
+      "task": "binary",
+      "model": "sage_edge",
+      "macro_fpr": 0.00274,
+      "macro_fnr": 0.00274,
+      "worst_class_fpr": 0.00519
+    },
+    {
+      "dataset": "NF-BoT-IoT-v2",
+      "task": "multiclass",
+      "model": "edge_mlp",
+      "macro_fpr": 0.00475,
+      "macro_fnr": 0.02033,
+      "worst_class_fpr": 0.01041
+    },
+    {
+      "dataset": "NF-BoT-IoT-v2",
+      "task": "multiclass",
+      "model": "sage",
+      "macro_fpr": 0.13334,
+      "macro_fnr": 0.21594,
+      "worst_class_fpr": 0.53646
+    },
+    {
+      "dataset": "NF-BoT-IoT-v2",
+      "task": "multiclass",
+      "model": "sage_edge",
+      "macro_fpr": 0.00584,
+      "macro_fnr": 0.01912,
+      "worst_class_fpr": 0.01675
+    },
+    {
+      "dataset": "NF-CSE-CIC-IDS2018-v2",
+      "task": "binary",
+      "model": "edge_mlp",
+      "macro_fpr": 0.02236,
+      "macro_fnr": 0.02236,
+      "worst_class_fpr": 0.04456
+    },
+    {
+      "dataset": "NF-CSE-CIC-IDS2018-v2",
+      "task": "binary",
+      "model": "sage",
+      "macro_fpr": 0.02,
+      "macro_fnr": 0.02,
+      "worst_class_fpr": 0.04037
+    },
+    {
+      "dataset": "NF-CSE-CIC-IDS2018-v2",
+      "task": "binary",
+      "model": "sage_edge",
+      "macro_fpr": 0.02044,
+      "macro_fnr": 0.02044,
+      "worst_class_fpr": 0.0442
+    },
+    {
+      "dataset": "NF-CSE-CIC-IDS2018-v2",
+      "task": "multiclass",
+      "model": "edge_mlp",
+      "macro_fpr": 0.04931,
+      "macro_fnr": 0.22145,
+      "worst_class_fpr": 0.42525
+    },
+    {
+      "dataset": "NF-CSE-CIC-IDS2018-v2",
+      "task": "multiclass",
+      "model": "sage",
+      "macro_fpr": 0.01616,
+      "macro_fnr": 0.22328,
+      "worst_class_fpr": 0.15017
+    },
+    {
+      "dataset": "NF-CSE-CIC-IDS2018-v2",
+      "task": "multiclass",
+      "model": "sage_edge",
+      "macro_fpr": 0.02217,
+      "macro_fnr": 0.20829,
+      "worst_class_fpr": 0.29161
+    },
+    {
+      "dataset": "NF-ToN-IoT-v2",
+      "task": "binary",
+      "model": "edge_mlp",
+      "macro_fpr": 0.02825,
+      "macro_fnr": 0.02825,
+      "worst_class_fpr": 0.03339
+    },
+    {
+      "dataset": "NF-ToN-IoT-v2",
+      "task": "binary",
+      "model": "sage",
+      "macro_fpr": 0.01968,
+      "macro_fnr": 0.01968,
+      "worst_class_fpr": 0.02775
+    },
+    {
+      "dataset": "NF-ToN-IoT-v2",
+      "task": "binary",
+      "model": "sage_edge",
+      "macro_fpr": 0.01752,
+      "macro_fnr": 0.01752,
+      "worst_class_fpr": 0.02142
+    },
+    {
+      "dataset": "NF-ToN-IoT-v2",
+      "task": "multiclass",
+      "model": "edge_mlp",
+      "macro_fpr": 0.01268,
+      "macro_fnr": 0.1433,
+      "worst_class_fpr": 0.02553
+    },
+    {
+      "dataset": "NF-ToN-IoT-v2",
+      "task": "multiclass",
+      "model": "sage",
+      "macro_fpr": 0.01106,
+      "macro_fnr": 0.1422,
+      "worst_class_fpr": 0.028
+    },
+    {
+      "dataset": "NF-ToN-IoT-v2",
+      "task": "multiclass",
+      "model": "sage_edge",
+      "macro_fpr": 0.00933,
+      "macro_fnr": 0.12639,
+      "worst_class_fpr": 0.02703
+    },
+    {
+      "dataset": "NF-UNSW-NB15-v2",
+      "task": "binary",
+      "model": "edge_mlp",
+      "macro_fpr": 0.00346,
+      "macro_fnr": 0.00346,
+      "worst_class_fpr": 0.00603
+    },
+    {
+      "dataset": "NF-UNSW-NB15-v2",
+      "task": "binary",
+      "model": "sage",
+      "macro_fpr": 0.00263,
+      "macro_fnr": 0.00263,
+      "worst_class_fpr": 0.0051
+    },
+    {
+      "dataset": "NF-UNSW-NB15-v2",
+      "task": "binary",
+      "model": "sage_edge",
+      "macro_fpr": 0.00267,
+      "macro_fnr": 0.00267,
+      "worst_class_fpr": 0.00525
+    },
+    {
+      "dataset": "NF-UNSW-NB15-v2",
+      "task": "multiclass",
+      "model": "edge_mlp",
+      "macro_fpr": 0.00281,
+      "macro_fnr": 0.4362,
+      "worst_class_fpr": 0.00598
+    },
+    {
+      "dataset": "NF-UNSW-NB15-v2",
+      "task": "multiclass",
+      "model": "sage",
+      "macro_fpr": 0.00214,
+      "macro_fnr": 0.31629,
+      "worst_class_fpr": 0.00716
+    },
+    {
+      "dataset": "NF-UNSW-NB15-v2",
+      "task": "multiclass",
+      "model": "sage_edge",
+      "macro_fpr": 0.00211,
+      "macro_fnr": 0.31529,
+      "worst_class_fpr": 0.00686
+    }
+  ],
+  "binary_detector_false_alarm": [
+    {
+      "dataset": "NF-BoT-IoT-v2",
+      "model": "edge_mlp",
+      "false_alarm_rate": 0.00185,
+      "fp_per_million": 1853.41816,
+      "benign_recall": 0.99815
+    },
+    {
+      "dataset": "NF-BoT-IoT-v2",
+      "model": "sage",
+      "false_alarm_rate": 0.25019,
+      "fp_per_million": 250189.38697,
+      "benign_recall": 0.74981
+    },
+    {
+      "dataset": "NF-BoT-IoT-v2",
+      "model": "sage_edge",
+      "false_alarm_rate": 0.00324,
+      "fp_per_million": 3236.12694,
+      "benign_recall": 0.99676
+    },
+    {
+      "dataset": "NF-CSE-CIC-IDS2018-v2",
+      "model": "edge_mlp",
+      "false_alarm_rate": 0.00188,
+      "fp_per_million": 1876.66037,
+      "benign_recall": 0.99812
+    },
+    {
+      "dataset": "NF-CSE-CIC-IDS2018-v2",
+      "model": "sage",
+      "false_alarm_rate": 0.00196,
+      "fp_per_million": 1957.88833,
+      "benign_recall": 0.99804
+    },
+    {
+      "dataset": "NF-CSE-CIC-IDS2018-v2",
+      "model": "sage_edge",
+      "false_alarm_rate": 0.00124,
+      "fp_per_million": 1235.13389,
+      "benign_recall": 0.99876
+    },
+    {
+      "dataset": "NF-ToN-IoT-v2",
+      "model": "edge_mlp",
+      "false_alarm_rate": 0.03256,
+      "fp_per_million": 32560.40217,
+      "benign_recall": 0.96744
+    },
+    {
+      "dataset": "NF-ToN-IoT-v2",
+      "model": "sage",
+      "false_alarm_rate": 0.0155,
+      "fp_per_million": 15496.3593,
+      "benign_recall": 0.9845
+    },
+    {
+      "dataset": "NF-ToN-IoT-v2",
+      "model": "sage_edge",
+      "false_alarm_rate": 0.01471,
+      "fp_per_million": 14707.84154,
+      "benign_recall": 0.98529
+    },
+    {
+      "dataset": "NF-UNSW-NB15-v2",
+      "model": "edge_mlp",
+      "false_alarm_rate": 0.00595,
+      "fp_per_million": 5945.51038,
+      "benign_recall": 0.99405
+    },
+    {
+      "dataset": "NF-UNSW-NB15-v2",
+      "model": "sage",
+      "false_alarm_rate": 0.00495,
+      "fp_per_million": 4947.18732,
+      "benign_recall": 0.99505
+    },
+    {
+      "dataset": "NF-UNSW-NB15-v2",
+      "model": "sage_edge",
+      "false_alarm_rate": 0.00501,
+      "fp_per_million": 5005.11793,
+      "benign_recall": 0.99499
+    }
+  ],
+  "worst_false_alarm_classes": [
+    {
+      "dataset": "NF-BoT-IoT-v2",
+      "task": "multiclass",
+      "model": "sage",
+      "class": "DoS",
+      "support": 3333638.0,
+      "fpr_mean": 0.37266,
+      "fpr_std": 0.13137,
+      "fnr_mean": 0.29973,
+      "recall_mean": 0.70027,
+      "fp_per_million_mean": 372660.78729
+    },
+    {
+      "dataset": "NF-CSE-CIC-IDS2018-v2",
+      "task": "multiclass",
+      "model": "edge_mlp",
+      "class": "Infilteration",
+      "support": 23465.0,
+      "fpr_mean": 0.31717,
+      "fpr_std": 0.13339,
+      "fnr_mean": 0.26871,
+      "recall_mean": 0.73129,
+      "fp_per_million_mean": 317165.05831
+    },
+    {
+      "dataset": "NF-BoT-IoT-v2",
+      "task": "binary",
+      "model": "sage",
+      "class": "Attack",
+      "support": 7521175.0,
+      "fpr_mean": 0.25019,
+      "fpr_std": 0.13603,
+      "fnr_mean": 0.00252,
+      "recall_mean": 0.99748,
+      "fp_per_million_mean": 250189.38697
+    },
+    {
+      "dataset": "NF-BoT-IoT-v2",
+      "task": "multiclass",
+      "model": "sage",
+      "class": "DDoS",
+      "support": 3664129.0,
+      "fpr_mean": 0.23358,
+      "fpr_std": 0.17122,
+      "fnr_mean": 0.5073,
+      "recall_mean": 0.4927,
+      "fp_per_million_mean": 233579.96251
+    },
+    {
+      "dataset": "NF-CSE-CIC-IDS2018-v2",
+      "task": "multiclass",
+      "model": "sage_edge",
+      "class": "Infilteration",
+      "support": 23465.0,
+      "fpr_mean": 0.10612,
+      "fpr_std": 0.1232,
+      "fnr_mean": 0.53211,
+      "recall_mean": 0.46789,
+      "fp_per_million_mean": 106124.92562
+    },
+    {
+      "dataset": "NF-CSE-CIC-IDS2018-v2",
+      "task": "multiclass",
+      "model": "sage",
+      "class": "Infilteration",
+      "support": 23465.0,
+      "fpr_mean": 0.06519,
+      "fpr_std": 0.05205,
+      "fnr_mean": 0.58553,
+      "recall_mean": 0.41447,
+      "fp_per_million_mean": 65188.00346
+    },
+    {
+      "dataset": "NF-BoT-IoT-v2",
+      "task": "multiclass",
+      "model": "sage",
+      "class": "Reconnaissance",
+      "support": 522928.0,
+      "fpr_mean": 0.0478,
+      "fpr_std": 0.02292,
+      "fnr_mean": 0.09221,
+      "recall_mean": 0.90779,
+      "fp_per_million_mean": 47803.18386
+    },
+    {
+      "dataset": "NF-CSE-CIC-IDS2018-v2",
+      "task": "binary",
+      "model": "edge_mlp",
+      "class": "Benign",
+      "support": 3326441.0,
+      "fpr_mean": 0.04284,
+      "fpr_std": 0.00227,
+      "fnr_mean": 0.00188,
+      "recall_mean": 0.99812,
+      "fp_per_million_mean": 42841.08898
+    },
+    {
+      "dataset": "NF-CSE-CIC-IDS2018-v2",
+      "task": "binary",
+      "model": "sage_edge",
+      "class": "Benign",
+      "support": 3326441.0,
+      "fpr_mean": 0.03965,
+      "fpr_std": 0.00269,
+      "fnr_mean": 0.00124,
+      "recall_mean": 0.99876,
+      "fp_per_million_mean": 39646.83986
+    },
+    {
+      "dataset": "NF-CSE-CIC-IDS2018-v2",
+      "task": "binary",
+      "model": "sage",
+      "class": "Benign",
+      "support": 3326441.0,
+      "fpr_mean": 0.03804,
+      "fpr_std": 0.00174,
+      "fnr_mean": 0.00196,
+      "recall_mean": 0.99804,
+      "fp_per_million_mean": 38036.02693
+    },
+    {
+      "dataset": "NF-ToN-IoT-v2",
+      "task": "binary",
+      "model": "edge_mlp",
+      "class": "Attack",
+      "support": 2166556.0,
+      "fpr_mean": 0.03256,
+      "fpr_std": 0.00067,
+      "fnr_mean": 0.02395,
+      "recall_mean": 0.97605,
+      "fp_per_million_mean": 32560.40217
+    },
+    {
+      "dataset": "NF-CSE-CIC-IDS2018-v2",
+      "task": "multiclass",
+      "model": "sage",
+      "class": "Benign",
+      "support": 3326441.0,
+      "fpr_mean": 0.03069,
+      "fpr_std": 0.00417,
+      "fnr_mean": 0.07425,
+      "recall_mean": 0.92575,
+      "fp_per_million_mean": 30693.75788
+    }
+  ],
+  "note": "Derived from archived full-test confusion matrices at each model's own argmax operating point; the repository does not store GNN probabilities, so PR-AUC is not recoverable."
+}

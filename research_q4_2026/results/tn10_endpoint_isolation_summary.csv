@@ -1,0 +1,5 @@
+dataset,task,subset,n_seeds,n_flows,macro_f1,macro_f1_std,weighted_f1,delta_vs_all_test
+NF-UNSW-NB15-v2,multiclass,all_test,1,478007,0.6521763959745458,,0.9892257381912,0.0
+NF-UNSW-NB15-v2,multiclass,both_endpoints_seen,1,362724,0.6554327528549283,,0.9891168271648396,0.003256356880382505
+NF-UNSW-NB15-v2,multiclass,neither_endpoint_seen,1,9533,0.6435040732426776,,0.9905982199041587,-0.008672322731868243
+NF-UNSW-NB15-v2,multiclass,one_endpoint_seen,1,105750,0.6409568050971262,,0.9894747836564228,-0.011219590877419638

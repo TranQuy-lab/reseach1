@@ -1,0 +1,84 @@
+{
+  "n_cells": 8,
+  "n_contrasts_total": 24,
+  "wilcoxon_significant_uncorrected": 0,
+  "wilcoxon_significant_holm": 0,
+  "sign_test_significant_holm": 0,
+  "ci_excludes_zero_uncorrected": 18,
+  "cells_positive_negative": {
+    "sage_edge_minus_edge_mlp": {
+      "positive": 7,
+      "negative": 1
+    },
+    "sage_edge_minus_sage": {
+      "positive": 5,
+      "negative": 3
+    },
+    "sage_minus_edge_mlp": {
+      "positive": 6,
+      "negative": 2
+    }
+  },
+  "sign_flips_3_to_5_seed": 1,
+  "ci_decision_flips_3_to_5_seed": 4,
+  "n_stability_rows": 24,
+  "pooled": [
+    {
+      "comparison": "sage_edge_minus_edge_mlp",
+      "k_cells": 8,
+      "pooled_delta_RE": 0.021573349335068347,
+      "se_RE": 0.003221441863402231,
+      "ci_lo_RE": 0.015259439304510373,
+      "ci_hi_RE": 0.02788725936562632,
+      "pooled_delta_fixed": 0.008049698852037332,
+      "tau2": 6.522515271158909e-05,
+      "tau": 0.008076209055713521,
+      "I2_percent": 98.79788997891782,
+      "Q": 582.3094290236738,
+      "p_Q": 0.0,
+      "prediction_interval_lo": 0.00029747676535728934,
+      "prediction_interval_hi": 0.042849221904779404,
+      "n_cells_positive": 7,
+      "n_cells_negative": 1,
+      "pooled_ci_excludes_zero": true
+    },
+    {
+      "comparison": "sage_edge_minus_sage",
+      "k_cells": 8,
+      "pooled_delta_RE": 0.0067223173368252285,
+      "se_RE": 0.00246993041962828,
+      "ci_lo_RE": 0.0018813426700338975,
+      "ci_hi_RE": 0.01156329200361656,
+      "pooled_delta_fixed": 0.00011132534416222374,
+      "tau2": 2.8556763262023628e-05,
+      "tau": 0.005343852848088505,
+      "I2_percent": 95.56201461877313,
+      "Q": 157.72922618471705,
+      "p_Q": 0.0,
+      "prediction_interval_lo": -0.0076827671454296935,
+      "prediction_interval_hi": 0.02112740181908015,
+      "n_cells_positive": 5,
+      "n_cells_negative": 3,
+      "pooled_ci_excludes_zero": true
+    },
+    {
+      "comparison": "sage_minus_edge_mlp",
+      "k_cells": 8,
+      "pooled_delta_RE": 0.002075454584112017,
+      "se_RE": 0.00641343347185881,
+      "ci_lo_RE": -0.01049464403797493,
+      "ci_hi_RE": 0.014645553206198963,
+      "pooled_delta_fixed": 0.007631927618402027,
+      "tau2": 0.0002584124664288361,
+      "tau": 0.01607521279575596,
+      "I2_percent": 99.51598362363606,
+      "Q": 1446.2320578047102,
+      "p_Q": 0.0,
+      "prediction_interval_lo": -0.040274121593690856,
+      "prediction_interval_hi": 0.044425030761914897,
+      "n_cells_positive": 6,
+      "n_cells_negative": 2,
+      "pooled_ci_excludes_zero": false
+    }
+  ]
+}
