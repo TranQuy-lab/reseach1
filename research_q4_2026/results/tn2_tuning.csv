@@ -1,4 +1,4 @@
 dataset,task,model,seed,config,fit_seconds,val_macro_f1,val_weighted_f1,val_accuracy
-NF-ToN-IoT-v2,multiclass,hist_gradient_boosting,11,"{""learning_rate"": 0.1, ""max_iter"": 300, ""max_leaf_nodes"": 31}",315.2741089439987,0.8538040033262089,0.9670262020098184,0.9652265032572664
-NF-ToN-IoT-v2,multiclass,hist_gradient_boosting,11,"{""learning_rate"": 0.05, ""max_iter"": 600, ""max_leaf_nodes"": 31}",735.7394565490031,0.852958073253601,0.9676897501453303,0.9660163940716864
-NF-ToN-IoT-v2,multiclass,hist_gradient_boosting,11,"{""learning_rate"": 0.1, ""max_iter"": 400, ""max_leaf_nodes"": 63}",343.0409089269997,0.8633304317924226,0.9701987845833844,0.9686529055643617
+NF-ToN-IoT-v2,binary,hist_gradient_boosting,11,"{""learning_rate"": 0.1, ""max_iter"": 300, ""max_leaf_nodes"": 31}",173.86351139900216,0.992196585307251,0.9928123317178154,0.9928142369259197
+NF-ToN-IoT-v2,binary,hist_gradient_boosting,11,"{""learning_rate"": 0.05, ""max_iter"": 600, ""max_leaf_nodes"": 31}",287.97540177700284,0.9923009533388849,0.9929085242642309,0.9929104642822354
+NF-ToN-IoT-v2,binary,hist_gradient_boosting,11,"{""learning_rate"": 0.1, ""max_iter"": 400, ""max_leaf_nodes"": 63}",144.8092410610043,0.992984561090362,0.993538686859241,0.9935409600892612

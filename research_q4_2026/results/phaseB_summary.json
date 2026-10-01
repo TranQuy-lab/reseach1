@@ -14,16 +14,16 @@
   "pooled_by_contrast": [
     {
       "contrast": "best_tabular_vs_edge_mlp",
-      "k": 3,
-      "pooled_mean": 0.13795066277836035,
-      "n_positive": 3,
+      "k": 4,
+      "pooled_mean": 0.10904267089411117,
+      "n_positive": 4,
       "n_negative": 0
     },
     {
       "contrast": "best_tabular_vs_topo",
-      "k": 3,
-      "pooled_mean": 0.09022916376101363,
-      "n_positive": 3,
+      "k": 4,
+      "pooled_mean": 0.07073343179573739,
+      "n_positive": 4,
       "n_negative": 0
     },
     {
@@ -35,9 +35,9 @@
     },
     {
       "contrast": "control_vs_archive",
-      "k": 6,
-      "pooled_mean": -0.00028171292575127375,
-      "n_positive": 3,
+      "k": 7,
+      "pooled_mean": 0.0017836819130037467,
+      "n_positive": 4,
       "n_negative": 3
     },
     {
@@ -83,7 +83,7 @@
     },
     "NF-BoT-IoT-v2|multiclass": {
       "edge_mlp": 0.8169013170624708,
-      "mlp_h128_1l": 0.8205434619774772,
+      "mlp_h128_1l": 0.8299249642702415,
       "mlp_h128_2l": null,
       "mlp_h273_2l": 0.8364254032749613,
       "sage": 0.5511532113672154,
@@ -121,7 +121,7 @@
       "mlp_h273_2l": 0.9817963016720709,
       "sage": 0.9775049146633259,
       "sage_edge": 0.9802216239215868,
-      "hist_gradient_boosting": null,
+      "hist_gradient_boosting": 0.9927886608575545,
       "extra_trees": null,
       "random_forest": null
     },

@@ -261,8 +261,8 @@ flow-only baseline. Full matrix `[PENDING: CSE-CIC and BoT-IoT still running]`:
 | UNSW · binary | 0.964 | `[PENDING]` | 0.970 | 0.970 | 0.976 | `[PENDING]` | `[PENDING]` |
 | ToN · multiclass | 0.704 | **0.749** | **0.749** | 0.766 | **0.866** | `[PENDING]` | `[PENDING]` |
 | ToN · binary | 0.971 | `[PENDING]` | 0.977 | 0.980 | `[PENDING]` | `[PENDING]` | `[PENDING]` |
-| CSE-CIC · mc/bin | 0.669 / 0.984 | `[PENDING]` | 0.693 / 0.985 | 0.689 / 0.986 | `[PENDING]` | — | — |
-| BoT-IoT · mc/bin | 0.817 / 0.900 | `[PENDING]` | 0.551 / 0.804 | 0.826 / 0.882 | `[PENDING]` | — | — |
+| CSE-CIC · mc/bin | 0.669 / 0.984 | 0.674 / 0.988 | 0.693 / 0.985 | 0.689 / 0.986 | `[PENDING]` | — | — |
+| BoT-IoT · mc/bin | 0.817 / 0.900 | **0.836** / `[PENDING]` | 0.551 / 0.804 | 0.826 / 0.882 | `[PENDING]` | — | — |
 
 Established so far (paired by seed, 95% bootstrap CI):
 
@@ -272,11 +272,18 @@ Established so far (paired by seed, 95% bootstrap CI):
 |---|---:|---:|---:|---:|
 | capacity only, no topology (`mlp_h273_2l − edge_mlp`) | **+0.049** [+0.034, +0.060] | **+0.003** [+0.0025, +0.0034] | **+0.045** [+0.041, +0.050] | **+0.013** [+0.007, +0.020] |
 | **topology at matched capacity (`sage − mlp_h273_2l`)** | **+0.027** [+0.016, +0.041] | **+0.003** [+0.002, +0.004] | **−0.000** [−0.006, +0.005] | +0.025 [−0.001, +0.051] |
+| topology at matched capacity, NF-BoT-IoT-v2 mc | **−0.267** [−0.280, −0.259] | | | |
 | tabular mean vs. `edge_mlp` | **+0.240** | **+0.012** | **+0.162** | `[PENDING]` |
 | tabular mean vs. best graph variant | **+0.168** | **+0.006** | **+0.101** | `[PENDING]` |
 
-- **Capacity is a first-order confound.** Roughly half of the apparent graph advantage on
-  both completed cells is reproduced by adding parameters and depth with no message passing.
+- **Capacity is a first-order confound.** Adding parameters and depth with no message passing
+  reproduces a significant part of the apparent graph advantage in every completed cell
+  (+0.003 to +0.049 macro-F1, all 95% intervals excluding zero).
+- **On NF-BoT-IoT-v2 the flow-only model is simply better.** The capacity-matched MLP reaches
+  0.836 macro-F1, above `sage_edge` (0.826) and far above the topology-only `sage` (0.551),
+  which collapses on 4 of 5 multiclass seeds and 5 of 5 binary seeds. A model with the same
+  parameter count that never aggregates a neighbour trains stably and wins, so the collapse is
+  a property of the message-passing configuration, not of the data or the budget.
 - **What survives capacity matching depends on the dataset.** On UNSW multiclass a small
   structural increment survives (+0.027); on ToN multiclass the residual is indistinguishable
   from zero. We therefore report this as a dataset-dependent association, not a general
