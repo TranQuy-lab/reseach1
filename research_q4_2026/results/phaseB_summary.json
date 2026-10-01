@@ -29,7 +29,7 @@
     {
       "contrast": "capacity_no_topology",
       "k": 8,
-      "pooled_mean": 0.02148796128811679,
+      "pooled_mean": 0.022719513510492353,
       "n_positive": 8,
       "n_negative": 0
     },
@@ -50,14 +50,14 @@
     {
       "contrast": "topology_at_matched_capacity",
       "k": 8,
-      "pooled_mean": -0.04570040631654592,
+      "pooled_mean": -0.04807250977561834,
       "n_positive": 3,
       "n_negative": 5
     },
     {
       "contrast": "topology_at_matched_capacity_edge",
       "k": 8,
-      "pooled_mean": -0.0027438649800679803,
+      "pooled_mean": -0.002118015173817382,
       "n_positive": 4,
       "n_negative": 4
     },
@@ -74,7 +74,7 @@
       "edge_mlp": 0.9003060806872512,
       "mlp_h128_1l": 0.9113418073033056,
       "mlp_h128_2l": null,
-      "mlp_h273_2l": 0.9353761211119019,
+      "mlp_h273_2l": 0.9327846865162929,
       "sage": 0.8042945730472674,
       "sage_edge": 0.8817967549855735,
       "hist_gradient_boosting": null,
@@ -85,7 +85,7 @@
       "edge_mlp": 0.8169013170624708,
       "mlp_h128_1l": 0.8287845446387743,
       "mlp_h128_2l": null,
-      "mlp_h273_2l": 0.8364254032749613,
+      "mlp_h273_2l": 0.8399790370117254,
       "sage": 0.5511532113672154,
       "sage_edge": 0.8259787817819397,
       "hist_gradient_boosting": null,

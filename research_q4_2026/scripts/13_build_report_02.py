@@ -102,8 +102,8 @@ def main() -> int:
    Fisher exact `sage` vs `edge_mlp` p = {cr.get('fisher_exact', {}).get('sage_vs_edge_mlp', {}).get('p_holm', float('nan')):.4f} (Holm).
 3. **Capacity giải thích một phần có ý nghĩa ở CẢ 8 ô; topology còn lại thì không tự
    biện minh.** Hiệu ứng capacity dương và KTC không chứa 0 ở cả 8 ô (+0,003 → +0,049).
-   Sau khi khớp capacity, `sage` **kém hơn** có ý nghĩa ở 4 ô — BoT mc **−0,267**,
-   BoT bin **−0,132**, ToN bin −0,004, CSE bin −0,003 — không phân biệt được ở 2 ô
+   Sau khi khớp capacity, `sage` **kém hơn** có ý nghĩa ở 4 ô — BoT mc **−0,289**,
+   BoT bin **−0,129**, ToN bin −0,004, CSE bin −0,003 — không phân biệt được ở 2 ô
    (ToN mc −0,000; CSE mc **+0,010** với KTC chứa 0), và chỉ hơn nhẹ ở 2 ô (UNSW mc
    +0,027; UNSW bin +0,003). **Không ô nào topology dương mạnh.** Lưu ý: CSE mc co từ
    +0,025 (3 seed) xuống +0,010 (5 seed) — thêm một ví dụ 3 seed phóng đại hiệu ứng.

@@ -26,20 +26,27 @@ một dòng mã nguồn nào.
 | ToN · bin | 0,9707 | 0,9712 | — | **0,9818** | 0,9775 | 0,9802 | **0,9928** | — | — |
 | CSE-CIC · mc | 0,6686 | 0,6585 | — | **0,6828** | **0,6926** | **0,6894** | 0,6712 | — | — |
 | CSE-CIC · bin | 0,9837 | 0,9840 | — | 0,9876 | 0,9850 | 0,9860 | **0,9894** | — | — |
-| BoT-IoT · mc | 0,8169 | 0,8288 | — | **0,8364** | **0,5512** | 0,8260 | không khả thi | — | — |
-| BoT-IoT · bin | 0,9003 | 0,9113 | — | **0,9354** | **0,8043** | 0,8818 | không khả thi | — | — |
+| BoT-IoT · mc | 0,8169 | 0,8288 | — | **0,8400** | **0,5512** | 0,8260 | không khả thi | — | — |
+| BoT-IoT · bin | 0,9003 | 0,9113 | — | **0,9328** | **0,8043** | 0,8818 | không khả thi | — | — |
 
 ## 2. Ba contrast then chốt (ghép cặp theo seed)
 
-### 2.1 Hiệu ứng capacity (`mlp_h273_2l − edge_mlp`) — **dương ở CẢ 8 ô**
-Khoảng **+0,0029 → +0,0488**; mọi KTC 95 % không chứa 0.
+### 2.1 Hiệu ứng capacity (`mlp_h273_2l − edge_mlp`) — **dương ở CẢ 8 ô, n=5 mỗi ô**
++0,0488 (UNSW mc) · +0,0454 (ToN mc) · +0,0325 (BoT bin) · +0,0231 (BoT mc) · +0,0142
+(CSE mc) · +0,0111 (ToN bin) · +0,0038 (CSE bin) · +0,0029 (UNSW bin). Mọi KTC 95 %
+không chứa 0.
+
+### 2.1b Số seed cuối
+`mlp_h273_2l` (contrast trung tâm) đạt **n=5 ở 7/8 ô** (BoT và CSE được nâng từ 3 lên 5
+trong phiên này); `mlp_h128_1l` n=5 ở 6/8 ô, n=3 ở BoT. Việc nâng seed đã **làm co** hai
+contrast: CSE mc +0,025 → **+0,010**; BoT mc −0,267 → **−0,289**.
 
 ### 2.2 Topology ở capacity khớp (`sage − mlp_h273_2l`)
 
 | Ô | Δ | KTC 95 % | Đọc |
 |---|---:|---|---|
-| BoT · mc | **−0,2666** | [−0,280; −0,259] | kém hơn mạnh |
-| BoT · bin | **−0,1317** | [−0,146; −0,106] | kém hơn mạnh |
+| BoT · mc | **−0,2888** | [−0,345; −0,254] | kém hơn mạnh (n=5) |
+| BoT · bin | **−0,1285** | [−0,142; −0,115] | kém hơn mạnh (n=5) |
 | ToN · bin | −0,0043 | [−0,005; −0,003] | kém hơn |
 | CSE-CIC · bin | −0,0026 | [−0,004; −0,001] | kém hơn (n=5) |
 | ToN · mc | −0,0000 | [−0,006; +0,005] | không phân biệt được |
@@ -119,6 +126,7 @@ rồi `nids_minibatch.prepare` để tạo split, rồi `scripts/07` + `scripts/
 | HGB trên ToN-IoT (11,9 M dòng) | **10,3 GiB** | phải chạy một mình |
 | HGB trên CSE-CIC (13,2 M dòng) | **10,5 GiB** | phải chạy một mình |
 | HGB trên BoT-IoT (26,4 M dòng) | ~14 GiB | **không chạy được** trên máy 13 GiB |
+| ExtraTrees/RF trên ToN-IoT (11,9 M dòng) | ước tính 15–30 GiB cho rừng cây | **không khả thi**; chỉ chạy được trên UNSW (1,67 M). Ghi là giới hạn tài nguyên, **không** subsample ngầm (quy tắc 7 của protocol) |
 | TN-1 BoT (MLP) | ~2,5 GiB | 500–1.050 s/run |
 | MLP trên UNSW | ~0,5 GiB | 10–45 s/run |
 

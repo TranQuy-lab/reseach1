@@ -268,7 +268,7 @@ flow-only baseline. Full matrix `[PENDING: CSE-CIC and BoT-IoT still running]`:
 | CSE-CIC · binary | 0.984 | **0.988** | 0.985 | 0.986 | **0.989** | `[PENDING]` | `[PENDING]` |
 | ToN · binary | 0.971 | `[PENDING]` | 0.977 | 0.980 | `[PENDING]` | `[PENDING]` | `[PENDING]` |
 | CSE-CIC · mc/bin | 0.669 / 0.984 | 0.674 / 0.988 | 0.693 / 0.985 | 0.689 / 0.986 | `[PENDING]` | — | — |
-| BoT-IoT · mc/bin | 0.817 / 0.900 | **0.836 / 0.935** | 0.551 / 0.804 | 0.826 / 0.882 | infeasible | — | — |
+| BoT-IoT · mc/bin | 0.817 / 0.900 | **0.840 / 0.933** | 0.551 / 0.804 | 0.826 / 0.882 | infeasible | — | — |
 
 Established so far (paired by seed, 95% bootstrap CI):
 
@@ -278,7 +278,7 @@ Established so far (paired by seed, 95% bootstrap CI):
 |---|---:|---:|---:|---:|
 | capacity only, no topology (`mlp_h273_2l − edge_mlp`) | **+0.049** [+0.034, +0.060] | **+0.003** [+0.0025, +0.0034] | **+0.045** [+0.041, +0.050] | **+0.013** [+0.007, +0.020] |
 | **topology at matched capacity (`sage − mlp_h273_2l`)** | **+0.027** [+0.016, +0.041] | **+0.003** [+0.002, +0.004] | **−0.000** [−0.006, +0.005] | +0.010 [−0.024, +0.037] |
-| topology at matched capacity, NF-BoT-IoT-v2 mc | **−0.267** [−0.280, −0.259] | | | |
+| topology at matched capacity, NF-BoT-IoT-v2 mc | **−0.289** [−0.345, −0.254] | | | |
 | tabular mean vs. `edge_mlp` | **+0.240** [+0.234, +0.253] | **+0.012** [+0.011, +0.012] | **+0.162** [+0.160, +0.164] | **−0.016** [−0.022, −0.007] |
 | tabular mean vs. best graph variant | **+0.168** [+0.163, +0.175] | **+0.006** [+0.005, +0.006] | **+0.097** [+0.092, +0.103] | **−0.016** [−0.022, −0.007] |
 
@@ -286,8 +286,9 @@ Established so far (paired by seed, 95% bootstrap CI):
   reproduces a significant part of the apparent graph advantage in every completed cell
   (+0.003 to +0.049 macro-F1, all 95% intervals excluding zero).
 - **On NF-BoT-IoT-v2 the flow-only model is simply better.** The capacity-matched MLP reaches
-  0.836 macro-F1 on multiclass (above `sage_edge` 0.826 and far above the topology-only `sage`
-  0.551) and **0.949 on binary** (above `sage_edge` 0.882, `edge_mlp` 0.900 and `sage` 0.804).
+  0.840 macro-F1 on multiclass (above `sage_edge` 0.826 and far above the topology-only `sage`
+  0.551) and **0.933 on binary** (above `sage_edge` 0.882, `edge_mlp` 0.900 and `sage` 0.804);
+  both at five seeds.
   The topology-only variant collapses on 4 of 5 multiclass seeds and 5 of 5 binary seeds on
   this dataset. A model with the same parameter count that never aggregates a neighbour
   trains stably and wins on both tasks, so the collapse is a property of the message-passing
@@ -598,7 +599,7 @@ excluding zero). Across the same cells the topology-only variant shows no averag
 (pooled Δ = +0.002, 95% CI [−0.011, +0.015]).
 
 What remains after capacity matching does not support the graph model. The topology-only
-variant is **significantly worse in four cells**—by −0.267 and −0.132 on NF-BoT-IoT-v2
+variant is **significantly worse in four cells**—by −0.289 and −0.129 on NF-BoT-IoT-v2
 multiclass and binary, and by −0.003 on the two binary tasks where the graph is
 sparse—indistinguishable in two (NF-ToN-IoT-v2 multiclass −0.000, NF-CSE-CIC-IDS2018-v2
 multiclass +0.010, the latter shrinking from +0.025 when CSE-CIC was extended from three
@@ -610,8 +611,8 @@ The most distinctive behaviour is instability. The topology-only architecture co
 (NF-BoT-IoT-v2: 4 of 5 multiclass seeds and 5 of 5 binary seeds), and where it does it is
 not merely worse but undeployable—a 25.02% false-alarm rate and 250,189 false alarms per
 million benign flows. On the same dataset, split and budget, a flow-only model of identical
-parameter count trains stably and is the best model on **both** tasks (0.836 multiclass,
-0.935 binary).
+parameter count trains stably and is the best model on **both** tasks (0.840 multiclass,
+0.933 binary).
 
 A standard tabular learner that never observes endpoint identity exceeds every graph
 variant in five of the six cells where it was run (+0.004 to +0.168 macro-F1) and falls
