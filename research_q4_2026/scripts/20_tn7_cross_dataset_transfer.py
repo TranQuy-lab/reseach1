@@ -157,7 +157,12 @@ def main() -> int:
                 X = rescaled_target(src, tgt, "test") if tgt != src else \
                     np.asarray(np.load(FEAT / f"{tgt}__test.npy", mmap_mode="r"))
                 p = predict(model, X)
-                majority = float(np.bincount(yte, minlength=2).max() / len(yte))
+                # majority-class predictor: macro-F1 of a constant prediction.
+                # For binary with prevalence p: F1(majority) = 2p/(1+p), F1(minority) = 0,
+                # so macro-F1 = p/(1+p).  (An earlier version recorded p, which is the
+                # ACCURACY of that predictor, not its macro-F1.)
+                maj_prev = float(np.bincount(yte, minlength=2).max() / len(yte))
+                majority = maj_prev / (1.0 + maj_prev)
                 row = {"source": src, "target": tgt, "seed": seed,
                        "in_domain": bool(src == tgt),
                        "test_macro_f1": float(f1_score(yte, p, average="macro",
@@ -165,7 +170,10 @@ def main() -> int:
                        "test_weighted_f1": float(f1_score(yte, p, average="weighted",
                                                           zero_division=0)),
                        "test_accuracy": float(accuracy_score(yte, p)),
-                       "majority_class_macro_f1": majority}
+                       "majority_class_accuracy": maj_prev,
+                       "majority_class_macro_f1": majority,
+                       "beats_majority_baseline": bool(
+                           f1_score(yte, p, average="macro", zero_division=0) > majority)}
                 pd.DataFrame([row]).to_csv(runs, mode="a",
                                            header=not runs.exists(), index=False)
                 print(f"    {src} -> {tgt} s{seed} macro_f1={row['test_macro_f1']:.4f} "

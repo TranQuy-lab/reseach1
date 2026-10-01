@@ -442,6 +442,39 @@ false-alarm rates are 37.3% (`DoS`) and 23.4% (`DDoS`). The same variant is
 well-behaved on the other three datasets, confirming that the failure is specific to
 the configuration that collapses.
 
+### 4.6e Flow-based detectors do not transfer across networks
+
+The repository's stated limitations include cross-network generalisation, which had never
+been measured. It is measurable without a GPU for flow-only models, because they do not use
+endpoint identity: only the 39 features must be commensurate. We train on one dataset's
+train split with that dataset's own scaler, select the checkpoint on that dataset's
+validation split, and score every other dataset's test split after expressing its flows in
+the source's standardisation. The reference is the macro-F1 of a constant predictor that
+always emits the majority class, which for binary prevalence *p* is *p*/(1+*p*).
+
+| Source → target | macro-F1 | majority-class macro-F1 | runs beating the baseline |
+|---|---:|---:|---:|
+| UNSW → UNSW (in-domain) | 0.9674 | 0.4900 | 3 / 3 |
+| UNSW → ToN-IoT | 0.3810 | 0.3902 | 1 / 3 |
+| UNSW → CSE-CIC-IDS2018 | 0.4286 | 0.4681 | 0 / 3 |
+| UNSW → BoT-IoT | 0.3035 | 0.4991 | 1 / 3 |
+| ToN-IoT → ToN-IoT (in-domain) | 0.9813 | 0.3902 | 2 / 2 |
+| ToN-IoT → CSE-CIC-IDS2018 | 0.5089 | 0.4681 | 2 / 2 |
+| ToN-IoT → UNSW | 0.1993 | 0.4900 | 0 / 2 |
+| ToN-IoT → BoT-IoT | 0.0352 | 0.4991 | 0 / 2 |
+
+**In-domain, 5 of 5 runs beat a constant classifier. Across networks, only 4 of 15 do.** Two
+cells are catastrophic: transferring from ToN-IoT to BoT-IoT yields 0.035 macro-F1, and from
+ToN-IoT to UNSW 0.199, against constant-predictor baselines of 0.499 and 0.490. Within the
+network it was trained on the detector is excellent; outside it, it is routinely worse than
+predicting one label for everything.
+
+Two consequences. First, whatever these flow models learn is network-specific, so the
+within-environment numbers reported throughout this paper—including every graph variant's—
+must not be read as evidence of deployable detection capability. Second, this is the correct
+way to test unseen-environment generalisation: not by holding out endpoints within one
+network, but by holding out the network. `[PENDING: additional source datasets.]`
+
 ### 4.7 Rare classes go in both directions
 
 With five seeds (support < 1,000), topology helps NF-ToN-IoT-v2 `ransomware`

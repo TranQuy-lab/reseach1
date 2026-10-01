@@ -419,6 +419,30 @@ def main() -> int:
         P.append(md_table(t))
         P.append("\nSo sánh: HGB trên **split khóa** cùng ô đạt 0,8664 (§8.1).\n")
 
+    # ------------------------------------------------- 8f cross-network transfer
+    t7 = RES / "tn7_transfer_runs.csv"
+    if t7.exists():
+        d = pd.read_csv(t7)
+        P.append("\n## 8f. Chuyển giao xuyên mạng của model flow-only (TN-7)\n")
+        P.append("Huấn luyện trên train của bộ nguồn (scaler của bộ nguồn), chọn checkpoint "
+                 "trên validation của bộ nguồn, đánh giá trên test của bộ đích sau khi đưa "
+                 "đặc trưng về chuẩn hoá của bộ nguồn. Baseline là bộ dự đoán hằng số; "
+                 "macro-F1 của nó với tỉ lệ lớp đa số *p* là *p*/(1+*p*) — **không** phải "
+                 "accuracy.\n")
+        g = d.groupby(["source", "target"]).agg(
+            n=("seed", "size"), macro_f1=("test_macro_f1", "mean"),
+            majority=("majority_class_macro_f1", "first"),
+            beats=("beats_majority_baseline", "sum")).reset_index()
+        g["hướng"] = g.source.map(SHORT) + " → " + g.target.map(SHORT)
+        g = g[["hướng", "n", "macro_f1", "majority", "beats"]]
+        g.columns = ["Hướng", "n", "macro-F1", "majority macro-F1", "số lần vượt baseline"]
+        P.append(md_table(g))
+        nd = d[~d.in_domain]
+        P.append(f"\n**Nội bộ: {int(d[d.in_domain].beats_majority_baseline.sum())}/"
+                 f"{int(d.in_domain.sum())} lần chạy vượt baseline hằng số. "
+                 f"Xuyên mạng: chỉ {int(nd.beats_majority_baseline.sum())}/"
+                 f"{int(len(nd))} lần.**\n")
+
     # ------------------------------------------------------------ 9 remaining
     P.append("""
 ## 9. Kết luận và việc còn lại
