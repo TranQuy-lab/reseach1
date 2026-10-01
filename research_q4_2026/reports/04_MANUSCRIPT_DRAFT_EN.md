@@ -262,7 +262,7 @@ flow-only baseline. Full matrix `[PENDING: CSE-CIC and BoT-IoT still running]`:
 | ToN · multiclass | 0.704 | **0.749** | **0.749** | 0.766 | **0.866** | `[PENDING]` | `[PENDING]` |
 | ToN · binary | 0.971 | `[PENDING]` | 0.977 | 0.980 | `[PENDING]` | `[PENDING]` | `[PENDING]` |
 | CSE-CIC · mc/bin | 0.669 / 0.984 | 0.674 / 0.988 | 0.693 / 0.985 | 0.689 / 0.986 | `[PENDING]` | — | — |
-| BoT-IoT · mc/bin | 0.817 / 0.900 | **0.836** / `[PENDING]` | 0.551 / 0.804 | 0.826 / 0.882 | `[PENDING]` | — | — |
+| BoT-IoT · mc/bin | 0.817 / 0.900 | **0.836 / 0.949** | 0.551 / 0.804 | 0.826 / 0.882 | `[PENDING]` | — | — |
 
 Established so far (paired by seed, 95% bootstrap CI):
 
@@ -280,10 +280,13 @@ Established so far (paired by seed, 95% bootstrap CI):
   reproduces a significant part of the apparent graph advantage in every completed cell
   (+0.003 to +0.049 macro-F1, all 95% intervals excluding zero).
 - **On NF-BoT-IoT-v2 the flow-only model is simply better.** The capacity-matched MLP reaches
-  0.836 macro-F1, above `sage_edge` (0.826) and far above the topology-only `sage` (0.551),
-  which collapses on 4 of 5 multiclass seeds and 5 of 5 binary seeds. A model with the same
-  parameter count that never aggregates a neighbour trains stably and wins, so the collapse is
-  a property of the message-passing configuration, not of the data or the budget.
+  0.836 macro-F1 on multiclass (above `sage_edge` 0.826 and far above the topology-only `sage`
+  0.551) and **0.949 on binary** (above `sage_edge` 0.882, `edge_mlp` 0.900 and `sage` 0.804).
+  The topology-only variant collapses on 4 of 5 multiclass seeds and 5 of 5 binary seeds on
+  this dataset. A model with the same parameter count that never aggregates a neighbour
+  trains stably and wins on both tasks, so the collapse is a property of the message-passing
+  configuration, not of the data or the budget. The topology contrast at matched capacity on
+  NF-BoT-IoT-v2 multiclass is **−0.267 (95% CI [−0.280, −0.259])**.
 - **What survives capacity matching depends on the dataset.** On UNSW multiclass a small
   structural increment survives (+0.027); on ToN multiclass the residual is indistinguishable
   from zero. We therefore report this as a dataset-dependent association, not a general
