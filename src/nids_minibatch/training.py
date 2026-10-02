@@ -23,9 +23,14 @@ from sklearn.metrics import accuracy_score, classification_report, confusion_mat
 from torch.utils.data import DataLoader, TensorDataset
 from torch_geometric.loader import LinkNeighborLoader
 
+from .budget import passes_effective, resolve_dataset_budget, validation_count
 from .data import EdgeGraph, Preprocessor, make_graph
 from .models import EGraphSAGE, build_model
 from .schema import DATASETS, FEATURES
+
+# Neighbour sampling runs in the main process unless the server raises this from
+# `--num-workers`, which lets sampling overlap with GPU compute on many-core hosts.
+NUM_WORKERS = 0
 
 
 def write_json(path: Path, value) -> None:
@@ -129,7 +134,7 @@ def _mlp_epoch(model, graph: EdgeGraph, optimizer, loss_fn, batch_size: int,
     generator = torch.Generator().manual_seed(seed)
     loader = DataLoader(
         TensorDataset(graph.label_edge_attr, graph.labels), batch_size=batch_size,
-        shuffle=True, generator=generator, num_workers=0,
+        shuffle=True, generator=generator, num_workers=NUM_WORKERS,
     )
     total, seen = 0.0, 0
     device = next(model.parameters()).device
@@ -171,7 +176,7 @@ def _sage_epoch(model: EGraphSAGE, graph: EdgeGraph, optimizer, loss_fn,
         shuffle=True,
         neg_sampling=None,
         subgraph_type="directional",
-        num_workers=0,
+        num_workers=NUM_WORKERS,
         generator=generator,
     )
     total, seen = 0.0, 0
@@ -335,7 +340,8 @@ def fit_model_steps(name: str, graphs: dict[str, EdgeGraph], n_classes: int, see
             generator = torch.Generator().manual_seed(seed + epoch)
             loader = DataLoader(
                 TensorDataset(graphs["train"].label_edge_attr, graphs["train"].labels),
-                batch_size=batch_size, shuffle=True, generator=generator, num_workers=0,
+                batch_size=batch_size, shuffle=True, generator=generator,
+                num_workers=NUM_WORKERS,
             )
         else:
             generator = torch.Generator().manual_seed(seed + epoch)
@@ -344,7 +350,7 @@ def fit_model_steps(name: str, graphs: dict[str, EdgeGraph], n_classes: int, see
                 edge_label_index=graphs["train"].label_edge_index,
                 edge_label=graphs["train"].labels, batch_size=batch_size,
                 shuffle=True, neg_sampling=None, subgraph_type="directional",
-                num_workers=0, generator=generator,
+                num_workers=NUM_WORKERS, generator=generator,
             )
         model.train()
         for value in loader:
@@ -479,7 +485,19 @@ def run(data: Path, output: Path, datasets: list[str], tasks: list[str], models:
         device: str = "auto", scope: str = "pilot", eval_every: int = 1,
         amp: bool = False, prediction_cap: int = 0,
         max_train_batches: int = 0, max_train_steps: int = 0,
-        eval_every_steps: int = 0) -> None:
+        eval_every_steps: int = 0, passes: int = 0, min_train_steps: int = 0,
+        validations: int = 0, num_workers: int = 0,
+        budget_json: Path | None = None) -> None:
+    global NUM_WORKERS
+    NUM_WORKERS = max(0, num_workers)
+    document = None
+    document_sha256 = None
+    if budget_json is not None:
+        budget_json = Path(budget_json)
+        document = json.loads(budget_json.read_text())
+        document_sha256 = sha256_file(budget_json)
+    budget_mode = ("document" if document is not None
+                   else "passes" if passes else "steps" if max_train_steps else "epochs")
     data, output = Path(data), Path(output)
     if output.exists() and not resume:
         raise ValueError("Output exists; refusing overwrite")
@@ -500,7 +518,11 @@ def run(data: Path, output: Path, datasets: list[str], tasks: list[str], models:
         "max_train_batches": max_train_batches,
         "max_train_steps": max_train_steps,
         "eval_every_steps": eval_every_steps,
-        "training_budget_mode": "steps" if max_train_steps else "epochs",
+        "passes": passes, "min_train_steps": min_train_steps,
+        "target_validations": validations, "num_workers": num_workers,
+        "budget_document_sha256": document_sha256,
+        "training_budget_mode": budget_mode,
+        "epoch_setting_applies": budget_mode == "epochs",
         "edge_storage_dtype": str(storage_dtype),
         "requested_device": device, "effective_device": str(effective_device),
     }
@@ -520,6 +542,12 @@ def run(data: Path, output: Path, datasets: list[str], tasks: list[str], models:
         load_started = time.perf_counter()
         frames = load_frames(data, dataset, scope)
         dataset_load_seconds = time.perf_counter() - load_started
+        (dataset_max_steps, dataset_eval_every,
+         dataset_pass_steps) = resolve_dataset_budget(
+            document, dataset, train_rows=len(frames["train"]), batch_size=batch_size,
+            passes=passes, min_train_steps=min_train_steps, validations=validations,
+            fallback_max_steps=max_train_steps, fallback_eval_every_steps=eval_every_steps,
+        )
         for task in tasks:
             graph_started = time.perf_counter()
             pre, graphs = prepare_graphs(frames, task, storage_dtype)
@@ -549,9 +577,16 @@ def run(data: Path, output: Path, datasets: list[str], tasks: list[str], models:
                         "scope": scope, "eval_every": eval_every, "amp": amp,
                         "prediction_cap": prediction_cap,
                         "max_train_batches": max_train_batches,
-                        "max_train_steps": max_train_steps,
-                        "eval_every_steps": eval_every_steps,
-                        "training_budget_mode": "steps" if max_train_steps else "epochs",
+                        "max_train_steps": dataset_max_steps,
+                        "eval_every_steps": dataset_eval_every,
+                        "steps_per_pass": dataset_pass_steps,
+                        "passes_effective": passes_effective(
+                            dataset_max_steps, dataset_pass_steps),
+                        "planned_validations": validation_count(
+                            dataset_max_steps, dataset_pass_steps, dataset_eval_every),
+                        "num_workers": NUM_WORKERS,
+                        "training_budget_mode": budget_mode,
+                        "budget_document_sha256": document_sha256,
                         "edge_storage_dtype": str(storage_dtype),
                         "train_sampling": "LinkNeighborLoader directional; loss on seed edges",
                         "validation_test": "full split graph",
@@ -562,10 +597,10 @@ def run(data: Path, output: Path, datasets: list[str], tasks: list[str], models:
                     if effective_device.type == "cuda":
                         torch.cuda.reset_peak_memory_stats(effective_device)
                     print(f"START {run_id}", flush=True)
-                    if max_train_steps:
+                    if dataset_max_steps:
                         model, history, best_step = fit_model_steps(
-                            name, graphs, len(pre.classes), seed, max_train_steps,
-                            eval_every_steps, patience, batch_size, fanout,
+                            name, graphs, len(pre.classes), seed, dataset_max_steps,
+                            dataset_eval_every, patience, batch_size, fanout,
                             device=effective_device, amp=amp,
                         )
                         best_epoch = next(
@@ -609,6 +644,14 @@ def run(data: Path, output: Path, datasets: list[str], tasks: list[str], models:
                         "peak_rss_kib_process": resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
                         "peak_cuda_bytes": (torch.cuda.max_memory_allocated(effective_device)
                                             if effective_device.type == "cuda" else 0),
+                        "max_train_steps_effective": dataset_max_steps,
+                        "eval_every_steps_effective": dataset_eval_every,
+                        "steps_per_pass": dataset_pass_steps,
+                        "passes_effective": passes_effective(
+                            dataset_max_steps, dataset_pass_steps),
+                        "planned_validations": validation_count(
+                            dataset_max_steps, dataset_pass_steps, dataset_eval_every),
+                        "num_workers": NUM_WORKERS,
                         "val": metrics(graphs["val"].labels.numpy(), val_prob, pre.classes),
                         "test": metrics(graphs["test"].labels.numpy(), test_prob, pre.classes),
                     }
@@ -664,21 +707,39 @@ def main() -> None:
                         help="Full-data total optimizer-step budget; 0 uses epoch mode")
     parser.add_argument("--eval-every-steps", type=int, default=0,
                         help="Validate after this many steps once a full pass is complete")
+    parser.add_argument("--passes", type=int, default=0,
+                        help="Budget mode: complete passes over the train split (0 disables)")
+    parser.add_argument("--min-train-steps", type=int, default=1500,
+                        help="Floor for the passes budget so small datasets still train")
+    parser.add_argument("--validations", type=int, default=0,
+                        help="Target full validations per run under passes mode (0 = fixed interval)")
+    parser.add_argument("--num-workers", type=int, default=0,
+                        help="Sampling workers; 0 keeps sampling in the main process")
+    parser.add_argument("--budget-json", type=Path, default=None,
+                        help="Locked gate document; its per-dataset budgets win over --passes")
     args = parser.parse_args()
     if min(args.epochs, args.patience, args.batch_size, args.threads, args.eval_every) < 1:
         parser.error("epochs, patience, batch-size, threads and eval-every must be positive")
     if min(args.prediction_cap, args.max_train_batches, args.max_train_steps,
            args.eval_every_steps) < 0:
         parser.error("prediction and training limits must be nonnegative")
+    if min(args.passes, args.min_train_steps, args.validations, args.num_workers) < 0:
+        parser.error("passes, min-train-steps, validations and num-workers must be nonnegative")
     if args.max_train_batches and args.max_train_steps:
         parser.error("max-train-batches and max-train-steps are mutually exclusive")
-    if bool(args.max_train_steps) != bool(args.eval_every_steps):
+    if sum(bool(value) for value in (
+            args.max_train_steps, args.passes, args.budget_json)) > 1:
+        parser.error("max-train-steps, passes and budget-json are mutually exclusive")
+    if args.max_train_steps and not args.eval_every_steps:
         parser.error("max-train-steps and eval-every-steps must be used together")
+    if args.passes and not (args.eval_every_steps or args.validations):
+        parser.error("passes requires eval-every-steps or validations")
     run(args.data, args.output, args.datasets, args.tasks, args.models, args.seeds,
         args.epochs, args.patience, args.batch_size, tuple(args.fanout), args.threads,
         args.resume, args.device, args.scope, args.eval_every, args.amp,
         args.prediction_cap, args.max_train_batches, args.max_train_steps,
-        args.eval_every_steps)
+        args.eval_every_steps, args.passes, args.min_train_steps, args.validations,
+        args.num_workers, args.budget_json)
 
 
 if __name__ == "__main__":

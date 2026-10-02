@@ -1,4 +1,5 @@
 import json
+import math
 import sys
 
 import pandas as pd
@@ -48,15 +49,26 @@ def test_bounded_benchmark_produces_safe_conservative_eta(tmp_path, monkeypatch)
     monkeypatch.setattr(sys, "argv", [
         "estimate_full_runtime.py", "--benchmarks", str(root),
         "--prepare", str(prepare), "--environment", str(environment),
-        "--output", str(output), "--max-train-steps", "1000",
-        "--eval-every-steps", "100",
+        "--output", str(output), "--passes", "2", "--min-train-steps", "1500",
+        "--eval-every-steps", "100", "--vram-gib", "40", "--ram-gib", "40",
+        "--min-free-disk-gib", "12",
     ])
     main()
     value = json.loads(output.read_text())
     assert value["safe_to_launch_72"] is True
     assert value["benchmark_rows"] == 12
-    assert value["training_budget"] == {
-        "max_train_steps": 1000, "eval_every_steps": 100,
-    }
+    budget = value["training_budget"]
+    assert budget["mode"] == "passes"
+    assert budget["batch_size"] == 4096
+    assert set(budget["per_dataset"]) == set(DATASETS)
+    for entry in budget["per_dataset"].values():
+        # 1.000 train rows at batch 4.096 is one step per pass, so the floor wins.
+        assert entry["steps_per_pass"] == 1
+        assert entry["max_train_steps"] == 1500
+        assert entry["eval_every_steps"] == 100
+        assert entry["planned_validations"] == 1 + math.ceil((1500 - 1) / 100)
+    assert value["step_budget_estimate"]["runs"] == 72
+    assert value["step_budget_estimate"]["optimizer_steps"] == 1500 * 18 * 4
+    assert value["resource_limits"]["vram_budget_gib"] == 36.0
     assert value["step_budget_estimate"]["planning_hours"] > 0
     assert all(item["post_warmup_windows"] == 4 for item in value["details"])

@@ -1,8 +1,18 @@
 import json
 from pathlib import Path
 
+from nids_minibatch.budget import (
+    DEFAULT_BATCH_SIZE as BUDGET_BATCH_SIZE,
+    DEFAULT_EVAL_EVERY_STEPS as BUDGET_EVAL_EVERY_STEPS,
+    DEFAULT_FANOUT as BUDGET_FANOUT,
+    DEFAULT_MIN_TRAIN_STEPS as BUDGET_MIN_TRAIN_STEPS,
+    DEFAULT_NUM_WORKERS as BUDGET_NUM_WORKERS,
+    DEFAULT_PASSES as BUDGET_PASSES,
+)
 from research.server.run_full_pipeline import (
-    DEFAULT_EVAL_EVERY_STEPS, DEFAULT_MAX_TRAIN_STEPS, train_command,
+    DEFAULT_BATCH_SIZE, DEFAULT_EVAL_EVERY_STEPS, DEFAULT_FANOUT,
+    DEFAULT_MIN_TRAIN_STEPS, DEFAULT_NUM_WORKERS, DEFAULT_PASSES, GATE_PATH,
+    train_command,
 )
 
 
@@ -42,12 +52,23 @@ def test_server_manifest_and_required_entrypoints():
         assert (ROOT / relative).is_file()
 
 
-def test_full_train_command_uses_locked_step_budget():
+def test_full_train_command_uses_the_locked_passes_budget():
     command = train_command(
         "out", ["NF-UNSW-NB15-v2"], ["sage"], [11], ["binary"],
-        epochs=1, patience=10, threads=4,
-        max_steps=DEFAULT_MAX_TRAIN_STEPS,
-        eval_every_steps=DEFAULT_EVAL_EVERY_STEPS,
+        epochs=1, patience=10, threads=4, budget_json=GATE_PATH,
     )
-    assert command[command.index("--max-train-steps") + 1] == "20000"
-    assert command[command.index("--eval-every-steps") + 1] == "1000"
+    assert command[command.index("--budget-json") + 1] == str(GATE_PATH)
+    assert command[command.index("--num-workers") + 1] == str(DEFAULT_NUM_WORKERS)
+    fanout = command.index("--fanout")
+    assert command[fanout + 1:fanout + 3] == [str(value) for value in DEFAULT_FANOUT]
+    assert command[command.index("--batch-size") + 1] == str(DEFAULT_BATCH_SIZE)
+    # The flat step budget is gone; the gate document carries the per-dataset one.
+    assert "--max-train-steps" not in command
+
+
+def test_pipeline_constants_match_the_shared_budget_module():
+    assert (DEFAULT_PASSES, DEFAULT_MIN_TRAIN_STEPS, DEFAULT_BATCH_SIZE,
+            DEFAULT_EVAL_EVERY_STEPS, tuple(DEFAULT_FANOUT), DEFAULT_NUM_WORKERS) == (
+        BUDGET_PASSES, BUDGET_MIN_TRAIN_STEPS, BUDGET_BATCH_SIZE,
+        BUDGET_EVAL_EVERY_STEPS, tuple(BUDGET_FANOUT), BUDGET_NUM_WORKERS,
+    )
